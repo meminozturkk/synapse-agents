@@ -5,7 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Architecture: Chief + 4 Subagents](https://img.shields.io/badge/Mimari-1_%C5%9Eef_%2B_4_Alt_Ajan-8A2BE2.svg)](#-ajan-matrisi-ve-rol-dağılımı)
-[![Model: Gemini 3.8 Flash](https://img.shields.io/badge/Model-Gemini_3.8_Flash-FF6F00.svg)](#-ajan-matrisi-ve-rol-dağılımı)
+[![Model: Gemini 3.8 Flash | Claude 3.5](https://img.shields.io/badge/Model-Gemini_3.8_Flash_%7C_Claude_3.5-FF6F00.svg)](#-ajan-matrisi-ve-rol-dağılımı)
 [![OS Guards: 0--Token](https://img.shields.io/badge/OS_Kalkanlar%C4%B1-0--Token_Bash-success.svg)](#-0-token-os-kalkanları-ve-aşamalı-bellek)
 [![Compatibility: Triple--Platform](https://img.shields.io/badge/Uyumluluk-%C3%9C%C3%A7l%C3%BC_Platform-brightgreen.svg)](#-üçlü-platform-desteği)
 
@@ -15,7 +15,7 @@
 
 **`synapse-agents`**, modern yapay zekâ destekli yazılım mühendisliğini rastgele prompt denemelerinden çıkarıp deterministik, cerrahi ve kurumsal standartta test edilmiş bir mühendislik disiplinine dönüştüren hibrit bir çoklu-ajan orkestrasyon çerçevesidir.
 
-Sistem, **1 Şef (Hands-Off Chief Architect)** ve **4 Evrensel Alt Ajan (`explorer`, `planner`, `coder`, `reviewer`)** hiyerarşisiyle çalışır ve tüm alt ajanlar istisnasız **Gemini 3.8 Flash** (High ve Medium Effort modlarında) üzerinde yürütülür. LLM bağlam (context) penceresini onlarca kaynak kod dosyasıyla şişirmek yerine, açık kaynak dünyasında kanıtlanmış 5 büyük metodolojinin en güçlü ilkelerini tek bir çatı altında birleştirir.
+Sistem, **1 Şef (Hands-Off Chief Architect)** ve **4 Evrensel Alt Ajan (`explorer`, `planner`, `coder`, `reviewer`)** hiyerarşisiyle çalışır; çift motor desteğiyle Antigravity üzerinde **Gemini 3.8 Flash** (High ve Medium Effort modlarında), Claude Code ve Cursor üzerinde ise yerel **Claude 3.5 Sonnet & Haiku** modelleriyle yürütülür. LLM bağlam (context) penceresini onlarca kaynak kod dosyasıyla şişirmek yerine, açık kaynak dünyasında kanıtlanmış 5 büyük metodolojinin en güçlü ilkelerini tek bir çatı altında birleştirir.
 
 ---
 
@@ -54,7 +54,7 @@ Tek bir repoyu körü körüne benimsemek yerine, her felsefenin en üstün meka
 Bu sentez sonucunda **Synapse Agents** mimarisini geliştirdik:
 - **Şef İçin %0 Ham Kod Okuma (Sıfır Context Şişmesi):** Ana konuşulan model (Hands-Off Chief Architect) context penceresine ASLA ham kod dosyaları basmaz. Kod taramayı `explorer`'a, mimari planlamayı `planner`'a, cerrahi uygulamayı paralel `coder` izleklerine, güvenlik ve sözleşme denetimini ise `reviewer`'a devreder.
 - **4 Süzgeçli Şef Baş Mimar Denetim Kapısı:** Hazırlanan planlar kullanıcıya veya kodlayıcılara sunulmadan önce Şef tarafından Ponytail Minimalizmi, Sözleşme & Katman Kilidi, Karpathy Kapsam Kontrolü ve Güvenlik filtrelerinden geçirilir.
-- **Sadece Gemini 3.8 Flash (High/Medium Effort):** Gemini 3.8 Flash'ın derin muhakeme gücünü ve hızını tam verimle kullanacak şekilde optimize edilmiştir.
+- **Kusursuz Çift Motor Desteği (Google Gemini & Anthropic Claude):** İster Google Gemini ister Anthropic Claude altında çalışın, aynı deterministik 1 Şef + 4 Alt Ajan mimarisine sahip olursunuz! Google Antigravity altında yerel **Gemini 3.8 Flash** (High/Medium Effort) ile güçlendirilir; Claude Code ve Cursor altında ise otomatik olarak **Claude 3.5 Sonnet** (derin planlama, cerrahi kodlama, güvenlik denetimi) ve **Claude 3.5 Haiku** (hızlı kapsam keşfi) ile donatılır.
 
 ---
 
@@ -98,27 +98,29 @@ Bu sentez sonucunda **Synapse Agents** mimarisini geliştirdik:
 
 ## 🏛️ Ajan Matrisi ve Rol Dağılımı
 
-Sistem, **1 Şef (Hands-Off Chief Architect)** ve **4 Evrensel Alt Ajan** hiyerarşisiyle çalışır. Hız, mantıksal kavrayış ve maliyet verimliliğini en üst seviyeye çıkarmak için tüm alt ajanlar istisnasız **Gemini 3.8 Flash** modeli üzerinde çalıştırılır.
+Sistem, **1 Şef (Hands-Off Chief Architect)** ve **4 Evrensel Alt Ajan** hiyerarşisiyle çalışır. Çerçeve, kullanılan platforma göre en uygun modelleri otomatik olarak atar:
+* **Google Antigravity:** Ajanlar doğrudan **Gemini 3.8 Flash** (`explorer` için Medium Effort; `planner`, `coder`, `reviewer` için High Effort / Derin Muhakeme modunda) üzerinde çalışır.
+* **Claude Code & Cursor:** Yükleyiciler (`install.sh` ve `install.ps1`) yerel Anthropic modellerini otomatik yapılandırır: Hızlı kapsam keşfi için **Claude 3.5 Haiku**, derin planlama, cerrahi kodlama ve güvenlik/sözleşme denetimi için **Claude 3.5 Sonnet**.
 
 ```mermaid
 flowchart TD
     User([Kullanıcı İstemi / Görev]) --> CA["Şef: Chief Architect\n(Hands-Off Orkestratör)"]
     
-    CA -->|Kapsam Belirsiz| EXP["explorer [Gemini 3.8 Flash - Medium]\n(Ponytail Kapsam Keşfi)"]
+    CA -->|Kapsam Belirsiz| EXP["explorer\n[Flash - Med / Haiku]\n(Ponytail Kapsam Keşfi)"]
     EXP -->|Arayanlar ve Fikstür Haritası| CA
     
-    CA -->|Net Kapsam / Çok Katmanlı| PLN["planner [Gemini 3.8 Flash - High]\n(Sıfır-Yazım Sistem Mimarisi)"]
+    CA -->|Net Kapsam / Çok Katmanlı| PLN["planner\n[Flash - High / Sonnet]\n(Sıfır-Yazım Sistem Mimarisi)"]
     PLN -->|Taslak Plan ve Sözleşmeler| GATE{"Şef Plan Denetim Kapısı\n(4 Baş Mimar Filtresi)"}
     
-    GATE -->|Onaylandı & Paralelleştirildi| C1["Coder (Backend) [Flash - High]"]
-    GATE -->|Onaylandı & Paralelleştirildi| C2["Coder (Mobile) [Flash - High]"]
-    GATE -->|Onaylandı & Paralelleştirildi| C3["Coder (Frontend) [Flash - High]"]
+    GATE -->|Onaylandı & Paralelleştirildi| C1["Coder (Backend)\n[Flash - High / Sonnet]"]
+    GATE -->|Onaylandı & Paralelleştirildi| C2["Coder (Mobile)\n[Flash - High / Sonnet]"]
+    GATE -->|Onaylandı & Paralelleştirildi| C3["Coder (Frontend)\n[Flash - High / Sonnet]"]
     
     C1 -->|Verification Gate: Exit Code 0| SYNC(("Bariyer Senkronizasyonu"))
     C2 -->|Verification Gate: Exit Code 0| SYNC
     C3 -->|Verification Gate: Exit Code 0| SYNC
     
-    SYNC --> REV["reviewer [Gemini 3.8 Flash - High]\n(Sözleşme Kilidi + Caller-Aware İnceleme)"]
+    SYNC --> REV["reviewer\n[Flash - High / Sonnet]\n(Sözleşme Kilidi + Caller-Aware İnceleme)"]
     REV -->|Doğrulama Başarılı| CA
     CA --> Done([Teslimat ve Nihai Başarı Raporu])
 
@@ -132,15 +134,17 @@ flowchart TD
     style REV fill:#E17055,stroke:#333,stroke-width:1px,color:#fff
 ```
 
-### Ajan Kadrosu ve Yetki Matrisi
+### Çoklu Platform Ajan Matrisi ve Motor Eşlemesi
 
-| Ajan | Model ve Efor Seviyesi | Temel Görevi | Araç Yetkileri |
-|---|---|---|:---:|
-| **Şef (Chief Architect)** | Lider Orkestratör Model (Örn. Gemini 4 Argon) | Kullanıcı hedefini anlar, triyaj uygular, denetim kapılarını işletir ve alt ajanları yönetir. | **Yalnızca Koordinatör:** Kod yazma (`write_to_file`, `replace_file_content`) YOK, terminal çalıştırma YOK, ham kod okuma YOK. |
-| **`explorer`** | Gemini 3.8 Flash *(Medium Effort)* | **Ponytail Kapsam Keşfi:** Arayanları, bağımlılıkları, testleri ve yapılandırmaları haritalar; özet sunar (maks. 150 kelime). | Salt Okunur (Read-Only) |
-| **`planner`** | Gemini 3.8 Flash *(High Effort)* | Ham dosyaları izole context'te okur; kilitli DTO/DB sözleşmeleriyle 40–80 satırlık mimari plan üretir. | Salt Okunur (Read-Only) |
-| **`coder`** | Gemini 3.8 Flash *(High Effort)* | N paralel rolde çağrılır (`Coder (Backend)`, `Coder (Mobile)` vb.); cerrahi kodlama yapar ve Verification Gate'i işletir. | Yazma ve Çalıştırma |
-| **`reviewer`** | Gemini 3.8 Flash *(High Effort)* | İki Aşamalı İnceleme: 1) Kilitli Sözleşme Uyumu, 2) Ponytail Caller-Aware derin inceleme, güvenlik ve N+1 sorgu taraması. | Salt Okunur (Read-Only) |
+`install.sh` ve `install.ps1`, her ajan tanımını hedef geliştirme ortamının yerel model yığınıyla otomatik olarak eşler:
+
+| Ajan Rolü | Google Antigravity | Claude Code & Cursor IDE | Temel Görevi | Araç Yetkileri |
+|---|---|---|---|:---:|
+| **Şef (Chief Architect)** | Yerel Lider Model *(Örn. Gemini 4 Argon)* | Yerel Lider Model *(Örn. Claude 3.7 Sonnet / Opus)* | Kullanıcı hedefini anlar, triyaj uygular, denetim kapılarını işletir ve alt ajanları yönetir. | **Yalnızca Koordinatör:** Kod yazma (`write_to_file`, `replace_file_content`) YOK, terminal çalıştırma YOK, ham kod okuma YOK. |
+| **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude 3.5 Haiku** (`model: haiku`) | **Ponytail Kapsam Keşfi:** Arayanları, bağımlılıkları, testleri ve yapılandırmaları haritalar; özet sunar (maks. 150 kelime). | Salt Okunur (Read-Only) |
+| **`planner`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude 3.5 Sonnet** (`model: sonnet`) | Ham dosyaları izole context'te okur; kilitli DTO/DB sözleşmeleriyle 40–80 satırlık mimari plan üretir. | Salt Okunur (Read-Only) |
+| **`coder`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude 3.5 Sonnet** (`model: sonnet`) | N paralel rolde çağrılır (`Coder (Backend)`, `Coder (Mobile)` vb.); cerrahi kodlama yapar ve Verification Gate'i işletir. | Yazma ve Çalıştırma |
+| **`reviewer`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude 3.5 Sonnet** (`model: sonnet`) | İki Aşamalı İnceleme: 1) Kilitli Sözleşme Uyumu, 2) Ponytail Caller-Aware derin inceleme, güvenlik ve N+1 sorgu taraması. | Salt Okunur (Read-Only) |
 
 ---
 
@@ -319,6 +323,7 @@ Windows üzerinde Git Bash kullanarak doğrudan `./install.sh` betiğini de koş
 3. **Reflekslerin Korunması:** **Mevcut `instincts.md` dosyaları asla ezilmez.** Takımın öğrendiği refleksler 3 katmanlı koruma ile saklanır.
 4. **MCP Brain Kaydı:** `ecc-lite-brain` sunucusunu `~/.gemini/config/mcp_config.json` ve `~/.cursor/mcp.json` içine atomik olarak kaydeder.
 5. **Claude ve Cursor Bağlantıları:** `~/.agents/`, `~/.claude/` ve `~/.cursor/` altında gerekli sembolik bağları (`symlink`) üretir.
+6. **Çoklu Platform Motor Yapılandırması:** Antigravity için Gemini 3.8 Flash; Claude Code ve Cursor için Claude 3.5 Sonnet / Haiku yerel modellerini otomatik yapılandırır.
 
 ### 2. Kaldırma (Uninstall)
 

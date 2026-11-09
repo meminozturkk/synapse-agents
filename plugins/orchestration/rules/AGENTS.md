@@ -1,9 +1,9 @@
 ---
-description: Global Multi-Agent Orchestration Rules (1 Hands-Off Chief Architect + 4 Universal Subagents on Gemini 3.8 Flash)
+description: Global Multi-Agent Orchestration Rules (1 Hands-Off Chief Architect + 4 Universal Subagents on Gemini 3.8 Flash & Claude 3.5 Sonnet/Haiku)
 alwaysApply: true
 ---
 
-# Subagent & Orchestration Rules (Gemini 3.8 Flash System v2.1)
+# Subagent & Orchestration Rules (Dual-Engine System v2.1)
 
 All engineering tasks across projects are governed by **1 Hands-Off Chief Architect + 4 Universal Subagents (`explorer`, `planner`, `coder`, `reviewer`)**.
 
@@ -19,19 +19,29 @@ The conversational lead model (Chief Architect; e.g., Gemini 4 Argon):
 
 ---
 
-## 2. Model & Effort Tier Rules
+## 2. Model & Effort Tier Rules (Multi-Platform Model Adaptation)
 
+The framework dynamically adapts its engine tier depending on the target host platform:
+
+### A. Google Antigravity (Gemini 3.8 Flash Engine)
 All subagents operate strictly on the **Gemini 3.8 Flash** model:
 * **No Pro models, No Flash-Lite models.**
 * Planning, implementation, and code review subagents run in **High Effort (Deep Reasoning)** mode. The fast codebase navigation and impact analysis agent `explorer` runs in **Medium Effort** mode.
 
-### A. Gemini 3.8 Flash (High Effort)
+#### 1. Gemini 3.8 Flash (High Effort)
 * **`planner`**: Read-only Systems & Architectural Planner. Ingests 20-30 source code files in an isolated window; produces a condensed 40-80 line architectural blueprint, locked DTO/DB contracts, and parallel work packages.
 * **`coder`**: Universal Senior Implementation Engineer. Language and framework agnostic (.NET, Flutter, React, scripts, etc.). Dispatched individually or as parallel N instances (`Role="Coder (Backend) [...]"`, `Role="Coder (Mobile) [...]"`, `Role="Coder (Frontend) [...]"`); executes surgical coding, writes tests, runs builds, and satisfies the Verification Gate.
 * **`reviewer`**: Code Review and Security Auditor. Executes Two-Stage Review (Contract Alignment + Ponytail Caller-Aware Review + Security/N+1 audit); strictly read-only, never modifies files.
 
-### B. Gemini 3.8 Flash (Medium Effort)
+#### 2. Gemini 3.8 Flash (Medium Effort)
 * **`explorer`**: Rapid codebase search, symbol locating, and **Ponytail Scope Discovery** (callers, tests, fixtures, configs, exports mapping; max 150-word summary).
+
+### B. Claude Code & Cursor IDE (Anthropic Claude 3.5 Engine)
+When installed for Claude Code or Cursor, the installer automatically provisions native Anthropic models:
+* **`explorer`**: **Claude 3.5 Haiku** (`model: haiku`) for rapid, low-cost scope discovery and caller mapping with minimal token overhead.
+* **`planner`**: **Claude 3.5 Sonnet** (`model: sonnet`) for deep architectural planning, contract generation, and multi-layer dependency analysis.
+* **`coder`**: **Claude 3.5 Sonnet** (`model: sonnet`) for surgical implementation, test execution, and satisfying the Verification Gate.
+* **`reviewer`**: **Claude 3.5 Sonnet** (`model: sonnet`) for strict contract compliance, caller-aware review, and security audit.
 
 ---
 
@@ -105,21 +115,33 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
 ## 7. Visibility, Model Tagging & Identity Badge Rules
 
 1. **`invoke_subagent` Invocations:**
-   The `Role` parameter **MUST ALWAYS** include the model and effort tier in square brackets:
-   - `Role="Explorer [Gemini 3.8 Flash - Medium]"`
-   - `Role="Planner [Gemini 3.8 Flash - High]"`
-   - `Role="Coder (<Scope/Layer>) [Gemini 3.8 Flash - High]"` (e.g., `Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`, `Coder (API & Tests)`)
-   - `Role="Reviewer [Gemini 3.8 Flash - High]"`
+   The `Role` parameter **MUST ALWAYS** include the active model and effort tier in square brackets:
+   - **Google Antigravity:**
+     - `Role="Explorer [Gemini 3.8 Flash - Medium]"`
+     - `Role="Planner [Gemini 3.8 Flash - High]"`
+     - `Role="Coder (<Scope/Layer>) [Gemini 3.8 Flash - High]"` (e.g., `Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`, `Coder (API & Tests)`)
+     - `Role="Reviewer [Gemini 3.8 Flash - High]"`
+   - **Claude Code & Cursor:**
+     - `Role="Explorer [Claude 3.5 Haiku]"`
+     - `Role="Planner [Claude 3.5 Sonnet]"`
+     - `Role="Coder (<Scope/Layer>) [Claude 3.5 Sonnet]"`
+     - `Role="Reviewer [Claude 3.5 Sonnet]"`
 
 2. **Orchestrator Reporting:**
    When launching a subagent or reporting results, the Chief Architect must display a clear tag or table indicating each agent's active model and effort level.
 
 3. **Subagent Response Badges:**
    All subagents must prefix line 1 of every response with their standardized identity badge:
-   - `🤖 **[Agent: explorer | Model: Gemini 3.8 Flash (Medium Effort)]**`
-   - `🤖 **[Agent: planner | Model: Gemini 3.8 Flash (High Effort)]**`
-   - `🤖 **[Agent: coder | Model: Gemini 3.8 Flash (High Effort)]**`
-   - `🤖 **[Agent: reviewer | Model: Gemini 3.8 Flash (High Effort)]**`
+   - **Google Antigravity:**
+     - `🤖 **[Agent: explorer | Model: Gemini 3.8 Flash (Medium Effort)]**`
+     - `🤖 **[Agent: planner | Model: Gemini 3.8 Flash (High Effort)]**`
+     - `🤖 **[Agent: coder | Model: Gemini 3.8 Flash (High Effort)]**`
+     - `🤖 **[Agent: reviewer | Model: Gemini 3.8 Flash (High Effort)]**`
+   - **Claude Code & Cursor:**
+     - `🤖 **[Agent: explorer | Model: Claude 3.5 Haiku]**`
+     - `🤖 **[Agent: planner | Model: Claude 3.5 Sonnet]**`
+     - `🤖 **[Agent: coder | Model: Claude 3.5 Sonnet]**`
+     - `🤖 **[Agent: reviewer | Model: Claude 3.5 Sonnet]**`
 
 ---
 

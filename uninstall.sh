@@ -195,13 +195,13 @@ if [[ "$UNINSTALL_CLAUDE" == true ]]; then
         rmdir "$DOT_AGENTS_DIR" 2>/dev/null || true
     fi
 
-    # Remove ~/.claude/agents links
+    # Remove ~/.claude/agents files/links
     if [[ -d "$CLAUDE_AGENTS_DIR" ]]; then
         for agent in explorer planner coder reviewer; do
-            link_path="${CLAUDE_AGENTS_DIR}/${agent}.md"
-            if [[ -L "$link_path" ]]; then
-                rm -f "$link_path"
-                echo -e "  ${GREEN}✓ Removed link:${NC} ${link_path}"
+            agent_file="${CLAUDE_AGENTS_DIR}/${agent}.md"
+            if [[ -L "$agent_file" || -f "$agent_file" ]]; then
+                rm -f "$agent_file"
+                echo -e "  ${GREEN}✓ Removed agent file:${NC} ${agent_file}"
             fi
         done
         rmdir "$CLAUDE_AGENTS_DIR" 2>/dev/null || true
@@ -253,10 +253,10 @@ if [[ "$UNINSTALL_CURSOR_GLOBAL" == true ]]; then
     # Agents
     if [[ -d "$CURSOR_AGENTS_DIR" ]]; then
         for agent in explorer planner coder reviewer; do
-            link_path="${CURSOR_AGENTS_DIR}/${agent}.md"
-            if [[ -L "$link_path" ]]; then
-                rm -f "$link_path"
-                echo -e "  ${GREEN}✓ Removed Cursor agent link:${NC} ${link_path}"
+            agent_file="${CURSOR_AGENTS_DIR}/${agent}.md"
+            if [[ -L "$agent_file" || -f "$agent_file" ]]; then
+                rm -f "$agent_file"
+                echo -e "  ${GREEN}✓ Removed Cursor agent file:${NC} ${agent_file}"
             fi
         done
         rmdir "$CURSOR_AGENTS_DIR" 2>/dev/null || true

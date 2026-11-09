@@ -1,4 +1,4 @@
-﻿<#
+<#
 ==============================================================================
 Synapse Agents Uninstaller for Windows
 Safe Uninstallation & Link Cleanup for Antigravity, Claude Code & Cursor
@@ -175,6 +175,14 @@ function Remove-SafeReparseOrItem {
             try { [System.IO.Directory]::Delete($Path) } catch {}
         } elseif (-not $IsDirectory -and [System.IO.File]::Exists($Path)) {
             try { [System.IO.File]::Delete($Path) } catch {}
+        } else {
+            try {
+                if ($IsDirectory) {
+                    [System.IO.Directory]::Delete($Path)
+                } else {
+                    [System.IO.File]::Delete($Path)
+                }
+            } catch {}
         }
         return
     }
@@ -286,14 +294,14 @@ if ($UninstallClaude) {
         Remove-DirectoryIfEmpty $DotAgentsDir
     }
 
-    # Remove ~/.claude/agents/*.md links
+    # Remove ~/.claude/agents/*.md files/links
     if (Test-Path -LiteralPath $ClaudeAgentsDir) {
         $agents = @("explorer", "planner", "coder", "reviewer")
         foreach ($agent in $agents) {
             $itemPath = Join-Path $ClaudeAgentsDir "$agent.md"
-            if (Test-Path -LiteralPath $itemPath) {
+            if ((Test-Path -LiteralPath $itemPath) -or [System.IO.File]::Exists($itemPath)) {
                 Remove-SafeReparseOrItem -Path $itemPath
-                Write-Host "  [OK] Removed link: $itemPath" -ForegroundColor Green
+                Write-Host "  [OK] Removed agent file: $itemPath" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $ClaudeAgentsDir
@@ -352,9 +360,9 @@ if ($UninstallCursorGlobal) {
         $agents = @("explorer", "planner", "coder", "reviewer")
         foreach ($agent in $agents) {
             $itemPath = Join-Path $CursorAgentsDir "$agent.md"
-            if (Test-Path -LiteralPath $itemPath) {
+            if ((Test-Path -LiteralPath $itemPath) -or [System.IO.File]::Exists($itemPath)) {
                 Remove-SafeReparseOrItem -Path $itemPath
-                Write-Host "  [OK] Removed Cursor agent link: $itemPath" -ForegroundColor Green
+                Write-Host "  [OK] Removed Cursor agent file: $itemPath" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $CursorAgentsDir

@@ -1,4 +1,4 @@
-﻿<#
+<#
 ==============================================================================
 Synapse Agents Installer for Windows
 Multi-Platform Idempotent Installation for Antigravity, Claude Code & Cursor
@@ -466,16 +466,17 @@ if ($InstallClaude) {
     }
     Write-Host "  [OK] Linked ~/.agents/{hooks,kb,mcp,rules,skills}" -ForegroundColor Green
 
-    # 3B. ~/.claude/agents/*.md links
-    $agents = @("explorer", "planner", "coder", "reviewer")
-    foreach ($agent in $agents) {
-        $targetAgent = Join-Path $GeminiPluginsDir "orchestration\agents\$agent.md"
-        if (Test-Path -LiteralPath $targetAgent) {
-            $linkAgent = Join-Path $ClaudeAgentsDir "$agent.md"
-            New-SafeFileLink -LinkPath $linkAgent -TargetPath $targetAgent
-            Write-Host "  [OK] Linked ~/.claude/agents/$agent.md" -ForegroundColor Green
-        }
+    # 3B. Claude Code Agents (platform-adaptive sync)
+    if (-not (Test-Path -LiteralPath $ClaudeAgentsDir)) {
+        New-Item -ItemType Directory -Path $ClaudeAgentsDir -Force | Out-Null
     }
+    $syncAgentsScript = Join-Path $ScriptDir "scripts\sync_agents.py"
+    $orchAgentsDir = Join-Path $GeminiPluginsDir "orchestration\agents"
+    Invoke-PythonScript -Python $ResolvedPython -Script $syncAgentsScript -Arguments @(
+        "--source", $orchAgentsDir,
+        "--dest", $ClaudeAgentsDir,
+        "--platform", "claude"
+    )
 
     # 3C. ~/.claude/skills/* links
     $eccSkillsDir = Join-Path $GeminiPluginsDir "ecc-lite\skills"
@@ -549,16 +550,17 @@ if ($InstallCursorGlobal) {
     }
     Write-Host "  [OK] Linked all skills to ~/.cursor/skills/ (11 skills)" -ForegroundColor Green
 
-    # 4D. Cursor Global Agents links
-    $agents = @("explorer", "planner", "coder", "reviewer")
-    foreach ($agent in $agents) {
-        $targetAgent = Join-Path $GeminiPluginsDir "orchestration\agents\$agent.md"
-        if (Test-Path -LiteralPath $targetAgent) {
-            $linkAgent = Join-Path $CursorAgentsDir "$agent.md"
-            New-SafeFileLink -LinkPath $linkAgent -TargetPath $targetAgent
-            Write-Host "  [OK] Linked ~/.cursor/agents/$agent.md" -ForegroundColor Green
-        }
+    # 4D. Cursor Global Agents (platform-adaptive sync)
+    if (-not (Test-Path -LiteralPath $CursorAgentsDir)) {
+        New-Item -ItemType Directory -Path $CursorAgentsDir -Force | Out-Null
     }
+    $syncAgentsScript = Join-Path $ScriptDir "scripts\sync_agents.py"
+    $orchAgentsDir = Join-Path $GeminiPluginsDir "orchestration\agents"
+    Invoke-PythonScript -Python $ResolvedPython -Script $syncAgentsScript -Arguments @(
+        "--source", $orchAgentsDir,
+        "--dest", $CursorAgentsDir,
+        "--platform", "cursor"
+    )
 }
 
 # ------------------------------------------------------------------------------

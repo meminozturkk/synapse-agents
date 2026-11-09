@@ -325,15 +325,12 @@ if [[ "$INSTALL_CLAUDE" == true ]]; then
     ln -sfn "${GEMINI_PLUGINS_DIR}/ecc-lite/skills" "${DOT_AGENTS_DIR}/skills"
     echo -e "  ${GREEN}✓ Linked ~/.agents/{hooks,kb,mcp,rules,skills}${NC}"
 
-    # 3B. ~/.claude/agents symlinks
+    # 3B. Claude Code Agents (platform-adaptive sync)
     mkdir -p "$CLAUDE_AGENTS_DIR"
-    for agent in explorer planner coder reviewer; do
-        target_agent="${GEMINI_PLUGINS_DIR}/orchestration/agents/${agent}.md"
-        if [[ -f "$target_agent" ]]; then
-            ln -sfn "$target_agent" "${CLAUDE_AGENTS_DIR}/${agent}.md"
-            echo -e "  ${GREEN}✓ Linked ~/.claude/agents/${agent}.md${NC}"
-        fi
-    done
+    $PYTHON_CMD "${SCRIPT_DIR}/scripts/sync_agents.py" \
+        --source "${GEMINI_PLUGINS_DIR}/orchestration/agents" \
+        --dest "$CLAUDE_AGENTS_DIR" \
+        --platform claude
 
     # 3C. ~/.claude/skills symlinks
     mkdir -p "$CLAUDE_SKILLS_DIR"
@@ -442,15 +439,12 @@ EOF
     fi
     echo -e "  ${GREEN}✓ Linked all skills to ~/.cursor/skills/ (11 skills)${NC}"
 
-    # 4D. Cursor Global Agents symlinks
+    # 4D. Cursor Global Agents (platform-adaptive sync)
     mkdir -p "$CURSOR_AGENTS_DIR"
-    for agent in explorer planner coder reviewer; do
-        target_agent="${GEMINI_PLUGINS_DIR}/orchestration/agents/${agent}.md"
-        if [[ -f "$target_agent" ]]; then
-            ln -sfn "$target_agent" "${CURSOR_AGENTS_DIR}/${agent}.md"
-            echo -e "  ${GREEN}✓ Linked ~/.cursor/agents/${agent}.md${NC}"
-        fi
-    done
+    $PYTHON_CMD "${SCRIPT_DIR}/scripts/sync_agents.py" \
+        --source "${GEMINI_PLUGINS_DIR}/orchestration/agents" \
+        --dest "$CURSOR_AGENTS_DIR" \
+        --platform cursor
 fi
 
 # ------------------------------------------------------------------------------
