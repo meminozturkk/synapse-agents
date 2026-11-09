@@ -29,13 +29,13 @@ Her dirençli ve uzun ömürlü mühendislik çerçevesi, can sıkan gerçek bir
 
 ### 5 Açık Kaynak Reponun Kaynak Kod Seviyesinde Analizi
 
-Kendi yerel **ECC-Lite** çekirdeğimiz (0-token OS kalkanları, domain kuralları ve hafif MCP bellek sunucusu) zaten üretimdeydi. Ancak tekerleği sıfırdan icat etmek ya da harici bir araca körü körüne teslim olmak yerine, ekosistemdeki en popüler 5 açık kaynak mühendislik reposunu klonlayıp kaynak kod seviyesinde tek tek derinlemesine inceledik:
+Kapsamlı bir çoklu-ajan sistemi inşa ederken, devasa [affaan-m/ECC](https://github.com/affaan-m/ECC) (*Everything Claude Code*) ekosistemini inceleyip gereksiz ağırlıklarından arındırarak yalın çekirdeğimiz **`ecc-lite`** haline getirdik (0-token OS kalkanları `secret-guard.sh` ve `verify-quiet.sh`, katman mimarisi kuralları, `handoff` ve `model-orchestrator`). Ardından bu çekirdeği açık kaynak ekosisteminin en seçkin 4 mühendislik paradigmasıyla derinlemesine harmanladık:
 
-1. **[obra/superpowers](https://github.com/obra/superpowers)**
-2. **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)**
-3. **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)**
-4. **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)**
-5. **[JuliusBrussee/caveman](https://github.com/juliusbrussee/caveman)**
+1. **[affaan-m/ECC](https://github.com/affaan-m/ECC)**
+2. **[obra/superpowers](https://github.com/obra/superpowers)**
+3. **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)**
+4. **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)**
+5. **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)**
 
 ### Mimari Sentez ve Eleme Matrisi
 
@@ -43,12 +43,11 @@ Tek bir repoyu körü körüne benimsemek yerine, her felsefenin en üstün meka
 
 | Kaynak Repo | Entegre Edilen Temel İlke | Neden Synapse Agents İçine Entegre Ettik? | Bilinçli Olarak Neyi Reddettik ve Neden? |
 |---|---|---|---|
+| **[affaan-m/ECC](https://github.com/affaan-m/ECC)** | **0-Token OS Kalkanları, Yalın Beceri Mimarisi & Çoklu Platform Uyumu** | Devasa *Everything Claude Code* ekosistemini sıfır şişkinlikli bir çekirdeğe (`ecc-lite`) indirgedik: yerel bash kancaları (`secret-guard.sh`, `verify-quiet.sh`), katman mimarisi kuralları, `handoff` ve `model-orchestrator`. | Monolitik ağır araç zincirleri, şişkin konfigürasyonlar ve megabaytlarca yük getiren paketler; yalnızca cerrahi ve yüksek etkili ilkeler korundu. |
 | **[obra/superpowers](https://github.com/obra/superpowers)** | **Sistematik Hata Ayıklama & Verification Gate** | Demir kural: *"Taze doğrulama kanıtı olmadan başarı beyanı yasaktır."* Kod teslim edilmeden önce ilgili terminal test/derleme komutlarının (exit code 0 kanıtı ile) bizzat çalıştırılmasını zorunlu kıldık. | Ağır ve Python'a bağımlı monolitik ajan betiklerini eledik; yerine her dille uyumlu bağımsız alt ajan mimarisi kurduk. |
 | **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)** | **Ponytail Minimalizm, YAGNI & Borç Defteri** | Tek kullanımlık soyutlamaları, gereksiz fabrikaları ve şişkin kütüphaneleri acımasızca budar. Bilinçli geçici çözümleri `// shortcut: <limit>, <tetikleyici>` ile borç defterine kaydeder. | Yalnızca tek dosyalık betik yürütme kısıtını aştık; Ponytail yaklaşımını kapsamlı bir **Caller-Aware Review** ve **Scope Discovery** aşamasına yükselttik. |
 | **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)** | **Karpathy Cerrahi Değişiklikleri & Düşük Bilişsel Yük** | Düzenlemeler yalnızca görevin gerektirdiği satırlara cerrahi hassasiyetle dokunur. Komşu bloklar, ilgisiz formatlamalar ve mevcut yorumlar korunarak diff gürültüsü sıfırlanır. | Monolitik prompt yapısını eledik; cerrahi kodlamayı bağımsız ve paralel çalışabilen `coder` alt ajanlarına devrettik. |
 | **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)** | **2-Aşamalı Progresif Bellek Araması** | Onlarca dokümantasyon dosyasını tek seferde context'e dökmek yerine, önce hafif konu indeksi taranır (`search_knowledge_index`), ardından yalnızca hedeflenen detaylar (`get_knowledge_detail`) çekilir. | **Arka Plan Servisini Reddettik:** Bun, SQLite, ChromaDB ve vektör embedding çalıştıran arka plan daemon'ları soket sızıntısına, bellek şişmesine ve zombi süreçlere yol açar. Bu prensibi sıfır bağımlılıklı, talep üzerine uyanan hafif Python MCP sunucusu (`ecc-lite-brain`) ile hayata geçirdik. |
-| **[JuliusBrussee/caveman](https://github.com/juliusbrussee/caveman)** | *Kavramsal Token Verimliliği Arayışı* | Token israfına karşı duyulan radikal hassasiyet fikrini takdir ettik. | **Yöntemi Reddettik (Bozuk Dil):** Dili mağara adamı gibi tek heceli, bozuk gramerli hale getirmek modern öncü modellerin (Gemini 3.8 Flash) derin düşünce zincirini (chain-of-thought) ve mimari kavrayışını sakatlar. Biz token tasarrufunu dili bozarak değil, mimari triyaj ve progresif aramayla sağladık. |
-| **[ecc-lite](https://github.com/muhammeteminozturk/ecc-lite)** | **0-Token OS Kalkanları & Çoklu Platform Sembolik Bağları** | Araç öncesi parametre denetimleri, yıkıcı komut engelleme ve gizli anahtar (secret) taramaları yerel bash hook'ları ile işletim sistemi hızında ve 0 model token'ı harcanarak icra edilir. | N/A — Tüm çerçevenin kurumsal omurgasını ve yerel güvenlik temelini oluşturdu. |
 
 ### Synapse Agents Kırılma Noktası: Hands-Off Şef + 4 Evrensel Alt Ajan
 

@@ -29,13 +29,13 @@ Every resilient engineering system is born out of frustration with existing tool
 
 ### The 5-Repo Source Code Investigation
 
-Rather than blindly adopting an existing framework or reinventing the wheel from scratch, we started from our local production setup (**ECC-Lite**—which already pioneered zero-token OS bash shields, domain instincts, and stateless MCP memory). We then cloned and deeply analyzed the source code of the 5 most popular engineering repositories in the open-source agentic ecosystem:
+Rather than blindly adopting an existing framework or reinventing the wheel from scratch, we started by analyzing and distilling the massive [affaan-m/ECC](https://github.com/affaan-m/ECC) (*Everything Claude Code*) ecosystem down into our lean, zero-bloat `ecc-lite` core (0-token OS shields `secret-guard.sh` and `verify-quiet.sh`, layer architecture rules, `handoff`, and `model-orchestrator`). We then deeply analyzed and synthesized it alongside 4 other prominent engineering repositories in the open-source agentic ecosystem:
 
-1. **[obra/superpowers](https://github.com/obra/superpowers)**
-2. **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)**
-3. **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)**
-4. **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)**
-5. **[JuliusBrussee/caveman](https://github.com/juliusbrussee/caveman)**
+1. **[affaan-m/ECC](https://github.com/affaan-m/ECC)**
+2. **[obra/superpowers](https://github.com/obra/superpowers)**
+3. **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)**
+4. **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)**
+5. **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)**
 
 ### The Architectural Synthesis & Rejection Matrix
 
@@ -43,12 +43,11 @@ Instead of adopting any single project dogma, we extracted the crowning jewels o
 
 | Source Repository | Extracted & Integrated Principle | Why We Integrated It into Synapse Agents | What We Deliberately Rejected & Why |
 |---|---|---|---|
+| **[affaan-m/ECC](https://github.com/affaan-m/ECC)** | **0-Token OS Shields, Lean Skill Architecture & Multi-Platform Compatibility** | Distilled the massive Everything Claude Code ecosystem into a zero-bloat core (`ecc-lite`): lightweight bash hooks (`secret-guard.sh`, `verify-quiet.sh`), domain architecture rules, `handoff`, and `model-orchestrator`. | Bloated monolithic toolchains, heavyweight configs, and multi-megabyte bundle footprints; we kept only the surgical, high-impact primitives. |
 | **[obra/superpowers](https://github.com/obra/superpowers)** | **Systematic Debugging & The Verification Gate** | The iron law: *"No completion claims without fresh verification evidence."* We mandated automated test/build commands with exit code 0 evidence before any task is marked done. | Heavy agent orchestration scripts with rigid Python assumptions; we redesigned all workflows around decoupled, language-agnostic subagents. |
 | **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)** | **Ponytail Minimalism, YAGNI & Debt Ledger** | Relentlessly eliminates redundant abstractions, single-use factories, and unvetted third-party libraries. All intentional shortcuts are recorded with `// shortcut: <limit>, <trigger>`. | Single-file script execution limits; we elevated Ponytail into a full **Caller-Aware Review** stage and **Scope Discovery** pipeline. |
 | **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)** | **Karpathy Surgical Changes & Low Cognitive Load** | Edits must touch only the precise lines required for the change. Neighboring code, unrelated formatting, and non-pertinent comments remain completely untouched. | Monolithic execution prompts; we isolated surgical coding into dedicated, parallel-capable `coder` subagents. |
 | **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)** | **2-Stage Progressive Memory Retrieval** | Instead of flooding the LLM context with entire documentation libraries, we query a lightweight topic index first, then retrieve only the exact required sections. | **Rejected the Daemon:** Background daemons (Bun, SQLite, ChromaDB, vector embeddings) cause socket leaks, runaway memory footprints, zombie processes, and CPU polling. We implemented the progressive concept as a zero-dependency, on-demand Python MCP server (`ecc-lite-brain`). |
-| **[JuliusBrussee/caveman](https://github.com/juliusbrussee/caveman)** | *Conceptual Token Economy* | Inspired the pursuit of high token efficiency and zero context waste. | **Rejected the Methodology (Grammar Butchery):** Forcing models into telegraphic "caveman" speech degrades complex chain-of-thought, semantic nuance, and deep architectural reasoning in frontier models (Gemini 3.8 Flash). We achieve superior token savings via architectural triage and progressive search. |
-| **[ecc-lite](https://github.com/muhammeteminozturk/ecc-lite)** | **0-Token OS Shields & Multi-Platform Symlinks** | Pre-tool parameter validation, dangerous command interception, and secret leakage prevention executed at OS speed via local bash hooks without consuming a single LLM token. | N/A — Served as the core bedrock foundation for the entire framework. |
 
 ### The Synapse Agents Breakthrough: Hands-Off Chief + 4 Universal Subagents
 
