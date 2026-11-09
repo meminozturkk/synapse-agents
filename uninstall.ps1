@@ -1,4 +1,4 @@
-<#
+﻿<#
 ==============================================================================
 Synapse Agents Uninstaller for Windows
 Safe Uninstallation & Link Cleanup for Antigravity, Claude Code & Cursor
@@ -178,7 +178,7 @@ function Remove-DirectoryIfEmpty {
 function Remove-McpServer {
     param([string]$ConfigFile)
     if (-not (Test-Path -LiteralPath $ConfigFile)) {
-        Write-Host "  ℹ No configuration found at: $ConfigFile" -ForegroundColor Yellow
+        Write-Host "  [i] No configuration found at: $ConfigFile" -ForegroundColor Yellow
         return
     }
 
@@ -197,9 +197,9 @@ if os.path.exists(config_path):
             with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
                 f.write("\n")
-            print(f"  ✓ ecc-lite-brain successfully removed from {config_path}")
+            print(f"  [OK] ecc-lite-brain successfully removed from {config_path}")
         else:
-            print(f"  ℹ ecc-lite-brain was not present in {config_path}")
+            print(f"  [i] ecc-lite-brain was not present in {config_path}")
     except Exception as e:
         print(f"  [!] Failed to update {config_path}: {e}")
 '@
@@ -217,9 +217,9 @@ if os.path.exists(config_path):
                 $data.mcpServers.PSObject.Properties.Remove("ecc-lite-brain")
                 $json = $data | ConvertTo-Json -Depth 10
                 [System.IO.File]::WriteAllText($ConfigFile, $json + "`n", [System.Text.UTF8Encoding]::new($false))
-                Write-Host "  ✓ ecc-lite-brain successfully removed from $ConfigFile" -ForegroundColor Green
+                Write-Host "  [OK] ecc-lite-brain successfully removed from $ConfigFile" -ForegroundColor Green
             } else {
-                Write-Host "  ℹ ecc-lite-brain was not present in $ConfigFile" -ForegroundColor Yellow
+                Write-Host "  [i] ecc-lite-brain was not present in $ConfigFile" -ForegroundColor Yellow
             }
         } catch {
             Write-Host "  [!] Failed to update $ConfigFile`: $_" -ForegroundColor Red
@@ -246,9 +246,9 @@ if (Test-Path -LiteralPath $TargetInstincts) {
     }
     Copy-Item -LiteralPath $TargetInstincts -Destination (Join-Path $BackupBaseDir "instincts.md.bak") -Force
     Copy-Item -LiteralPath $TargetInstincts -Destination (Join-Path $BackupBaseDir "instincts.md.bak-$Timestamp") -Force
-    Write-Host "  ✓ Instincts backed up safely to: $(Join-Path $BackupBaseDir 'instincts.md.bak')" -ForegroundColor Green
+    Write-Host "  [OK] Instincts backed up safely to: $(Join-Path $BackupBaseDir 'instincts.md.bak')" -ForegroundColor Green
 } else {
-    Write-Host "  ℹ No instincts.md found to back up." -ForegroundColor Yellow
+    Write-Host "  [i] No instincts.md found to back up." -ForegroundColor Yellow
 }
 
 # ------------------------------------------------------------------------------
@@ -265,7 +265,7 @@ if ($UninstallClaude) {
             $itemPath = Join-Path $DotAgentsDir $item
             if (Test-Path -LiteralPath $itemPath) {
                 Remove-SafeReparseOrItem -Path $itemPath -IsDirectory
-                Write-Host "  ✓ Removed link: $itemPath" -ForegroundColor Green
+                Write-Host "  [OK] Removed link: $itemPath" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $DotAgentsDir
@@ -278,7 +278,7 @@ if ($UninstallClaude) {
             $itemPath = Join-Path $ClaudeAgentsDir "$agent.md"
             if (Test-Path -LiteralPath $itemPath) {
                 Remove-SafeReparseOrItem -Path $itemPath
-                Write-Host "  ✓ Removed link: $itemPath" -ForegroundColor Green
+                Write-Host "  [OK] Removed link: $itemPath" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $ClaudeAgentsDir
@@ -298,7 +298,7 @@ if ($UninstallClaude) {
             }
             if ($shouldRemove) {
                 Remove-SafeReparseOrItem -Path $_.FullName -IsDirectory
-                Write-Host "  ✓ Removed skill link: $($_.Name)" -ForegroundColor Green
+                Write-Host "  [OK] Removed skill link: $($_.Name)" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $ClaudeSkillsDir
@@ -308,7 +308,7 @@ if ($UninstallClaude) {
     $claudeRulesLink = Join-Path $ClaudeBaseDir "rules"
     if (Test-Path -LiteralPath $claudeRulesLink) {
         Remove-SafeReparseOrItem -Path $claudeRulesLink -IsDirectory
-        Write-Host "  ✓ Removed link: $claudeRulesLink" -ForegroundColor Green
+        Write-Host "  [OK] Removed link: $claudeRulesLink" -ForegroundColor Green
     }
 }
 
@@ -326,7 +326,7 @@ if ($UninstallCursorGlobal) {
             $itemPath = Join-Path $CursorRulesDir "$rule.mdc"
             if (Test-Path -LiteralPath $itemPath) {
                 Remove-SafeReparseOrItem -Path $itemPath
-                Write-Host "  ✓ Removed Cursor rule link: $itemPath" -ForegroundColor Green
+                Write-Host "  [OK] Removed Cursor rule link: $itemPath" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $CursorRulesDir
@@ -339,7 +339,7 @@ if ($UninstallCursorGlobal) {
             $itemPath = Join-Path $CursorAgentsDir "$agent.md"
             if (Test-Path -LiteralPath $itemPath) {
                 Remove-SafeReparseOrItem -Path $itemPath
-                Write-Host "  ✓ Removed Cursor agent link: $itemPath" -ForegroundColor Green
+                Write-Host "  [OK] Removed Cursor agent link: $itemPath" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $CursorAgentsDir
@@ -359,7 +359,7 @@ if ($UninstallCursorGlobal) {
             }
             if ($shouldRemove) {
                 Remove-SafeReparseOrItem -Path $_.FullName -IsDirectory
-                Write-Host "  ✓ Removed Cursor skill link: $($_.Name)" -ForegroundColor Green
+                Write-Host "  [OK] Removed Cursor skill link: $($_.Name)" -ForegroundColor Green
             }
         }
         Remove-DirectoryIfEmpty $CursorSkillsDir
@@ -385,17 +385,17 @@ if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
                 $itemPath = Join-Path $ProjectRulesDir "$rule.mdc"
                 if (Test-Path -LiteralPath $itemPath) {
                     Remove-SafeReparseOrItem -Path $itemPath
-                    Write-Host "  ✓ Removed project rule link: $itemPath" -ForegroundColor Green
+                    Write-Host "  [OK] Removed project rule link: $itemPath" -ForegroundColor Green
                 }
             }
             Remove-DirectoryIfEmpty $ProjectRulesDir
         }
 
-        Write-Host "  → Removing ecc-lite-brain from Project MCP configuration..." -ForegroundColor Cyan
+        Write-Host "  -> Removing ecc-lite-brain from Project MCP configuration..." -ForegroundColor Cyan
         Remove-McpServer -ConfigFile $ProjectMcpFile
         Remove-DirectoryIfEmpty $ProjectCursorDir
     } else {
-        Write-Host "  ℹ Project directory not found: $CursorProject" -ForegroundColor Yellow
+        Write-Host "  [i] Project directory not found: $CursorProject" -ForegroundColor Yellow
     }
 }
 
@@ -406,12 +406,12 @@ Write-Host ""
 Write-Host "[*] Step 5: Deregistering ecc-lite-brain from MCP configurations..." -ForegroundColor Cyan
 
 if ($UninstallAntigravity) {
-    Write-Host "  → Updating Antigravity MCP configuration..." -ForegroundColor Cyan
+    Write-Host "  -> Updating Antigravity MCP configuration..." -ForegroundColor Cyan
     Remove-McpServer -ConfigFile $McpConfigFile
 }
 
 if ($UninstallCursorGlobal) {
-    Write-Host "  → Updating Cursor Global MCP configuration..." -ForegroundColor Cyan
+    Write-Host "  -> Updating Cursor Global MCP configuration..." -ForegroundColor Cyan
     Remove-McpServer -ConfigFile $CursorMcpFile
 }
 
@@ -424,12 +424,12 @@ if ($RemovePlugins) {
     $eccDir = Join-Path $GeminiPluginsDir "ecc-lite"
     if (Test-Path -LiteralPath $eccDir) {
         Remove-Item -LiteralPath $eccDir -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Host "  ✓ Removed $eccDir" -ForegroundColor Green
+        Write-Host "  [OK] Removed $eccDir" -ForegroundColor Green
     }
     $orchDir = Join-Path $GeminiPluginsDir "orchestration"
     if (Test-Path -LiteralPath $orchDir) {
         Remove-Item -LiteralPath $orchDir -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Host "  ✓ Removed $orchDir" -ForegroundColor Green
+        Write-Host "  [OK] Removed $orchDir" -ForegroundColor Green
     }
 }
 
@@ -438,26 +438,26 @@ if ($RemovePlugins) {
 # ------------------------------------------------------------------------------
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Green
-Write-Host "    ✨ Uninstallation completed successfully!             " -ForegroundColor Green
+Write-Host "    [OK] Uninstallation completed successfully!             " -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Green
 Write-Host "Summary:"
 if ($UninstallClaude) {
-    Write-Host "  • Claude Code & ~/.agents symlinks removed"
+    Write-Host "  - Claude Code & ~/.agents symlinks removed"
 }
 if ($UninstallCursorGlobal) {
-    Write-Host "  • Cursor Global symlinks and MCP registration removed"
+    Write-Host "  - Cursor Global symlinks and MCP registration removed"
 }
 if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
-    Write-Host "  • Cursor Project configuration removed from $CursorProject"
+    Write-Host "  - Cursor Project configuration removed from $CursorProject"
 }
 if ($UninstallAntigravity) {
-    Write-Host "  • Antigravity MCP server ecc-lite-brain deregistered"
+    Write-Host "  - Antigravity MCP server ecc-lite-brain deregistered"
 }
 if ($RemovePlugins) {
-    Write-Host "  • Plugin directories removed from ~/.gemini/config/plugins"
+    Write-Host "  - Plugin directories removed from ~/.gemini/config/plugins"
 }
 $backupFile = Join-Path $BackupBaseDir "instincts.md.bak"
 if (Test-Path -LiteralPath $backupFile) {
-    Write-Host "  • User Instincts preserved at: $backupFile"
+    Write-Host "  - User Instincts preserved at: $backupFile"
 }
 Write-Host ""

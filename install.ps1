@@ -1,4 +1,4 @@
-<#
+﻿<#
 ==============================================================================
 Synapse Agents Installer for Windows
 Multi-Platform Idempotent Installation for Antigravity, Claude Code & Cursor
@@ -295,7 +295,7 @@ with open(config_path, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
     f.write("\n")
 
-print(f"    ✓ ecc-lite-brain registered successfully in {config_path}")
+print(f"    [OK] ecc-lite-brain registered successfully in {config_path}")
 '@
 
     & $PythonExe -c $pyUpdateMcp $ConfigFile $PythonExe $BrainServerPath
@@ -343,7 +343,7 @@ if ($NeedBackup) {
     if (-not (Test-Path -LiteralPath $BackupDir)) {
         New-Item -ItemType Directory -Path $BackupDir -Force | Out-Null
     }
-    Write-Host "  → Taking backup to: $BackupDir" -ForegroundColor Yellow
+    Write-Host "  -> Taking backup to: $BackupDir" -ForegroundColor Yellow
 
     if (Test-Path -LiteralPath $EccLiteTarget) {
         Copy-Item -LiteralPath $EccLiteTarget -Destination (Join-Path $BackupDir "ecc-lite") -Recurse -Force -ErrorAction SilentlyContinue
@@ -363,9 +363,9 @@ if ($NeedBackup) {
             Copy-Item -LiteralPath $ProjMcp -Destination (Join-Path $BackupDir "project_cursor_mcp.json") -Force -ErrorAction SilentlyContinue
         }
     }
-    Write-Host "  ✓ Backup completed." -ForegroundColor Green
+    Write-Host "  [OK] Backup completed." -ForegroundColor Green
 } else {
-    Write-Host "  ✓ No existing installation found that requires backup." -ForegroundColor Green
+    Write-Host "  [OK] No existing installation found that requires backup." -ForegroundColor Green
 }
 
 # ------------------------------------------------------------------------------
@@ -380,7 +380,7 @@ if (-not (Test-Path -LiteralPath $GeminiPluginsDir)) {
 $TargetInstincts = Join-Path $GeminiPluginsDir "ecc-lite\kb\instincts.md"
 $TempInstincts = $null
 if (Test-Path -LiteralPath $TargetInstincts) {
-    Write-Host "  ℹ Existing instincts.md found. Preserving learned reflexes..." -ForegroundColor Yellow
+    Write-Host "  [i] Existing instincts.md found. Preserving learned reflexes..." -ForegroundColor Yellow
     $TempInstincts = [System.IO.Path]::GetTempFileName()
     Copy-Item -LiteralPath $TargetInstincts -Destination $TempInstincts -Force
 }
@@ -393,7 +393,7 @@ if (Test-Path -LiteralPath $EccLiteSrc) {
         New-Item -ItemType Directory -Path $EccLiteDst -Force | Out-Null
     }
     Copy-Item -Path (Join-Path $EccLiteSrc "*") -Destination $EccLiteDst -Recurse -Force
-    Write-Host "  ✓ Synced plugins/ecc-lite" -ForegroundColor Green
+    Write-Host "  [OK] Synced plugins/ecc-lite" -ForegroundColor Green
 } else {
     Write-Error "[!] Error: $EccLiteSrc not found!"
     exit 1
@@ -407,7 +407,7 @@ if (Test-Path -LiteralPath $OrchSrc) {
         New-Item -ItemType Directory -Path $OrchDst -Force | Out-Null
     }
     Copy-Item -Path (Join-Path $OrchSrc "*") -Destination $OrchDst -Recurse -Force
-    Write-Host "  ✓ Synced plugins/orchestration" -ForegroundColor Green
+    Write-Host "  [OK] Synced plugins/orchestration" -ForegroundColor Green
 } else {
     Write-Error "[!] Error: $OrchSrc not found!"
     exit 1
@@ -417,17 +417,17 @@ if (Test-Path -LiteralPath $OrchSrc) {
 if ($TempInstincts -and (Test-Path -LiteralPath $TempInstincts)) {
     Copy-Item -LiteralPath $TempInstincts -Destination $TargetInstincts -Force
     Remove-Item -LiteralPath $TempInstincts -Force -ErrorAction SilentlyContinue
-    Write-Host "  ✓ Existing instincts.md successfully restored & preserved." -ForegroundColor Green
+    Write-Host "  [OK] Existing instincts.md successfully restored & preserved." -ForegroundColor Green
 } elseif (-not (Test-Path -LiteralPath $TargetInstincts)) {
     $ExampleInstincts = Join-Path $GeminiPluginsDir "ecc-lite\kb\instincts.example.md"
     if (Test-Path -LiteralPath $ExampleInstincts) {
         Copy-Item -LiteralPath $ExampleInstincts -Destination $TargetInstincts -Force
-        Write-Host "  ✓ Initialized new instincts.md from instincts.example.md." -ForegroundColor Green
+        Write-Host "  [OK] Initialized new instincts.md from instincts.example.md." -ForegroundColor Green
     }
 }
 
 # Windows-Native hooks.json Rewrite
-Write-Host "  → Configuring Windows-native hooks.json..." -ForegroundColor Cyan
+Write-Host "  -> Configuring Windows-native hooks.json..." -ForegroundColor Cyan
 $HooksFile = Join-Path $GeminiPluginsDir "ecc-lite\hooks.json"
 $HooksDir = ($GeminiPluginsDir -replace '\\', '/') + "/ecc-lite/hooks"
 
@@ -482,7 +482,7 @@ with open(hooks_path, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
     f.write("\n")
 
-print(f"  ✓ Windows hooks configured in {hooks_path}")
+print(f"  [OK] Windows hooks configured in {hooks_path}")
 '@
 
 & $ResolvedPython -c $pyUpdateHooks $HooksFile $ResolvedPython $HooksDir
@@ -491,7 +491,7 @@ $BrainServer = ($GeminiPluginsDir -replace '\\', '/') + "/ecc-lite/mcp/brain_ser
 
 # Antigravity MCP Setup
 if ($InstallAntigravity) {
-    Write-Host "  → Updating Antigravity MCP configuration ($McpConfigFile)..." -ForegroundColor Cyan
+    Write-Host "  -> Updating Antigravity MCP configuration ($McpConfigFile)..." -ForegroundColor Cyan
     Update-McpConfig -ConfigFile $McpConfigFile -PythonExe $ResolvedPython -BrainServerPath $BrainServer
 }
 
@@ -509,7 +509,7 @@ if ($InstallClaude) {
         $link = Join-Path $DotAgentsDir $item
         New-SafeDirectoryLink -LinkPath $link -TargetPath $target
     }
-    Write-Host "  ✓ Linked ~/.agents/{hooks,kb,mcp,rules,skills}" -ForegroundColor Green
+    Write-Host "  [OK] Linked ~/.agents/{hooks,kb,mcp,rules,skills}" -ForegroundColor Green
 
     # 3B. ~/.claude/agents/*.md links
     $agents = @("explorer", "planner", "coder", "reviewer")
@@ -518,7 +518,7 @@ if ($InstallClaude) {
         if (Test-Path -LiteralPath $targetAgent) {
             $linkAgent = Join-Path $ClaudeAgentsDir "$agent.md"
             New-SafeFileLink -LinkPath $linkAgent -TargetPath $targetAgent
-            Write-Host "  ✓ Linked ~/.claude/agents/$agent.md" -ForegroundColor Green
+            Write-Host "  [OK] Linked ~/.claude/agents/$agent.md" -ForegroundColor Green
         }
     }
 
@@ -537,14 +537,14 @@ if ($InstallClaude) {
             New-SafeDirectoryLink -LinkPath $linkSkill -TargetPath $_.FullName
         }
     }
-    Write-Host "  ✓ Linked all skills to ~/.claude/skills/" -ForegroundColor Green
+    Write-Host "  [OK] Linked all skills to ~/.claude/skills/" -ForegroundColor Green
 
     # 3D. ~/.claude/rules symlink
     $claudeRulesLink = Join-Path $ClaudeBaseDir "rules"
     $dotAgentsRules = Join-Path $DotAgentsDir "rules"
     if (-not (Test-Path -LiteralPath $claudeRulesLink)) {
         New-SafeDirectoryLink -LinkPath $claudeRulesLink -TargetPath $dotAgentsRules
-        Write-Host "  ✓ Linked ~/.claude/rules -> ~/.agents/rules" -ForegroundColor Green
+        Write-Host "  [OK] Linked ~/.claude/rules -> ~/.agents/rules" -ForegroundColor Green
     }
 }
 
@@ -556,7 +556,7 @@ if ($InstallCursorGlobal) {
     Write-Host "[*] Step 4: Configuring Cursor Global compatibility..." -ForegroundColor Cyan
 
     # 4A. Update ~/.cursor/mcp.json
-    Write-Host "  → Updating Cursor Global MCP configuration ($CursorMcpFile)..." -ForegroundColor Cyan
+    Write-Host "  -> Updating Cursor Global MCP configuration ($CursorMcpFile)..." -ForegroundColor Cyan
     Update-McpConfig -ConfigFile $CursorMcpFile -PythonExe $ResolvedPython -BrainServerPath $BrainServer
 
     # 4B. Cursor Global Rules (.mdc links)
@@ -575,7 +575,7 @@ if ($InstallCursorGlobal) {
             New-SafeFileLink -LinkPath $linkRule -TargetPath $targetRule
         }
     }
-    Write-Host "  ✓ Linked ~/.cursor/rules/*.mdc (5 rules)" -ForegroundColor Green
+    Write-Host "  [OK] Linked ~/.cursor/rules/*.mdc (5 rules)" -ForegroundColor Green
 
     # 4C. Cursor Global Skills links
     $eccSkillsDir = Join-Path $GeminiPluginsDir "ecc-lite\skills"
@@ -592,7 +592,7 @@ if ($InstallCursorGlobal) {
             New-SafeDirectoryLink -LinkPath $linkSkill -TargetPath $_.FullName
         }
     }
-    Write-Host "  ✓ Linked all skills to ~/.cursor/skills/ (11 skills)" -ForegroundColor Green
+    Write-Host "  [OK] Linked all skills to ~/.cursor/skills/ (11 skills)" -ForegroundColor Green
 
     # 4D. Cursor Global Agents links
     $agents = @("explorer", "planner", "coder", "reviewer")
@@ -601,7 +601,7 @@ if ($InstallCursorGlobal) {
         if (Test-Path -LiteralPath $targetAgent) {
             $linkAgent = Join-Path $CursorAgentsDir "$agent.md"
             New-SafeFileLink -LinkPath $linkAgent -TargetPath $targetAgent
-            Write-Host "  ✓ Linked ~/.cursor/agents/$agent.md" -ForegroundColor Green
+            Write-Host "  [OK] Linked ~/.cursor/agents/$agent.md" -ForegroundColor Green
         }
     }
 }
@@ -633,9 +633,9 @@ if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
             New-SafeFileLink -LinkPath $linkRule -TargetPath $targetRule
         }
     }
-    Write-Host "  ✓ Linked $ProjectRulesDir\*.mdc (5 rules)" -ForegroundColor Green
+    Write-Host "  [OK] Linked $ProjectRulesDir\*.mdc (5 rules)" -ForegroundColor Green
 
-    Write-Host "  → Updating Project MCP configuration ($ProjectMcpFile)..." -ForegroundColor Cyan
+    Write-Host "  -> Updating Project MCP configuration ($ProjectMcpFile)..." -ForegroundColor Cyan
     Update-McpConfig -ConfigFile $ProjectMcpFile -PythonExe $ResolvedPython -BrainServerPath $BrainServer
 }
 
@@ -644,21 +644,21 @@ if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
 # ------------------------------------------------------------------------------
 Write-Host ""
 Write-Host "==========================================================" -ForegroundColor Green
-Write-Host "    ✨ Installation completed successfully!               " -ForegroundColor Green
+Write-Host "    [OK] Installation completed successfully!               " -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Green
 Write-Host "Active Configuration:"
-Write-Host "  • Core Plugins       : $GeminiPluginsDir"
+Write-Host "  - Core Plugins       : $GeminiPluginsDir"
 if ($InstallAntigravity) {
-    Write-Host "  • Antigravity MCP    : ecc-lite-brain active in $McpConfigFile"
+    Write-Host "  - Antigravity MCP    : ecc-lite-brain active in $McpConfigFile"
 }
 if ($InstallClaude) {
-    Write-Host "  • Claude Code Agents : explorer, planner, coder, reviewer"
+    Write-Host "  - Claude Code Agents : explorer, planner, coder, reviewer"
 }
 if ($InstallCursorGlobal) {
-    Write-Host "  • Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, MCP active"
+    Write-Host "  - Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, MCP active"
 }
 if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
-    Write-Host "  • Cursor Project     : rules (.mdc) & MCP active in $AbsProjectPath"
+    Write-Host "  - Cursor Project     : rules (.mdc) & MCP active in $AbsProjectPath"
 }
-Write-Host "  • User Instincts     : $TargetInstincts (preserved)"
+Write-Host "  - User Instincts     : $TargetInstincts (preserved)"
 Write-Host ""
