@@ -107,7 +107,7 @@ When you need immediate model consultation without spinning up a full subagent, 
 2. **Peer Review (NVIDIA)**: Send the drafted code to NVIDIA Llama 3.2:
    * Prompt: *"Examine this code for edge cases, null pointers, off-by-one errors, and performance bugs. Provide a concise critique."*
 3. **Synthesis & Finalization**: Incorporate valid critiques into the final file write.
-4. **Report**: Inform the user: *"Kod Gemini ile tasarlandı, NVIDIA Llama 3.2 modeli tarafından incelenip sınır durumlar giderilerek tamamlandı."*
+4. **Report**: Inform the user: *"Code was architected with Gemini, peer-reviewed by NVIDIA Llama 3.2 for edge cases, and finalized."*
 
 ### Workflow 2: Multi-Model Consensus (Architecture / Bug Triage)
 1. Query both Gemini reasoning and NVIDIA NIM (`ask_nvidia`) with identical problem descriptions.

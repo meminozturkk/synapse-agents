@@ -59,10 +59,10 @@ The **Orchestrator** operates on the **1 Hands-Off Chief Architect + 4 Universal
      - `Role="Coder (<Scope/Layer>) [Gemini 3.8 Flash - High]"` (e.g. `Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`)
      - `Role="Reviewer [Gemini 3.8 Flash - High]"`
    - Subagents must output their identity badge on line 1 of every response:
-     - `🤖 **[Ajan: explorer | Model: Gemini 3.8 Flash (Medium Effort)]**`
-     - `🤖 **[Ajan: planner | Model: Gemini 3.8 Flash (High Effort)]**`
-     - `🤖 **[Ajan: coder | Model: Gemini 3.8 Flash (High Effort)]**`
-     - `🤖 **[Ajan: reviewer | Model: Gemini 3.8 Flash (High Effort)]**`
+     - `🤖 **[Agent: explorer | Model: Gemini 3.8 Flash (Medium Effort)]**`
+     - `🤖 **[Agent: planner | Model: Gemini 3.8 Flash (High Effort)]**`
+     - `🤖 **[Agent: coder | Model: Gemini 3.8 Flash (High Effort)]**`
+     - `🤖 **[Agent: reviewer | Model: Gemini 3.8 Flash (High Effort)]**`
 
 ---
 
@@ -71,7 +71,7 @@ The **Orchestrator** operates on the **1 Hands-Off Chief Architect + 4 Universal
 | Subagent | Model & Effort Level | Primary Role | Tools Enabled |
 | :--- | :--- | :--- | :--- |
 | **`explorer`** | **Gemini 3.8 Flash (Medium Effort)** | Rapid symbol discovery, Ponytail Scope Discovery (callers, tests, configs, exports in max 150 words) | `view_file`, `grep_search`, `find_by_name`, `list_dir` |
-| **`planner`** | **Gemini 3.8 Flash (High Effort)** | Ingests 20-30 code files in isolation; produces 40-80 line draft blueprint with locked DTO/DB contracts & parallel work packages | `view_file`, `grep_search`, `find_by_name`, `list_dir` *(Salt-okunur)* |
+| **`planner`** | **Gemini 3.8 Flash (High Effort)** | Ingests 20-30 code files in isolation; produces 40-80 line draft blueprint with locked DTO/DB contracts & parallel work packages | `view_file`, `grep_search`, `find_by_name`, `list_dir` *(Read-only)* |
 | **`coder`** | **Gemini 3.8 Flash (High Effort)** | Universal Senior Implementation Engineer (Backend, Mobile, Frontend, Scripts). Surgical edits, systematic debugging, runs fresh test evidence | `view_file`, `write_to_file`, `replace_file_content`, `grep_search`, `find_by_name`, `list_dir`, `run_command` *(No subagent invocation!)* |
 | **`reviewer`** | **Gemini 3.8 Flash (High Effort)** | Two-Stage Review: (1) Contract match, (2) Ponytail Caller-Aware Review (`grep` callers), security & N+1 audit | `view_file`, `grep_search`, `find_by_name`, `list_dir`, `run_command` *(Read-only git inspect)* |
 

@@ -1,42 +1,46 @@
-# Karpathy Cerrahi Kodlama İlkeleri & Ponytail Minimalizm Merdiveni
+---
+description: Core Engineering Principles (Karpathy 4 Principles + Ponytail 6-Step Minimalism Ladder & Debt Tracking)
+alwaysApply: true
+---
+# Karpathy Surgical Coding Principles & Ponytail Minimalism Ladder
 
-## Bölüm 1 — Karpathy 4 Cerrahi Kodlama İlkesi
+## Section 1 — Karpathy 4 Surgical Coding Principles
 
-1. **Think Before Coding (Kodlamadan Önce Düşün):**
-   - Varsayımlarını açıkça belirt. Gizli ya da sessiz varsayımlarla asla ilerleme.
-   - Belirsizlik veya çelişki varsa devam etmeden önce kullanıcıya veya ilgili ajana netleştirici soru sor.
-   - Doğrudan kod yazmaya atılmadan önce kök nedeni ve sınırları tam olarak belirle.
+1. **Think Before Coding:**
+   - State your assumptions explicitly. Never proceed on hidden or silent assumptions.
+   - If there is ambiguity or contradiction, ask clarifying questions before continuing.
+   - Pin down the root cause and boundaries precisely before touching code.
 
-2. **Simplicity First (Önce Sadelik):**
-   - İhtiyaç duyulmayan hiçbir soyutlama, generic wrapper, factory veya spekülatif config katmanı ekleme (YAGNI).
-   - "İleride lazım olur" mantığıyla kod yazma; yalnızca mevcut gereksinimi en yalın ve en doğrudan çözen mimariyi uygula.
+2. **Simplicity First:**
+   - Add no unneeded abstraction, generic wrapper, factory, or speculative config layer (YAGNI).
+   - Never write code for "future what-ifs"; apply only the leanest, most direct architecture solving the current requirement.
 
-3. **Surgical Changes (Cerrahi Değişiklikler):**
-   - Yalnızca hedeflenen mantığı değiştir. Komşu koda, stil formatlamasına, boşluklara veya alakasız yorumlara dokunma.
-   - Diff'i minimum ve tertemiz tut. Sadece kendi yaptığın değişikliklerin yarattığı yetim import veya değişkenleri temizle.
+3. **Surgical Changes:**
+   - Change only the targeted logic. Do not touch adjacent code, stylistic formatting, whitespace, or unrelated comments.
+   - Keep the diff minimal and pristine. Clean up only orphaned imports or variables created by your own modifications.
 
-4. **Goal-Driven Execution (Hedefe Dayalı Yürütme):**
-   - Her adımı doğrulanabilir bir hedefe veya test koşuluna bağla.
-   - "Oldu galiba" demek yasaktır; doğrulama kapısından (derleme/test/analiz) geçmeden görevi tamamlandı sayma.
+4. **Goal-Driven Execution:**
+   - Anchor every step to a verifiable target or test condition.
+   - Never declare "it should work now"; do not consider a task complete without passing through the verification gate (build / test / analyze).
 
 ---
 
-## Bölüm 2 — Ponytail Minimalizm Merdiveni & Borç Standardı
+## Section 2 — Ponytail Minimalism Ladder & Debt Standard
 
-Kod yazmadan önce aşağıdaki 6 basamakta **ilk çalışan durakta dur**:
-1. **Var olması şart mı?** (Gereksiz özellik veya kurguyu baştan reddet veya sil).
-2. **Kod tabanında zaten var mı?** (Mevcut helper, extension veya utility'yi tekrar üretme, yeniden kullan).
-3. **Standart kütüphane/platform özelliği çözüyor mu?** (Platformun yerel dil ve kütüphane imkanlarını kullan).
-4. **Kurulu bağımlılıkta var mı?** (Projeye dahil edilmiş mevcut paketleri kullan; birkaç satır kod için yeni NPM/NuGet/Pub paketi ekleme).
-5. **Okunabilir tek satır olur mu?** (Gereksiz fonksiyon veya sınıf sarmalayıcısı üretmeden, temiz ve okunabilir ifadeyle çöz).
-6. **Minimum çalışan kod + dal/döngü/güvenlik mantığına 1 küçük test.**
+Before writing code, stop at the **first working rung** on the 6-step ladder:
+1. **Does it need to exist?** (Reject or delete unnecessary features or concepts upfront).
+2. **Does it already exist in the codebase?** (Reuse existing helpers, extensions, or utilities rather than recreating them).
+3. **Does the standard library or platform solve it?** (Use native language constructs and platform runtime capabilities).
+4. **Does an installed dependency have it?** (Leverage existing project packages; never add a new NPM/NuGet/Pub dependency for a few lines of code).
+5. **Can it be a readable one-liner?** (Solve cleanly with an expressive, readable line without introducing extra function or class wrappers).
+6. **Minimum viable code + 1 small test for branch, loop, or security logic.**
 
-### Borç Standardı ve Bilinçli Kestirmeler:
-- Bilinçli ve geçici kestirmeleri her zaman şu formatta işaretle:
-  `// shortcut: <sınır>, <ne zaman yükseltilmeli>`
-- Yanıt sonunda 1-2 satırla bilerek atlanan noktaları ve olası riskleri belirt.
-- **Asla Taviz Verilmeyecekler (Non-Negotiable):**
-  - Güvenlik ve secret yönetimi,
-  - Veri kaybını önleme ve transaction bütünlüğü,
-  - Trust-boundary validasyonu (kullanıcı girdisi / dış API girdisi doğrulama),
-  - Erişilebilirlik (a11y) standartları.
+### Debt Standard & Deliberate Shortcuts:
+- Always tag deliberate and pragmatic shortcuts using the standard marker:
+  `// shortcut: <ceiling>, <upgrade path>`
+- At the end of your response, state intentional trade-offs and potential risks in 1–2 lines.
+- **Non-Negotiables:**
+  - Security and secret management,
+  - Data loss prevention and transaction integrity,
+  - Trust-boundary validation (validating user input / external API input),
+  - Accessibility (a11y) standards.

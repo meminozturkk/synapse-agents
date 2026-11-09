@@ -1,11 +1,11 @@
 ---
-trigger: glob
+description: .NET 9 & Clean Architecture Rules
 globs: "*.cs, *.csproj, *.sln"
-description: ".NET Core, C#, EF Core ve Clean Architecture kuralları"
+alwaysApply: false
 ---
-# Backend (.NET / C#) Kuralları
-- **Mimari**: Clean Architecture ve CQRS katman sınırlarını koru; Domain katmanına dış bağımlılık ekleme.
-- **Asenkron Programlama**: Tüm I/O ve veritabanı metotlarında `async/await` kullan ve `CancellationToken` parametresini zorunlu olarak aşağıya ilet.
-- **EF Core Performansı**: Salt okunur (read-only) sorgularda her zaman `.AsNoTracking()` kullan; döngü içinde sorgu (N+1) yapmaktan kaçın.
-- **Dependency Injection**: Captive dependency oluşturma (Singleton içine Scoped servis enjekte etme).
-- **Hata Yönetimi**: İş kuralı hatalarında generic exception fırlatmak yerine Result pattern veya domain-specific exception kullan.
+# Backend (.NET 9 / C#) Rules
+- **Architecture**: Preserve Clean Architecture and CQRS layer boundaries; never leak external dependencies or concrete infrastructure into the Domain layer.
+- **Asynchronous Programming**: Always use `async/await` for all I/O and database operations, and enforce passing the `CancellationToken` parameter down the call chain.
+- **EF Core Performance**: Always use `.AsNoTracking()` for read-only queries; avoid N+1 queries by leveraging projection (`Select`) or targeted `Include`.
+- **Dependency Injection**: Prevent captive dependencies (never inject Scoped services into a Singleton).
+- **Error Handling**: Use the Result pattern or domain-specific exceptions instead of throwing generic exceptions for business rule violations.

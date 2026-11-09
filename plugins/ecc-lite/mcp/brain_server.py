@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 ECC-Lite Zero-Context Memory & Instincts MCP Server v2.1
-Hem 'mcp' (FastMCP) paketiyle hem de paket kurulu olmadığında %100 Python
-standart kütüphanesiyle (JSON-RPC 2.0 stdio fallback) çalışır.
-2 aşamalı progresif arama (search_knowledge_index -> get_knowledge_detail) destekler.
-Yerel (CWD/.agents/kb) ve Genel (plugin/kb veya ~/.agents/kb) bilgi bankalarını dinamik olarak tarar.
+Runs with both the official 'mcp' (FastMCP) package and 100% Python
+standard library (JSON-RPC 2.0 stdio fallback) when the package is not installed.
+Supports 2-stage progressive search (search_knowledge_index -> get_knowledge_detail).
+Dynamically scans Local (CWD/.agents/kb) and Global (plugin/kb or ~/.agents/kb) knowledge bases.
 """
 import json
 import re
@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-# Plugin kb dizini veya fallback ~/.agents/kb
+# Plugin kb directory or fallback ~/.agents/kb
 _PLUGIN_KB = Path(__file__).resolve().parent.parent / "kb"
 GLOBAL_KB = _PLUGIN_KB if _PLUGIN_KB.exists() else (Path.home() / ".agents" / "kb")
 
@@ -49,14 +49,14 @@ def _get_file_blocks(md_file: Path):
 
 
 def _search_kb(query: str) -> str:
-    """Proje mimarisi, DB şeması, iş kuralları ve geçmiş kararları (instincts) içinde akıllı arama yapar."""
+    """Intelligently searches across project architecture, DB schema, business rules, and historical decisions (instincts)."""
     kb_dirs = _get_kb_dirs()
     if not kb_dirs:
-        return "Henüz kayıtlı bilgi yok (.agents/kb dizini boş)."
+        return "No recorded knowledge yet (.agents/kb directory is empty)."
 
     tokens = [t.lower() for t in re.split(r"\s+", query.strip()) if len(t) >= 2]
     if not tokens:
-        return "Lütfen en az 2 karakterli bir arama terimi girin."
+        return "Please enter a search query with at least 2 characters."
 
     matches = []
     seen_files = set()
@@ -82,21 +82,21 @@ def _search_kb(query: str) -> str:
             if matched_blocks:
                 matched_blocks.sort(key=lambda x: x[0], reverse=True)
                 top_snippets = "\n\n".join(b for _, b in matched_blocks[:5])
-                scope_tag = "Yerel" if d != GLOBAL_KB else "Global"
+                scope_tag = "Local" if d != GLOBAL_KB else "Global"
                 matches.append(f"### [{md_file.name} ({scope_tag})]\n{top_snippets[:1800]}")
 
-    return "\n\n".join(matches) if matches else f"'{query}' için eşleşen kayıt bulunamadı."
+    return "\n\n".join(matches) if matches else f"No matching records found for '{query}'."
 
 
 def _search_kb_index(query: str) -> str:
-    """Kompakt bilgi bankası indeks araması yapar. Her satır max ~110 karakter döner."""
+    """Performs a compact knowledge base index search. Each line returns max ~110 chars."""
     kb_dirs = _get_kb_dirs()
     if not kb_dirs:
-        return "Henüz kayıtlı bilgi yok (.agents/kb dizini boş)."
+        return "No recorded knowledge yet (.agents/kb directory is empty)."
 
     tokens = [t.lower() for t in re.split(r"\s+", query.strip()) if len(t) >= 2]
     if not tokens:
-        return "Lütfen en az 2 karakterli bir arama terimi girin."
+        return "Please enter a search query with at least 2 characters."
 
     matched = []
     seen_files = set()
@@ -106,7 +106,7 @@ def _search_kb_index(query: str) -> str:
             if file_key in seen_files:
                 continue
             seen_files.add(file_key)
-            scope_tag = "Yerel" if d != GLOBAL_KB else "Global"
+            scope_tag = "Local" if d != GLOBAL_KB else "Global"
             blocks = _get_file_blocks(md_file)
             for idx, b_text in blocks:
                 b_lower = b_text.lower()
@@ -125,24 +125,24 @@ def _search_kb_index(query: str) -> str:
                     matched.append((score, entry_line))
 
     if not matched:
-        return f"'{query}' için indeks kaydı bulunamadı."
+        return f"No index records found for '{query}'."
 
     matched.sort(key=lambda x: x[0], reverse=True)
     return "\n".join(line for _, line in matched[:20])
 
 
 def _get_kb_detail(block_ids: str) -> str:
-    """Virgülle ayrılmış ID'leri alır ve yalnızca o blokların tam metnini döner."""
+    """Accepts comma-separated block IDs and returns only the full text of those blocks."""
     requested_ids = [b.strip() for b in re.split(r"[,;\s]+", block_ids) if b.strip()]
     if not requested_ids:
-        return "Lütfen en az bir ID belirtin (ör. 'instincts.md#3')."
+        return "Please specify at least one ID (e.g. 'instincts.md#3')."
 
     kb_dirs = _get_kb_dirs()
     file_map = {}
     for d in kb_dirs:
         for md_file in sorted(d.glob("*.md")):
             if md_file.name not in file_map:
-                scope_tag = "Yerel" if d != GLOBAL_KB else "Global"
+                scope_tag = "Local" if d != GLOBAL_KB else "Global"
                 file_map[md_file.name] = (scope_tag, {f"{md_file.name}#{idx}": (idx, b) for idx, b in _get_file_blocks(md_file)})
 
     results = []
@@ -155,13 +155,13 @@ def _get_kb_detail(block_ids: str) -> str:
                 found = True
                 break
         if not found:
-            results.append(f"### [ID: {req_id}]\n(Kayıt bulunamadı)")
+            results.append(f"### [ID: {req_id}]\n(Record not found)")
 
     return "\n\n".join(results)
 
 
 def _save_instinct_entry(topic: str, rule: str) -> str:
-    """Projede öğrenilen kritik bir dersi veya mimari kararı kalıcı hafızaya kaydeder."""
+    """Records a critical lesson learned or architectural decision to persistent memory."""
     local_kb = Path.cwd() / ".agents" / "kb"
     target_dir = local_kb if (Path.cwd() / ".agents").exists() else GLOBAL_KB
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -172,21 +172,21 @@ def _save_instinct_entry(topic: str, rule: str) -> str:
     existing = target.read_text(encoding="utf-8")
     normalized_rule = rule.strip()
     if normalized_rule.lower() in existing.lower():
-        return f"Bu kural zaten kayıtlı: {topic}"
+        return f"This rule is already recorded: {topic}"
 
     stamp = datetime.now().strftime("%Y-%m-%d")
     entry = f"\n- **[{topic.strip()}]** ({stamp}): {normalized_rule}\n"
     with open(target, "a", encoding="utf-8") as f:
         f.write(entry)
-    scope = "Yerel (.agents/kb)" if target_dir == local_kb else "Global (~/.agents/kb)"
-    return f"Kalıcı hafızaya ({scope}) kaydedildi: [{topic.strip()}]"
+    scope = "Local (.agents/kb)" if target_dir == local_kb else "Global (~/.agents/kb)"
+    return f"Saved to persistent memory ({scope}): [{topic.strip()}]"
 
 
 def _list_kb_topics() -> str:
-    """Kayıtlı bilgi bankası dosyalarını ve başlıklarını listeler."""
+    """Lists recorded knowledge base files and their headings."""
     kb_dirs = _get_kb_dirs()
     if not kb_dirs:
-        return "Henüz kayıtlı bilgi bankası dosyası yok."
+        return "No knowledge base files recorded yet."
     summary = []
     seen = set()
     for d in kb_dirs:
@@ -196,12 +196,12 @@ def _list_kb_topics() -> str:
             seen.add(f.name)
             lines = f.read_text(encoding="utf-8").splitlines()
             headers = [l.strip() for l in lines if l.startswith("#") or l.startswith("- **[")][:10]
-            scope = "Yerel" if d != GLOBAL_KB else "Global"
-            summary.append(f"- **{f.name}** ({scope}, {len(lines)} satır): " + (", ".join(headers) if headers else "İçerik mevcut"))
-    return "\n".join(summary) if summary else "Bilgi bankasında henüz .md dosyası bulunmuyor."
+            scope = "Local" if d != GLOBAL_KB else "Global"
+            summary.append(f"- **{f.name}** ({scope}, {len(lines)} lines): " + (", ".join(headers) if headers else "Content available"))
+    return "\n".join(summary) if summary else "No .md files found in knowledge base."
 
 
-# Önce resmi FastMCP kütüphanesini dene; yoksa sıfır bağımlılıklı JSON-RPC 2.0 Stdio sunucusunu çalıştır
+# Try official FastMCP library first; otherwise fallback to zero-dependency JSON-RPC 2.0 Stdio server
 try:
     from mcp.server.fastmcp import FastMCP  # type: ignore
 
@@ -209,27 +209,27 @@ try:
 
     @mcp.tool()
     def search_project_knowledge(query: str) -> str:
-        """Proje mimarisi, DB şeması, iş kuralları ve geçmiş kararları (instincts) içinde tam metin arama yapar."""
+        """Searches full-text across project architecture, DB schema, business rules, and historical decisions (instincts)."""
         return _search_kb(query)
 
     @mcp.tool()
     def search_knowledge_index(query: str) -> str:
-        """Kompakt bilgi bankası indeks araması yapar. Az token tüketir ve ID listesi döner."""
+        """Performs a compact knowledge base index search. Consumes low tokens and returns an ID list."""
         return _search_kb_index(query)
 
     @mcp.tool()
     def get_knowledge_detail(block_ids: str) -> str:
-        """Belirtilen blok ID'lerinin tam içeriğini getirir (virgülle ayrılmış ID listesi, ör. 'instincts.md#3')."""
+        """Retrieves the full content of specified block IDs (comma-separated ID list, e.g. 'instincts.md#3')."""
         return _get_kb_detail(block_ids)
 
     @mcp.tool()
     def save_instinct(topic: str, rule: str) -> str:
-        """Projede öğrenilen kritik bir dersi veya mimari kararı kalıcı hafızaya kaydeder."""
+        """Records a critical lesson learned or architectural decision to persistent memory."""
         return _save_instinct_entry(topic, rule)
 
     @mcp.tool()
     def list_knowledge_topics() -> str:
-        """Kayıtlı bilgi bankası dosyalarını ve başlıklarını listeler."""
+        """Lists recorded knowledge base files and their headings."""
         return _list_kb_topics()
 
     if __name__ == "__main__":
@@ -240,31 +240,31 @@ except ImportError:
     TOOLS = [
         {
             "name": "search_project_knowledge",
-            "description": "Proje mimarisi, DB şeması, iş kuralları ve geçmiş kararları (instincts) içinde tam metin arama yapar.",
+            "description": "Searches full-text across project architecture, DB schema, business rules, and historical decisions (instincts).",
             "inputSchema": {
                 "type": "object",
-                "properties": {"query": {"type": "string", "description": "Aranacak anahtar kelimeler"}},
+                "properties": {"query": {"type": "string", "description": "Keywords to search for"}},
                 "required": ["query"],
             },
         },
         {
             "name": "search_knowledge_index",
-            "description": "Kompakt bilgi bankası indeks araması yapar. Az token tüketir ve ID listesi döner.",
+            "description": "Performs a compact knowledge base index search. Consumes low tokens and returns an ID list.",
             "inputSchema": {
                 "type": "object",
-                "properties": {"query": {"type": "string", "description": "Aranacak anahtar kelimeler"}},
+                "properties": {"query": {"type": "string", "description": "Keywords to search for"}},
                 "required": ["query"],
             },
         },
         {
             "name": "get_knowledge_detail",
-            "description": "Belirtilen blok ID'lerinin tam içeriğini getirir.",
+            "description": "Retrieves the full content of specified block IDs.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
                     "block_ids": {
                         "type": "string",
-                        "description": "Virgülle ayrılmış blok ID'leri (ör. 'instincts.md#3, instincts.md#5')",
+                        "description": "Comma-separated block IDs (e.g. 'instincts.md#3, instincts.md#5')",
                     }
                 },
                 "required": ["block_ids"],
@@ -272,19 +272,19 @@ except ImportError:
         },
         {
             "name": "save_instinct",
-            "description": "Projede öğrenilen kritik bir dersi veya mimari kararı kalıcı hafızaya kaydeder.",
+            "description": "Records a critical lesson learned or architectural decision to persistent memory.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
-                    "topic": {"type": "string", "description": "Konu başlığı (örn. EF-Core, Auth, Angular)"},
-                    "rule": {"type": "string", "description": "Öğrenilen kural veya mimari karar"},
+                    "topic": {"type": "string", "description": "Topic heading (e.g. EF-Core, Auth, Angular)"},
+                    "rule": {"type": "string", "description": "Learned rule or architectural decision"},
                 },
                 "required": ["topic", "rule"],
             },
         },
         {
             "name": "list_knowledge_topics",
-            "description": "Kayıtlı bilgi bankası dosyalarını ve başlıklarını listeler.",
+            "description": "Lists recorded knowledge base files and their headings.",
             "inputSchema": {"type": "object", "properties": {}},
         },
     ]
@@ -333,11 +333,11 @@ except ImportError:
                 elif name == "get_knowledge_detail":
                     text = _get_kb_detail(str(args.get("block_ids", "")))
                 elif name == "save_instinct":
-                    text = _save_instinct_entry(str(args.get("topic", "Genel")), str(args.get("rule", "")))
+                    text = _save_instinct_entry(str(args.get("topic", "General")), str(args.get("rule", "")))
                 elif name == "list_knowledge_topics":
                     text = _list_kb_topics()
                 else:
-                    text = f"Bilinmeyen araç: {name}"
+                    text = f"Unknown tool: {name}"
                 _send({
                     "jsonrpc": "2.0",
                     "id": req_id,

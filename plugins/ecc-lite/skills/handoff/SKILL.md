@@ -1,11 +1,13 @@
 ---
 name: handoff
-description: Context dolmaya başladığında mevcut durumu .agents/HANDOFF.md dosyasına kaydeder.
+description: Persists current progress and context to .agents/HANDOFF.md when context window starts filling up.
 ---
-# Oturum Devir (Handoff) Protokolü
-1. Bu oturumda öğrenilen kalıcı bir mimari kural veya önemli bir bug çözümü varsa `save_instinct` MCP aracıyla hafızaya kaydet.
-2. Mevcut oturumdaki ilerlemeyi `.agents/HANDOFF.md` dosyasına maksimum 25 satırda şu başlıklarla yaz:
-   - **Tamamlanan İşler & Değişen Dosyalar**
-   - **Alınan Mimari Kararlar**
-   - **Açık Kalan Noktalar & Sıradaki İlk Adım (Next Step)**
-3. Kullanıcıya oturumu temizleyip (`/clear`) yeni oturumda `@.agents/HANDOFF.md` dosyasını referans göstererek sıfır token şişmesiyle devam edebileceğini bildir.
+
+# Session Handoff Protocol
+
+1. If any enduring architectural rule or critical bug resolution was learned during this session, record it in persistent memory using the `save_instinct` MCP tool.
+2. Summarize current session progress in `.agents/HANDOFF.md` in at most 25 lines using the following sections:
+   - **Completed Work & Modified Files**
+   - **Architectural Decisions Made**
+   - **Open Items & Immediate Next Step**
+3. Inform the user that they can clear the session (`/clear`) and resume in a fresh session by referencing `@.agents/HANDOFF.md` with zero token bloat.

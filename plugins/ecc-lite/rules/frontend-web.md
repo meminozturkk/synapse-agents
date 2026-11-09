@@ -1,11 +1,11 @@
 ---
-trigger: glob
-globs: "*.ts, *.tsx, *.jsx, *.html, *.css"
-description: "React 19, TypeScript, Tailwind ve modern Web frontend kuralları"
+description: React, Next.js & TypeScript Frontend Rules
+globs: "*.ts, *.tsx, *.js, *.jsx, *.html, *.css"
+alwaysApply: false
 ---
-# Frontend (Web / React / Angular / TypeScript) Kuralları
-- **React 19 & State Yönetimi**: Gereksiz `useEffect` kullanımından kaçın; hesaplanabilir değerleri türetilmiş state (derived state) veya pure function ile yönet.
-- **Tip Güvenliği**: Strict typing zorunludur; `any` kullanımı kesinlikle yasaktır (`unknown` veya açık TypeScript interface/type kullan). Backend kontratlarına %100 uyan strict DTO tipleri tanımla.
-- **Tailwind CSS**: Tutarlı spacing, typography ve semantic renk sınıflarını kullan; inline arbitrary style'lardan kaçın.
-- **Modern Angular Projeleri**: Angular içeren modüllerde Standalone component mimarisi, Signals (`signal`, `computed`, `effect`), `ChangeDetectionStrategy.OnPush` ve yeni control flow (`@if`, `@for`) sözdizimini kullan.
-- **Bellek ve Yan Etki Yönetimi**: Event listener, interval ve aboneliklerin unmount/destroy anında eksiksiz temizlendiğinden (cleanup) emin ol.
+# Frontend (Web / React / Next.js / TypeScript) Rules
+- **React 19 & State Management**: Avoid unnecessary `useEffect` hooks; manage computable values via derived state or pure functions.
+- **Type Safety**: Strict typing is mandatory; `any` is strictly prohibited (use `unknown` or explicit TypeScript interfaces/types). Define strict DTO types that match backend contracts 100%.
+- **Tailwind CSS**: Use consistent spacing, typography, and semantic color classes; avoid inline arbitrary styles where design tokens exist.
+- **Modern Angular Projects**: For Angular modules, follow Standalone component architecture, Signals (`signal`, `computed`, `effect`), `ChangeDetectionStrategy.OnPush`, and new control flow syntax (`@if`, `@for`).
+- **Memory & Lifecycle Management**: Ensure event listeners, intervals, and subscriptions are completely cleaned up on component unmount or destruction.

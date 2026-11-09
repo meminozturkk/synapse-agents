@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # ECC-Lite Dual-Mode Secret Guard (PreToolUse Hook)
-# Hem Antigravity CLI (JSON stdout) hem Claude Code (exit code 2) ile tam uyumlu
+# Fully compatible with both Antigravity CLI (JSON stdout) and Claude Code (exit code 2)
 # ==============================================================================
 set -u
 
 INPUT="$(cat 2>/dev/null || true)"
 
-# Çağrıldığı CLI'ı otomatik algıla
+# Auto-detect calling CLI
 if [[ "${1:-}" == "--antigravity" ]] || printf '%s' "$INPUT" | grep -q '"toolCall"'; then
   MODE="antigravity"
 else
   MODE="claude"
 fi
 
-# Self-edit bypass kontrolü:
-# SADECE dosya yazma/düzenleme araçlarında VE hedef dosya yolu 'secret-guard.sh' ile bittiğinde izin ver.
-# run_command, Bash veya terminal komutları için ASLA bypass verilmez.
+# Self-edit bypass check:
+# ONLY allow when using file write/edit tools AND the target file path ends with 'secret-guard.sh'.
+# NEVER bypass for run_command, Bash, or terminal commands.
 IS_SELF_EDIT="$(printf '%s' "$INPUT" | python3 -c '
 import json, sys
 try:
@@ -44,17 +44,17 @@ if [ "$IS_SELF_EDIT" = "yes" ]; then
   exit 0
 fi
 
-# JSON içindeki kaçışlı tırnakları (\" -> ") normalize et ki regex her iki durumda da yakalasın
+# Normalize escaped quotes in JSON (\" -> ") so regex matches in both formats
 NORMALIZED_INPUT="$(printf '%s' "$INPUT" | sed 's/\\"/"/g')"
 
-# Yüksek doğruluklu secret / anahtar desenleri:
-# - Private Key blokları
+# High-confidence secret / key patterns:
+# - Private Key blocks
 # - Anthropic (sk-ant-), OpenAI (sk-proj-), Google (AIzaSy), AWS (AKIA...), GitHub (ghp_, github_pat_)
-# - Açık parola / secret / connection string atamaları (en az 8 karakterli gerçek değerler)
+# - Explicit password / secret / connection string assignments (at least 8 chars real values)
 SECRET_REGEX='(-----BEGIN [A-Z ]*PRIVATE KEY-----|sk-ant-[a-zA-Z0-9_-]{15,}|sk-proj-[a-zA-Z0-9_-]{15,}|AIzaSy[a-zA-Z0-9_-]{30,}|AKIA[0-9A-Z]{16}|ghp_[a-zA-Z0-9]{30,}|github_pat_[a-zA-Z0-9_]{30,}|(Password|Pwd|SecretKey|ApiKey|ClientSecret)[[:space:]]*[:=][[:space:]]*["'\'']?[^"'\''[:space:];${}<>]{8,})'
 
 if printf '%s' "$NORMALIZED_INPUT" | grep -qE "$SECRET_REGEX"; then
-  MSG="BLOCK: Kod içinde hardcoded secret, API anahtarı veya parola tespit edildi! Lütfen ortam değişkeni (.env / User Secrets) kullanın."
+  MSG="BLOCK: Hardcoded secret, API key, or password detected in code! Please use environment variables (.env / User Secrets)."
   if [ "$MODE" = "antigravity" ]; then
     printf '{"decision": "deny", "reason": "%s"}\n' "$MSG"
     exit 0
@@ -64,7 +64,7 @@ if printf '%s' "$NORMALIZED_INPUT" | grep -qE "$SECRET_REGEX"; then
   fi
 fi
 
-# Sorun yoksa: Antigravity için minimal allow JSON, Claude Code için 0 byte çıktı (sıfır token maliyeti)
+# If clean: minimal allow JSON for Antigravity, 0 byte output for Claude Code (zero token cost)
 if [ "$MODE" = "antigravity" ]; then
   printf '{"decision": "allow"}\n'
 fi

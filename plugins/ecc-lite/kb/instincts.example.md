@@ -1,7 +1,7 @@
 # Project Instincts & Architectural Decisions (Example Template)
 
-- **[Clean-Architecture-Boundaries]** (Initial): Katmanlar arası bağımlılıklar daima içe doğru (Domain <- Application <- Infrastructure / UI) akmalıdır. Domain ve Application katmanları harici kütüphane ve somut altyapı sınıflarına bağımlı olmamalıdır.
-- **[EF-Core-Read-Performance]** (Initial): Salt okunur veritabanı sorgularında `.AsNoTracking()` ve tüm asenkron metotlarda `CancellationToken` zorunludur. N+1 sorgularından kaçınmak için projeksiyon (`Select`) veya hedefe yönelik `Include` kullanılmalıdır.
-- **[Strict-Frontend-Typing]** (Initial): Frontend kod tabanında (TypeScript) `any` tipi kesinlikle yasaktır; tüm API yanıtları, bileşen propları ve durum nesneleri açık arayüzler (interface/type) ile tiplenmelidir.
-- **[Flutter-Const-And-Isolation]** (Initial): Flutter UI ağacında yeniden çizimleri (re-render) en aza indirmek için uygun her yerde `const` constructor kullanılmalı, durum yönetimi iş mantığından izole edilmelidir.
-- **[Ponytail-Minimalism]** (Initial): Mevcut platform kütüphaneleri ve mevcut kod örüntüleri önceliklendirilir; birkaç satırlık iş için asla gereksiz harici paket veya tek kullanımlık soyutlama (Interface/Factory) eklenmez.
+- **[Clean-Architecture-Boundaries]** (Initial): Dependencies between layers must always flow inward (Domain <- Application <- Infrastructure / UI). The Domain and Application layers must remain free of external libraries and concrete infrastructure dependencies.
+- **[EF-Core-Read-Performance]** (Initial): Read-only database queries must use `.AsNoTracking()`, and all asynchronous methods must accept and propagate a `CancellationToken`. Avoid N+1 queries by leveraging projection (`Select`) or targeted `Include`.
+- **[Strict-Frontend-Typing]** (Initial): The `any` type is strictly forbidden in frontend codebases (TypeScript); all API responses, component props, and state objects must be explicitly typed using interfaces or types.
+- **[Flutter-Const-And-Isolation]** (Initial): Use `const` constructors wherever possible in Flutter widget trees to minimize re-renders; keep state management isolated from business logic.
+- **[Ponytail-Minimalism]** (Initial): Prioritize existing platform libraries and codebase patterns; never introduce unnecessary third-party packages or single-use abstractions (Interface/Factory) for a few lines of logic.

@@ -186,9 +186,9 @@ Confirm:
 green run of the test you wrote is not a green suite. Before you call
 the change done, run the project's test command even when your task
 named only one test file:
-- **Backend (.NET / C#)**: `dotnet test` (veya `dotnet test MyApp.Api.Tests`)
+- **Backend (.NET / C#)**: `dotnet test` (or `dotnet test MyApp.Api.Tests`)
 - **Mobile (Flutter / Dart)**: `flutter test`
-- **Frontend (Web / Vite)**: `npm test` veya `npx vitest run`
+- **Frontend (Web / Vite)**: `npm test` or `npx vitest run`
 Any failure that run shows —
 including one you didn't cause — goes in your report by name; a red
 test you watched scroll past and didn't mention is a report falsified

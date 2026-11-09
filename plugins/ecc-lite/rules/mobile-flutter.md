@@ -1,9 +1,9 @@
 ---
-trigger: glob
+description: Flutter & Dart Mobile Engineering Rules
 globs: "*.dart, pubspec.yaml"
-description: "Flutter ve Dart mobil geliştirme kuralları"
+alwaysApply: false
 ---
-# Mobile (Flutter / Dart) Kuralları
-- **Klasör Yapısı**: Feature-first klasör mimarisini ve katman ayrımını (presentation, domain, data) koru.
-- **Performans**: Widget ağacında gereksiz rebuild önlemek için mümkün olan her yerde `const` constructor kullan; büyük widget'ları alt bileşenlere böl.
-- **State Yönetimi**: Immutable state prensibini koru; `BuildContext` nesnesini `async` boşluklarından sonra (`if (!context.mounted) return;`) kontrol etmeden kullanma.
+# Mobile (Flutter / Dart) Rules
+- **Folder Structure**: Follow a feature-first directory layout and preserve layer separation (presentation, domain, data).
+- **Performance**: Use `const` constructors wherever possible to prevent unnecessary rebuilds in the widget tree; decompose large widgets into smaller subcomponents.
+- **State & Lifecycle Management**: Enforce immutable state; never use `BuildContext` across asynchronous gaps without checking `if (!context.mounted) return;`.

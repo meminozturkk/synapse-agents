@@ -1,62 +1,109 @@
 # ⚡ ecc-lite-orchestrator
 
-> **High-Performance Multi-Agent Engineering Architecture & Zero-Token Autonomous Governance System**  
-> *Antigravity & Claude Code için Yüksek Başarımlı Çoklu-Ajan Mühendislik Mimarisi ve Sıfır-Token Otonom Yönetim Sistemi*
+> 🌐 **Language / Dil:** **[🇬🇧 English](README.md)** | [🇹🇷 Türkçe](README.tr.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Architecture: Chief + 4 Subagents](https://img.shields.io/badge/Architecture-Chief_%2B_4_Agents-8A2BE2.svg)](#-agent-matrix--roles)
-[![OS Guards: 0--Token](https://img.shields.io/badge/OS_Guards-0--Token_Bash-success.svg)](#-0-token-os-guards)
-[![Compatibility: Dual--Mode](https://img.shields.io/badge/Compatibility-Antigravity_%7C_Claude_Code-brightgreen.svg)](#-quick-start)
+[![Model: Gemini 3.8 Flash](https://img.shields.io/badge/Model-Gemini_3.8_Flash-FF6F00.svg)](#-agent-matrix--roles)
+[![OS Guards: 0--Token](https://img.shields.io/badge/OS_Guards-0--Token_Bash-success.svg)](#-0-token-os-shields--progressive-memory)
+[![Compatibility: Triple--Platform](https://img.shields.io/badge/Compatibility-Antigravity_%7C_Claude_Code_%7C_Cursor-brightgreen.svg)](#-triple-platform-support)
 
 ---
 
-## 🌐 Overview / Genel Bakış
+## 🌐 Overview
 
-**`ecc-lite-orchestrator`**, modern yapay zekâ destekli yazılım mühendisliğini rastgele prompt denemelerinden çıkarıp deterministik, cerrahi ve endüstri standardı bir mühendislik disiplinine dönüştüren hibrit bir orkestrasyon çerçevesidir.
+**`ecc-lite-orchestrator`** is an enterprise-grade multi-agent engineering framework that transforms AI-assisted software development from hit-or-miss prompt experiments into a deterministic, surgical, and production-tested engineering discipline.
 
-Sistem, **1 Şef (Hands-Off Chief Architect)** ve **4 Evrensel Alt Ajan (`explorer`, `planner`, `coder`, `reviewer`)** hiyerarşisiyle çalışır. LLM context penceresini ham kodla şişirmek yerine, 5 saygın açık kaynak metodolojisinin en güçlü prensiplerini tek bir çatı altında birleştirir.
+Designed for modern IDEs and autonomous development environments, the framework operates through a **Hands-Off Chief Architect** coordinating **4 Universal Subagents (`explorer`, `planner`, `coder`, `reviewer`)** exclusively running on **Gemini 3.8 Flash** (High & Medium Effort modes). Instead of exhausting the LLM context window with raw code files, `ecc-lite-orchestrator` fuses the proven core principles of 5 prominent open-source paradigms into a single, cohesive developer stack.
 
 ---
 
-## 🧬 Architectural Philosophy (5-Repo Synthesis) / Mimari Sentez
+## 🧬 Architectural Philosophy (5-Repo Synthesis)
 
-`ecc-lite-orchestrator`, açık kaynak dünyasında kanıtlanmış 5 büyük paradigmanın sentezidir:
+`ecc-lite-orchestrator` synthesizes the strongest insights of the open-source agentic engineering community while deliberately rejecting bloated or destructive patterns:
 
 | # | Paradigm & Source | Primary Principles & Core Implementation |
-|---|---|---|
-| **1** | **Superpowers** | **Systematic Debugging & Verification Gate:** Hipotezsiz ve semptoma yönelik tahminî yama (ad-hoc patch) yasaktır. Test kanıtı olmadan başarı beyanı (`NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE`) kabul edilmez. |
-| **2** | **Ponytail** | **Minimalizm, YAGNI & Debt Ledger:** Sıfır kod şişkinliği (zero bloat), tek kullanımlık gereksiz soyutlamaları budama ve bilinçli teknik borçları `// shortcut:` etiketiyle kayıt altına alma. |
-| **3** | **Karpathy Skills** | **Surgical Diffs & Low Cognitive Load:** Yalnızca hedef satırlara cerrahi müdahale. Komşu bloklara ve ilgisiz kodlara dokunmayarak diff gürültüsünü minimuma indirme. |
-| **4** | **Claude-Mem** | **2-Aşamalı Progresif Arama (2-Stage Progressive Search):** 20 dosyalık context tüketimi yerine önce hafif bir indeks taranır (`kb search_index`), ardından yalnızca hedeflenen satırlar detayıyla yüklenir. |
-| **5** | **ECC-Lite** | **0-Token OS Kalkanları (Pre-Tool Verification):** Gizli anahtar (secret) sızıntıları, yıkıcı komutlar ve regex kontrolleri LLM'e token harcatmadan yerel bash hook'ları ile engellenir. |
+|:---:|---|---|
+| **1** | **[obra/superpowers](https://github.com/obra/superpowers)** | **Systematic Debugging & Verification Gate:** Speculative patches and symptom guessing are strictly prohibited. Root causes must be isolated and proven before fixes are made. **"NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"** (exit code 0 terminal proof required). |
+| **2** | **[DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)** | **Ponytail Minimalism, YAGNI & Debt Ledger:** Ruthlessly prune one-off abstractions, redundant factories, and bloated dependencies. Intentional shortcuts are explicitly tracked via `// shortcut: <limit>, <trigger>` in a structured debt ledger. Includes **Ponytail Scope Discovery**. |
+| **3** | **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)** | **Surgical Diffs & Low Cognitive Load:** Edits are restricted strictly to the lines essential for the task. Adjacent blocks, comments, and existing styling remain untouched, eliminating diff noise and regressions. |
+| **4** | **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)** | **2-Stage Progressive Search:** Never dump dozens of documentation files into context. Query a lightweight topic index first (`search_knowledge_index`), then retrieve only targeted detail sections (`get_knowledge_detail`), slashing token burn. |
+| **5** | **[ecc-lite](https://github.com/muhammeteminozturk/ecc-lite)** | **0-Token OS Shields:** Execute pre-tool parameter validations and secret scanning via local bash hooks (`secret-guard.sh`, `verify-quiet.sh`) at OS speed with zero model token consumption. |
+
+### 🚫 Deliberately Rejected Patterns
+
+To maintain peak reasoning quality and operational stability, two popular community practices were explicitly rejected:
+
+1. **`caveman` (Extreme Token Compression / Grammar Butchery):**  
+   Compressing agent output into broken, caveman-style telegraphic language degrades the underlying model's chain-of-thought depth, semantic precision, and architectural reasoning. We achieve superior token economy through **Ponytail Minimalism** and **2-Stage Progressive Memory Retrieval**, preserving pristine technical communication.
+2. **`claude-mem` Background Daemon:**  
+   Persistent background daemons introduce socket leaks, runaway memory footprints, zombie processes, and hidden CPU/token polling. `ecc-lite-orchestrator` replaces this with an on-demand, stateless Python standard-library MCP server (`ecc-lite-brain`) that wakes up only when queried.
 
 ---
 
-## 🏛️ Agent Matrix & Roles / Ajan Matrisi ve Rol Dağılımı
+## 🖥️ Triple-Platform Support
 
-Sistem **1 Şef (Chief Architect)** ve **4 Evrensel Alt Ajan** ile çalışır. Tüm alt ajanlar **Gemini 3.8 Flash** modeli üzerinde çalışarak hız, yüksek mantıksal kavrayış ve düşük maliyet sağlar.
+`ecc-lite-orchestrator` natively equips three major AI developer platforms through a single unified installation:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        ecc-lite-orchestrator                           │
+│               Core Plugins, 10 Skills, 0-Token Shields                 │
+└──────────────┬─────────────────────────┬───────────────────────────────┘
+               │                         │
+      ┌────────▼────────┐       ┌────────▼────────┐       ┌──────────────▼────────┐
+      │   Antigravity   │       │   Claude Code   │       │      Cursor IDE       │
+      │   (Gemini CLI)  │       │      (CLI)      │       │     (Global / Proj)   │
+      └────────┬────────┘       └────────┬────────┘       └──────────────┬────────┘
+               │                         │                               │
+  • ~/.gemini/config/plugins/   • ~/.agents/                     • ~/.cursor/mcp.json
+  • ~/.gemini/config/           • ~/.claude/agents/              • ~/.cursor/rules/*.mdc
+    mcp_config.json             • ~/.claude/skills/              • ~/.cursor/skills/
+                                • ~/.claude/rules                • ~/.cursor/agents/
+                                                                 • <project>/.cursor/
+```
+
+### 1. Google Antigravity
+* Full plugin registry located in `~/.gemini/config/plugins/ecc-lite` and `~/.gemini/config/plugins/orchestration`.
+* MCP registration in `~/.gemini/config/mcp_config.json` running `ecc-lite-brain`.
+
+### 2. Claude Code CLI
+* Standardized symlinks mapped into `~/.agents/` (`hooks`, `kb`, `mcp`, `rules`, `skills`).
+* Agent definitions linked into `~/.claude/agents/` and skill packages into `~/.claude/skills/`.
+
+### 3. Cursor IDE (Global & Project-Specific)
+* MCP server registered in `~/.cursor/mcp.json`.
+* Rule sets synced as Cursor MDC rules in `~/.cursor/rules/*.mdc`.
+* Global agents and skills in `~/.cursor/agents/` and `~/.cursor/skills/`.
+* Dedicated project-level configuration via `./install.sh --cursor-project <path>`.
+
+---
+
+## 🏛️ Agent Matrix & Roles
+
+The system is governed by **1 Hands-Off Chief Architect** and **4 Universal Subagents**. All subagents strictly run on **Gemini 3.8 Flash** to maximize speed, logical comprehension, and cost efficiency.
 
 ```mermaid
 flowchart TD
-    User([User Request / Kullanıcı İsteği]) --> CA[Şef: Chief Architect\nHands-Off Orchestrator]
+    User([User Request / Prompt]) --> CA["Şef: Chief Architect\n(Hands-Off Orchestrator)"]
     
-    CA -->|Kapsam Belirsizse| EXP[explorer\nMedium Effort\nScope Discovery]
-    EXP -->|Kesin Dosya Listesi| CA
+    CA -->|Scope Unclear| EXP["explorer [Gemini 3.8 Flash - Medium]\n(Ponytail Scope Discovery)"]
+    EXP -->|Caller & Fixture Map| CA
     
-    CA -->|Kapsam Net / Çok Katmanlı| PLN[planner\nHigh Effort\nZero-Write Architecture]
-    PLN -->|Taslak Plan & Kontratlar| GATE{Şef Plan Denetim Kapısı\nChief Plan Audit Gate\n4 Süzgeç}
+    CA -->|Clear Scope / Cross-Layer| PLN["planner [Gemini 3.8 Flash - High]\n(Zero-Write System Architecture)"]
+    PLN -->|Draft Plan & Contracts| GATE{"Chief Plan Audit Gate\n(4 Chief Architect Filters)"}
     
-    GATE -->|Onay & Paralel Dağıtım| C1[Coder: Backend\nHigh Effort]
-    GATE -->|Onay & Paralel Dağıtım| C2[Coder: Mobile\nHigh Effort]
-    GATE -->|Onay & Paralel Dağıtım| C3[Coder: Frontend\nHigh Effort]
+    GATE -->|Approved & Parallelized| C1["Coder (Backend) [Flash - High]"]
+    GATE -->|Approved & Parallelized| C2["Coder (Mobile) [Flash - High]"]
+    GATE -->|Approved & Parallelized| C3["Coder (Frontend) [Flash - High]"]
     
-    C1 -->|Fresh Verification Gate| SYNC((Barrier Synchronization))
-    C2 -->|Fresh Verification Gate| SYNC
-    C3 -->|Fresh Verification Gate| SYNC
+    C1 -->|Verification Gate: Exit Code 0| SYNC(("Barrier Synchronization"))
+    C2 -->|Verification Gate: Exit Code 0| SYNC
+    C3 -->|Verification Gate: Exit Code 0| SYNC
     
-    SYNC --> REV[reviewer\nHigh Effort\nContract + Caller-Aware Review]
-    REV -->|Onay| CA
-    CA --> Done([Teslim & Başarı Raporu])
+    SYNC --> REV["reviewer [Gemini 3.8 Flash - High]\n(Contract Lock + Caller-Aware Review)"]
+    REV -->|Passed Verification| CA
+    CA --> Done([Delivery & Final Success Report])
 
     style CA fill:#6C5CE7,stroke:#333,stroke-width:2px,color:#fff
     style GATE fill:#FD79A8,stroke:#333,stroke-width:2px,color:#fff
@@ -68,130 +115,188 @@ flowchart TD
     style REV fill:#E17055,stroke:#333,stroke-width:1px,color:#fff
 ```
 
-### Alt Ajan Tanımları
+### Agent Roster & Permissions
 
-| Ajan | Model / Mod | Görev ve Sorumluluk Alanı | İzinler |
-|---|---|---|---|
-| **Şef (Chief Architect)** | Üst Orkestratör Model | Kullanıcı hedeflerini anlar, triyaj yapar, planı denetler ve kilitler. | **Salt Koordinatör:** Asla doğrudan kod yazmaz, dosya editlemez, terminal komutu çalıştırmaz. |
-| **`explorer`** | Gemini 3.8 Flash *(Medium)* | Ponytail Scope Discovery: Hızlı sembol taraması, caller/fixture haritalama, max 150 kelime özet. | Salt Okunur (Read-Only) |
-| **`planner`** | Gemini 3.8 Flash *(High)* | Ham kodları okuma yükünü context'inde yutar; 40-80 satırlık mimari plan, kilitli DTO/DB kontratları üretir. | Salt Okunur (Read-Only) |
-| **`coder`** | Gemini 3.8 Flash *(High)* | Paralel N adet çağrılabilir (`Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`). Cerrahi kodlama yapar ve Verification Gate koşturur. | Yazma ve Yürütme (Write & Execute) |
-| **`reviewer`** | Gemini 3.8 Flash *(High)* | İki Aşamalı Denetim: 1) Kilitli Kontrat Uyumu, 2) Caller-Aware derin denetim, güvenlik ve N+1 sorgu taraması. | Salt Okunur (Read-Only) |
-
----
-
-## 🛡️ Chief Architect Plan Audit Gate (4 Süzgeç)
-
-`planner` taslak planı tamamladığında, Şef bu planı doğrudan kullanıcıya veya coder'lara iletmez. Şef kendi zekasıyla planı **4 Baş Mimar Süzgecinden** geçirir:
-
-1. **Ponytail Minimalizm & YAGNI Budaması:** Gereksiz tablolar, tek kullanımlık Factory/Interface'ler, lüzumsuz endpoint'ler ve gereksiz npm/nuget paketleri derhal budanır.
-2. **Kontrat ve Katman Kilidi:** Paralel çalışacak kollar (Backend, Mobile, Frontend) arasındaki endpoint rotaları, HTTP metodları, DTO alan adları, tipleri ve nullability kuralları milimetrik kilitlenir.
-3. **Karpathy Kapsam & Varsayım Kontrolü:** İstenmeyen komşu modüllere müdahale riski ve gizli varsayımlar ayıklanır.
-4. **Güvenlik ve Veri Bütünlüğü:** Yetkilendirme (AuthZ), veri kaybı riskleri ve geriye dönük uyumluluk (backward compatibility) garantiye alınır.
+| Agent | Model & Effort | Primary Mission | Tool Permissions |
+|---|---|---|:---:|
+| **Şef (Chief Architect)** | Top Orchestrator Model (e.g. Gemini 4 Argon) | Understands intent, performs triage, enforces audit gates, coordinates subagents. | **Coordinator Only:** Zero code writing (`write_to_file`, `replace_file_content`), zero terminal execution, zero raw source reading. |
+| **`explorer`** | Gemini 3.8 Flash *(Medium Effort)* | **Ponytail Scope Discovery:** Maps callers, dependencies, fixtures, configs; produces a crisp summary (max 150 words). | Read-Only |
+| **`planner`** | Gemini 3.8 Flash *(High Effort)* | Absorbs raw source files in an isolated context; outputs a 40–80 line architectural plan with locked DTO/DB contracts. | Read-Only |
+| **`coder`** | Gemini 3.8 Flash *(High Effort)* | Spawned as N parallel roles (`Coder (Backend)`, `Coder (Mobile)`, etc.); performs surgical edits and runs the Verification Gate. | Write & Execute |
+| **`reviewer`** | Gemini 3.8 Flash *(High Effort)* | Two-Stage Audit: 1) Strict Contract Adherence, 2) Ponytail Caller-Aware deep review, security, and N+1 query scans. | Read-Only |
 
 ---
 
-## ⚖️ Parallelism vs. Serialization Matrix
+## 🛡️ Chief Architect Plan Audit Gate (4 Filters)
 
-| Geçiş / Aşama | İzin Verilen Mod | Kural ve Gerekçe |
+When `planner` submits a draft plan, the Chief Architect **never blindly relays it** to the user or coder agents. The plan must pass through the **4 Chief Architect Audit Filters**:
+
+1. **Ponytail Minimalism & YAGNI Pruning:** Strip superfluous database tables, one-off factory classes, unused endpoints, speculative abstractions, and unnecessary external dependencies.
+2. **Cross-Layer Contract & Nullability Lock:** Ensure endpoint URLs, HTTP verbs, payload keys, casing conventions, data types, and nullability match 100% across Backend, Mobile, and Web Admin.
+3. **Karpathy Scope & Assumptions Check:** Verify that no unrelated neighboring files are touched and eliminate unverified assumptions that require user clarification.
+4. **Authorization & Data Safety:** Enforce proper authorization (AuthZ) guards, data integrity, non-destructive migrations, and backward compatibility.
+
+> [!IMPORTANT]
+> If any bloat or flaw is detected, the Chief either sends an immediate refinement request via `send_message` or prunes the plan directly. Only the audited and locked plan is delivered to developers.
+
+---
+
+## 🚦 Smart Triage: Fast Bypass vs. Full Orchestration
+
+```
+                      Is scope already clear?
+                             │
+              ┌──────────────┴──────────────┐
+             YES                            NO
+              │                             │
+    Does change affect              Spawn explorer
+     <= 2 files with                (Ponytail Scope Discovery)
+    0 contract changes?                     │
+      │              │              Does discovery show
+     YES             NO             <= 2 files & 0 contracts?
+      │              │                      │
+      │              │            ┌─────────┴─────────┐
+      │              │           YES                  NO
+      ▼              ▼            │                   │
+  [ FAST          [ FULL          ▼                   ▼
+   BYPASS ]      ORCHESTRATION] [ FAST             [ FULL
+  1x Coder        Planner        BYPASS ]         ORCHESTRATION]
+  directly        required      1x Coder           Feed scope
+                                directly           to Planner
+```
+
+* **Fast Bypass:** For localized tasks (`<= 2` files, 0 contract/schema modifications, bug fixes, UI tweaks), planning bureaucracy is completely bypassed. The Chief directly delegates to `1x coder`, who implements the fix and provides fresh verification evidence.
+* **Full Orchestration:** For multi-layer features, schema updates, or changes spanning `> 2` files, the full pipeline (`explorer` → `planner` → Chief Audit Gate → Parallel `coder`s → `reviewer`) is strictly enforced.
+
+---
+
+## ⚖️ Concurrency vs. Sequentiality Matrix
+
+To prevent race conditions, context waste, and merge conflicts, subagent transitions adhere to strict execution rules:
+
+| Transition / Phase | Allowed Mode | Rationale & Architectural Rule |
 |---|:---:|---|
-| **`explorer` ↔ `planner`** | ⛔ **KESİNLİKLE SIRALI** | Asla paralel çağrılmaz! `planner` haritayı beklemeden kör arama yaparsa çift token yakılır ve Hızlı Hat şansı yok olur. |
-| **`planner` ↔ `coder`** | ⛔ **KESİNLİKLE SIRALI** | Şef Plan Denetim Kapısı ve kilitli kontrat olmadan kodlama yapılamaz. |
-| **`coder` ↔ `reviewer`** | ⛔ **KESİNLİKLE SIRALI** | Paralel `coder` kollarının tamamı bitmeden `reviewer` çağrılmaz. Parçalı inceleme mükerrer iş ve yanlış alarmlar üretir. |
-| **Çoklu `explorer`** | ✅ **PARALEL SERBEST** | Farklı dizin veya katmanlarda birden fazla `explorer` eşzamanlı çalışabilir. Hepsi tamamlanınca Şef'e döner. |
-| **Çoklu `coder`** | ✅ **PARALEL SERBEST** | Şef onayı sonrası katman bazlı `coder` ajanları (`Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`) tamamen paralel çalışır. |
+| **`explorer` ↔ `planner`** | ⛔ **STRICTLY SEQUENTIAL** | **Never parallel!** If spawned concurrently, `planner` cannot leverage the discovery map, wasting tokens on redundant searches and breaking Fast Bypass triage. |
+| **`planner` ↔ `coder`** | ⛔ **STRICTLY SEQUENTIAL** | **Never parallel!** Coding without an audited, contract-locked plan leads to severe integration drift and rework. |
+| **`coder` ↔ `reviewer`** | ⛔ **STRICTLY SEQUENTIAL** | **Never parallel!** Partial reviews generate duplicate effort and false positive alerts. Review begins only after all coders clear barrier sync. |
+| **Multi-`explorer`** | ✅ **PARALLEL ALLOWED** | Permitted across isolated directories or layers (e.g. backend vs. mobile). All must complete before `planner` begins. |
+| **Multi-`coder`** | ✅ **PARALLEL ALLOWED** | After Chief Plan Audit approval, layer-specific coders (`Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`) execute completely in parallel. |
 
 ---
 
-## 🧰 10 Seçkin Mühendislik Becerisi (Skills)
+## 🔄 Continuous Execution (`Ruling:` Protocol)
 
-Repo içinde kullanıma hazır 10 ana uzmanlık becerisi yer almaktadır:
+During execution, agents maintain momentum without prompting the user for trivial decisions:
 
-1. **`systematic-debugging`**: Kök neden izole edilmeden, log/test ile kanıtlanmadan ve yeniden üretilmeden tahminî yama yapılmasını engeller.
-2. **`tdd`**: Test-Driven Development döngüsü (.NET xUnit, Flutter test, Web Vitest). Önce başarısız test, ardından minimal kod, sonra refactor.
-3. **`verification-gate`**: Kod değişikliği sonrası taze derleme, linter ve test çıktısını (Exit Code: 0) zorunlu kılan güvenlik kapısı.
-4. **`tech-debt`**: Kod içindeki `// shortcut:` ve `// ponytail:` etiketlerini tek bir borç defterinde toplayarak unutulmasını önler.
-5. **`deep-review`**: Caller-aware derin diff denetimi: Güvenlik açıkları, gerçek yük senaryoları, bellek sızıntıları ve eksik testler.
-6. **`repo-audit`**: Kod tabanının genel sağlık denetimi; ölü kodların, gereksiz bağımlılıkların ve mimari aşınmaların tespiti.
-7. **`using-git-worktrees`**: Çalışma alanını kirletmeden izole git worktree ortamlarında güvenli geliştirme yapılmasını sağlar.
-8. **`handoff`**: Context dolduğunda mevcut durumu, kilitli kararları ve kalan adımları yapılandırılmış özette dondurur.
-9. **`kb`**: `ecc-lite-brain` üzerinde 2 aşamalı progresif arama (İndeks -> Hedef Belge) ve NotebookLM entegrasyonu.
-10. **`model-orchestrator`**: Görevin gereksinimine göre farklı modeller arasında dinamik görev dağıtımı ve mutabakat sağlar.
-
----
-
-## 🛡️ 0-Token OS Kalkanları (Pre-Tool & Stop Hooks)
-
-Modelin yapay zekâ jetonlarını harcamadan, işletim sistemi seviyesinde çalışan bash güvenlik ve doğrulama kalkanları:
-
-- **`secret-guard.sh`**: Kod tabanında ve diff'lerde API anahtarlarını, private key'leri, `.env` içeriklerini ve hassas token'ları yerel regex taramasıyla algılar ve işlem anında durdurur (PreToolUse hook).
-- **`verify-quiet.sh`**: Görev tamamlandığında değişen dosya türlerine (.NET, Flutter, Web/TS) göre derleme, tip ve analiz kontrollerini sessizce çalıştırır; başarılı durumda sıfır token harcar (Stop hook).
+1. **Look Before You Ask:** Agents always search the codebase and `ecc-lite-brain` before asking questions.
+2. **`Ruling:` Protocol:** Technical micro-decisions are recorded in the audit log in a standardized format:
+   ```markdown
+   Ruling: <Decision> — <Technical Rationale> — <Rollback Cost If Inverted>
+   ```
+3. **Escalation Triggers (Only 4 Permitted):**
+   * Destructive actions (dropping database tables, permanent file deletions).
+   * Sensitive secrets / credentials (new API keys, token generation).
+   * External side-effects (git push, remote deployment, store publishing).
+   * Irreconcilable architectural blockers.
 
 ---
 
-## 🚀 Quick Start / Hızlı Başlangıç
+## 🧰 10 Curated Engineering Skills
 
-### Gereksinimler
-- **macOS** veya **Linux** işletim sistemi
-- **Bash 4+**
-- **Python 3.8+** (MCP brain sunucusu için)
-- **Antigravity** ve/veya **Claude Code CLI**
+The workspace includes 10 production-tested engineering skills:
 
-### 1. Kurulum (Tek Komutla)
+1. **`systematic-debugging`**: Enforces root-cause isolation and test reproduction before any fix is attempted.
+2. **`tdd`**: Strict Test-Driven Development workflow across .NET (xUnit), Flutter (test), and Web (Vitest).
+3. **`verification-gate`**: Mandates fresh build, lint, and test execution (Exit Code: 0) prior to claiming completion.
+4. **`tech-debt`**: Aggregates all `// shortcut:` and `// ponytail:` tags into a unified, actionable debt ledger.
+5. **`deep-review`**: Caller-aware differential code review covering edge cases, memory leaks, security, and load profiles.
+6. **`repo-audit`**: Deep health audit detecting dead code, redundant dependencies, and structural rot.
+7. **`using-git-worktrees`**: Automates isolated git worktrees to keep feature branches completely separate and clean.
+8. **`handoff`**: Freezes runtime state, locked decisions, and outstanding work when context exhaustion approaches.
+9. **`kb`**: Progressive 2-stage querying of `ecc-lite-brain` index and documentation with NotebookLM connectivity.
+10. **`model-orchestrator`**: Dynamically orchestrates tasks and multi-model consensus across Gemini and NVIDIA NIM engines.
 
-Repoyu klonlayın ve idempotent kurulum scriptini çalıştırın:
+---
+
+## 🛡️ 0-Token OS Shields & Progressive Memory
+
+### 1. Zero-Token OS Shields (`plugins/ecc-lite/hooks/`)
+* **`secret-guard.sh` (Pre-Tool Hook):** Evaluates file edits and commands via ultra-fast local regex patterns. Blocks leaked private keys, API secrets, `.env` dumps, and destructive commands at the OS layer without expending a single model token.
+* **`verify-quiet.sh` (Stop Hook):** Triggered upon task completion. Analyzes modified file extensions (.NET, Flutter, Web/TS) and silently verifies compilation and typing. Remains completely silent on exit code 0, consuming 0 tokens.
+
+### 2. 2-Stage Progressive Memory (`ecc-lite-brain`)
+* **Stage 1 (`search_knowledge_index`):** Scans compact topic headers and summaries (low token footprint).
+* **Stage 2 (`get_knowledge_detail`):** Loads full markdown documentation only for the matched topic.
+* **Instincts Engine (`kb/instincts.md`):** Automatically registers project-specific naming conventions, architectural boundaries, and DTO rules.
+
+---
+
+## 🚀 Installation & Usage Guide
+
+### Prerequisites
+* **macOS** or **Linux**
+* **Bash 4.0+**
+* **Python 3.8+** (for standard-library MCP server)
+* **Antigravity**, **Claude Code CLI**, or **Cursor IDE**
+
+### 1. Installation
+
+Clone the repository and run the idempotent installer:
 
 ```bash
 git clone https://github.com/your-org/ecc-lite-orchestrator.git
 cd ecc-lite-orchestrator
 
-# Hem Antigravity hem Claude Code için varsayılan tam kurulum:
+# Default: Installs for Antigravity, Claude Code, and Cursor IDE (Global)
 ./install.sh
 
-# Sadece Antigravity kurulumu için:
+# Platform-specific targeted installations:
 ./install.sh --antigravity-only
-
-# Sadece Claude Code sembolik bağları için:
 ./install.sh --claude-only
+./install.sh --cursor-only
+
+# Project-specific Cursor configuration:
+./install.sh --cursor-project /path/to/your/project
 ```
 
-#### Kurulum Sırasında Gerçekleştirilen İşlemler:
-1. Mevcut yapılandırmalar `~/.claude/backups/pre-install-<timestamp>` altına otomatik yedeklenir.
-2. `plugins/ecc-lite` ve `plugins/orchestration` paketleri `~/.gemini/config/plugins/` altına senkronize edilir.
-3. **Kritik:** Mevcut `instincts.md` (öğrenilen refleksler) **kesinlikle ezilmez ve korunur**. Yoksa `instincts.example.md`'den türetilir.
-4. `~/.gemini/config/mcp_config.json` dosyasına `ecc-lite-brain` Python MCP sunucusu atomik olarak eklenir.
-5. Claude Code için `~/.agents/` ve `~/.claude/{agents,skills}` sembolik bağlantıları kurulur.
+#### What the Installer Does:
+1. **Automated Backups:** Backs up existing plugin and agent configurations into `~/.claude/backups/pre-install-<timestamp>`.
+2. **Antigravity Sync:** Synchronizes `ecc-lite` and `orchestration` plugins to `~/.gemini/config/plugins/`.
+3. **Non-Destructive Instinct Preservation:** **Existing `instincts.md` files are never overwritten.** Learned team knowledge is safely preserved.
+4. **MCP Brain Registration:** Atomically registers `ecc-lite-brain` into `~/.gemini/config/mcp_config.json` and `~/.cursor/mcp.json`.
+5. **Claude & Cursor Symlinks:** Generates required symlinks in `~/.agents/`, `~/.claude/`, and `~/.cursor/`.
 
-### 2. Kaldırma (Güvenli Temizlik)
+### 2. Uninstallation
 
-Sistemi kaldırmak istediğinizde:
+Safely remove the framework while keeping your team's learned instincts intact:
 
 ```bash
-# Güvenli kaldırma (Sembolik bağları ve MCP kaydını temizler, instincts.md dosyasını yedekler):
+# Safe uninstallation (removes symlinks and MCP entries; backs up instincts.md):
 ./uninstall.sh
 
-# Eklenti klasörlerini de tamamen silmek için:
+# Complete wipe (removes all installed plugin files and configurations):
 ./uninstall.sh --all
 ```
 
 ---
 
-## 📂 Repository Structure / Dizin Yapısı
+## 📂 Repository Structure
 
 ```
 ecc-lite-orchestrator/
-├── install.sh              # Idempotent dual-mode installer (Antigravity & Claude Code)
-├── uninstall.sh            # Safe cleanup script with instinct preservation
-├── README.md               # Architecture documentation & system manual
+├── install.sh              # Idempotent installer (Antigravity, Claude Code, Cursor)
+├── uninstall.sh            # Safe uninstallation script with backup guarantees
+├── README.md               # English master architecture & system documentation
+├── README.tr.md            # Turkish complete architecture & system documentation
 ├── LICENSE                 # MIT License
-├── .gitignore              # Ignores runtime state, instincts.md, and bytecode
+├── .gitignore              # Ignores runtime states, Python bytecode, instincts.md
 └── plugins/
     ├── ecc-lite/           # Core tools, 0-token hooks, KB brain & MCP server
     │   ├── hooks/          # secret-guard.sh, verify-quiet.sh
     │   ├── kb/             # instincts.example.md, knowledge topics
-    │   ├── mcp/            # brain_server.py (MCP protocol implementation)
-    │   ├── rules/          # Engineering rules, Karpathy/Ponytail guidelines
-    │   └── skills/         # 10 essential engineering skills
+    │   ├── mcp/            # brain_server.py (Stateless Python MCP implementation)
+    │   ├── rules/          # Karpathy surgical & Ponytail minimalism guidelines
+    │   └── skills/         # 10 curated engineering skills
     └── orchestration/      # Chief Architect & 4 subagent definitions
         ├── agents/         # explorer.md, planner.md, coder.md, reviewer.md
         ├── rules/          # AGENTS.md (Chief gate, triage & parallelism matrix)
@@ -202,4 +307,4 @@ ecc-lite-orchestrator/
 
 ## 📄 License
 
-Bu proje [MIT Lisansı](LICENSE) kapsamında lisanslanmıştır.
+This project is licensed under the [MIT License](LICENSE).

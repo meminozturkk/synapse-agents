@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # ecc-lite-orchestrator Uninstaller
-# Safe Uninstallation & Symlink Cleanup for Antigravity & Claude Code
+# Safe Uninstallation & Symlink Cleanup for Antigravity, Claude Code & Cursor
 # ==============================================================================
 
 set -euo pipefail
@@ -24,16 +24,32 @@ CLAUDE_SKILLS_DIR="${CLAUDE_BASE_DIR}/skills"
 BACKUP_BASE_DIR="${CLAUDE_BASE_DIR}/backups"
 DOT_AGENTS_DIR="${HOME}/.agents"
 
+# Cursor Global Directories & Configurations
+CURSOR_BASE_DIR="${HOME}/.cursor"
+CURSOR_MCP_FILE="${CURSOR_BASE_DIR}/mcp.json"
+CURSOR_RULES_DIR="${CURSOR_BASE_DIR}/rules"
+CURSOR_SKILLS_DIR="${CURSOR_BASE_DIR}/skills"
+CURSOR_AGENTS_DIR="${CURSOR_BASE_DIR}/agents"
+
 REMOVE_PLUGINS=false
+UNINSTALL_ANTIGRAVITY=true
+UNINSTALL_CLAUDE=true
+UNINSTALL_CURSOR_GLOBAL=true
+CURSOR_PROJECT_PATH=""
+EXPLICIT_MODE=false
 
 usage() {
     echo -e "${BOLD}Usage:${NC} $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  --all         Remove symlinks, MCP registration, and delete ~/.gemini/config/plugins/{ecc-lite,orchestration}"
-    echo "  -h, --help    Show this help message and exit"
+    echo "  --all                   Remove symlinks, MCP registrations, and delete ~/.gemini/config/plugins/{ecc-lite,orchestration}"
+    echo "  --antigravity-only      Remove Antigravity MCP registration only"
+    echo "  --claude-only           Remove Claude Code symlinks only"
+    echo "  --cursor-only           Remove Cursor Global symlinks and MCP registration only"
+    echo "  --cursor-project <path> Remove Cursor rules and MCP registration from a specific project directory"
+    echo "  -h, --help              Show this help message and exit"
     echo ""
-    echo "Default: Safely removes symlinks and MCP server registration while preserving plugin files and learned instincts."
+    echo "Default: Safely removes global symlinks and MCP server registrations while preserving plugin files and learned instincts."
     exit 0
 }
 
@@ -42,6 +58,35 @@ while [[ $# -gt 0 ]]; do
         --all)
             REMOVE_PLUGINS=true
             shift
+            ;;
+        --antigravity-only)
+            EXPLICIT_MODE=true
+            UNINSTALL_ANTIGRAVITY=true
+            UNINSTALL_CLAUDE=false
+            UNINSTALL_CURSOR_GLOBAL=false
+            shift
+            ;;
+        --claude-only)
+            EXPLICIT_MODE=true
+            UNINSTALL_ANTIGRAVITY=false
+            UNINSTALL_CLAUDE=true
+            UNINSTALL_CURSOR_GLOBAL=false
+            shift
+            ;;
+        --cursor-only)
+            EXPLICIT_MODE=true
+            UNINSTALL_ANTIGRAVITY=false
+            UNINSTALL_CLAUDE=false
+            UNINSTALL_CURSOR_GLOBAL=true
+            shift
+            ;;
+        --cursor-project)
+            if [[ -z "${2:-}" || "$2" == --* ]]; then
+                echo -e "${RED}[!] Error: --cursor-project requires a valid directory path.${NC}"
+                exit 1
+            fi
+            CURSOR_PROJECT_PATH="$2"
+            shift 2
             ;;
         -h|--help)
             usage
@@ -52,6 +97,43 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [[ "$EXPLICIT_MODE" == false && -n "$CURSOR_PROJECT_PATH" ]]; then
+    # If only --cursor-project is given without other modes, only uninstall project Cursor
+    UNINSTALL_ANTIGRAVITY=false
+    UNINSTALL_CLAUDE=false
+    UNINSTALL_CURSOR_GLOBAL=false
+fi
+
+# Helper to remove ecc-lite-brain from any mcp config file
+remove_mcp_server() {
+    local config_file="$1"
+    if [[ -f "$config_file" ]]; then
+        python3 - "$config_file" << 'EOF'
+import json
+import os
+import sys
+
+config_path = os.path.expanduser(sys.argv[1])
+if os.path.exists(config_path):
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict) and "mcpServers" in data and "ecc-lite-brain" in data["mcpServers"]:
+            del data["mcpServers"]["ecc-lite-brain"]
+            with open(config_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+                f.write("\n")
+            print(f"  ✓ ecc-lite-brain successfully removed from {config_path}")
+        else:
+            print(f"  ℹ ecc-lite-brain was not present in {config_path}")
+    except Exception as e:
+        print(f"  [!] Failed to update {config_path}: {e}")
+EOF
+    else
+        echo -e "  ${YELLOW}ℹ No configuration found at: ${config_file}${NC}"
+    fi
+}
 
 echo -e "${CYAN}${BOLD}"
 echo "=========================================================="
@@ -76,91 +158,158 @@ fi
 # ------------------------------------------------------------------------------
 # 2. Clean Up Claude Code & ~/.agents Symlinks
 # ------------------------------------------------------------------------------
-echo ""
-echo -e "${BLUE}[*] Step 2: Removing Claude Code & ~/.agents symlinks...${NC}"
+if [[ "$UNINSTALL_CLAUDE" == true ]]; then
+    echo ""
+    echo -e "${BLUE}[*] Step 2: Removing Claude Code & ~/.agents symlinks...${NC}"
 
-# Remove ~/.agents links if they point to ecc-lite
-if [[ -d "$DOT_AGENTS_DIR" ]]; then
-    for item in hooks kb mcp rules skills; do
-        link_path="${DOT_AGENTS_DIR}/${item}"
-        if [[ -L "$link_path" ]]; then
-            rm -f "$link_path"
-            echo -e "  ${GREEN}✓ Removed link:${NC} ${link_path}"
-        fi
-    done
-    # Remove dir if empty
-    rmdir "$DOT_AGENTS_DIR" 2>/dev/null || true
-fi
-
-# Remove ~/.claude/agents links
-if [[ -d "$CLAUDE_AGENTS_DIR" ]]; then
-    for agent in explorer planner coder reviewer; do
-        link_path="${CLAUDE_AGENTS_DIR}/${agent}.md"
-        if [[ -L "$link_path" ]]; then
-            rm -f "$link_path"
-            echo -e "  ${GREEN}✓ Removed link:${NC} ${link_path}"
-        fi
-    done
-fi
-
-# Remove ~/.claude/skills links pointing to ecc-lite or orchestration
-if [[ -d "$CLAUDE_SKILLS_DIR" ]]; then
-    for skill_link in "${CLAUDE_SKILLS_DIR}"/*; do
-        if [[ -L "$skill_link" ]]; then
-            target="$(readlink "$skill_link" || true)"
-            if [[ "$target" == *"/ecc-lite/"* || "$target" == *"/orchestration/"* ]]; then
-                rm -f "$skill_link"
-                echo -e "  ${GREEN}✓ Removed skill link:${NC} $(basename "$skill_link")"
+    # Remove ~/.agents links if they point to ecc-lite
+    if [[ -d "$DOT_AGENTS_DIR" ]]; then
+        for item in hooks kb mcp rules skills; do
+            link_path="${DOT_AGENTS_DIR}/${item}"
+            if [[ -L "$link_path" ]]; then
+                rm -f "$link_path"
+                echo -e "  ${GREEN}✓ Removed link:${NC} ${link_path}"
             fi
-        fi
-    done
-fi
+        done
+        rmdir "$DOT_AGENTS_DIR" 2>/dev/null || true
+    fi
 
-# Check ~/.claude/rules symlink
-if [[ -L "${CLAUDE_BASE_DIR}/rules" ]]; then
-    target="$(readlink "${CLAUDE_BASE_DIR}/rules" || true)"
-    if [[ "$target" == *".agents/rules"* || "$target" == *"/ecc-lite/"* ]]; then
-        rm -f "${CLAUDE_BASE_DIR}/rules"
-        echo -e "  ${GREEN}✓ Removed link:${NC} ${CLAUDE_BASE_DIR}/rules"
+    # Remove ~/.claude/agents links
+    if [[ -d "$CLAUDE_AGENTS_DIR" ]]; then
+        for agent in explorer planner coder reviewer; do
+            link_path="${CLAUDE_AGENTS_DIR}/${agent}.md"
+            if [[ -L "$link_path" ]]; then
+                rm -f "$link_path"
+                echo -e "  ${GREEN}✓ Removed link:${NC} ${link_path}"
+            fi
+        done
+        rmdir "$CLAUDE_AGENTS_DIR" 2>/dev/null || true
+    fi
+
+    # Remove ~/.claude/skills links pointing to ecc-lite or orchestration
+    if [[ -d "$CLAUDE_SKILLS_DIR" ]]; then
+        for skill_link in "${CLAUDE_SKILLS_DIR}"/*; do
+            if [[ -L "$skill_link" ]]; then
+                target="$(readlink "$skill_link" || true)"
+                if [[ "$target" == *"/ecc-lite/"* || "$target" == *"/orchestration/"* ]]; then
+                    rm -f "$skill_link"
+                    echo -e "  ${GREEN}✓ Removed skill link:${NC} $(basename "$skill_link")"
+                fi
+            fi
+        done
+        rmdir "$CLAUDE_SKILLS_DIR" 2>/dev/null || true
+    fi
+
+    # Check ~/.claude/rules symlink
+    if [[ -L "${CLAUDE_BASE_DIR}/rules" ]]; then
+        target="$(readlink "${CLAUDE_BASE_DIR}/rules" || true)"
+        if [[ "$target" == *".agents/rules"* || "$target" == *"/ecc-lite/"* ]]; then
+            rm -f "${CLAUDE_BASE_DIR}/rules"
+            echo -e "  ${GREEN}✓ Removed link:${NC} ${CLAUDE_BASE_DIR}/rules"
+        fi
     fi
 fi
 
 # ------------------------------------------------------------------------------
-# 3. Remove ecc-lite-brain from mcp_config.json
+# 3. Clean Up Cursor Global Symlinks & Skills/Agents
 # ------------------------------------------------------------------------------
-echo ""
-echo -e "${BLUE}[*] Step 3: Removing ecc-lite-brain from MCP configuration...${NC}"
-if [[ -f "$MCP_CONFIG_FILE" ]]; then
-    python3 - <<EOF
-import json
-import os
+if [[ "$UNINSTALL_CURSOR_GLOBAL" == true ]]; then
+    echo ""
+    echo -e "${BLUE}[*] Step 3: Removing Cursor Global symlinks...${NC}"
 
-config_path = os.path.expanduser("${MCP_CONFIG_FILE}")
-if os.path.exists(config_path):
-    try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if "mcpServers" in data and "ecc-lite-brain" in data["mcpServers"]:
-            del data["mcpServers"]["ecc-lite-brain"]
-            with open(config_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-                f.write("\n")
-            print("  ✓ ecc-lite-brain successfully removed from mcp_config.json")
-        else:
-            print("  ℹ ecc-lite-brain was not present in mcp_config.json")
-    except Exception as e:
-        print(f"  [!] Failed to update mcp_config.json: {e}")
-EOF
-else
-    echo -e "  ${YELLOW}ℹ No mcp_config.json found.${NC}"
+    # Rules
+    if [[ -d "$CURSOR_RULES_DIR" ]]; then
+        for rule in coding-principles backend-dotnet frontend-web mobile-flutter agents-orchestration; do
+            link_path="${CURSOR_RULES_DIR}/${rule}.mdc"
+            if [[ -L "$link_path" ]]; then
+                rm -f "$link_path"
+                echo -e "  ${GREEN}✓ Removed Cursor rule link:${NC} ${link_path}"
+            fi
+        done
+        rmdir "$CURSOR_RULES_DIR" 2>/dev/null || true
+    fi
+
+    # Agents
+    if [[ -d "$CURSOR_AGENTS_DIR" ]]; then
+        for agent in explorer planner coder reviewer; do
+            link_path="${CURSOR_AGENTS_DIR}/${agent}.md"
+            if [[ -L "$link_path" ]]; then
+                rm -f "$link_path"
+                echo -e "  ${GREEN}✓ Removed Cursor agent link:${NC} ${link_path}"
+            fi
+        done
+        rmdir "$CURSOR_AGENTS_DIR" 2>/dev/null || true
+    fi
+
+    # Skills
+    if [[ -d "$CURSOR_SKILLS_DIR" ]]; then
+        for skill_link in "${CURSOR_SKILLS_DIR}"/*; do
+            if [[ -L "$skill_link" ]]; then
+                target="$(readlink "$skill_link" || true)"
+                if [[ "$target" == *"/ecc-lite/"* || "$target" == *"/orchestration/"* ]]; then
+                    rm -f "$skill_link"
+                    echo -e "  ${GREEN}✓ Removed Cursor skill link:${NC} $(basename "$skill_link")"
+                fi
+            fi
+        done
+        rmdir "$CURSOR_SKILLS_DIR" 2>/dev/null || true
+    fi
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Remove Plugins Directory (If --all was requested)
+# 4. Clean Up Cursor Project Configuration (Optional: --cursor-project <path>)
+# ------------------------------------------------------------------------------
+if [[ -n "$CURSOR_PROJECT_PATH" ]]; then
+    if [[ -d "$CURSOR_PROJECT_PATH" ]]; then
+        ABS_PROJECT_PATH="$(cd "$CURSOR_PROJECT_PATH" && pwd)"
+        PROJECT_CURSOR_DIR="${ABS_PROJECT_PATH}/.cursor"
+        PROJECT_RULES_DIR="${PROJECT_CURSOR_DIR}/rules"
+        PROJECT_MCP_FILE="${PROJECT_CURSOR_DIR}/mcp.json"
+
+        echo ""
+        echo -e "${BLUE}[*] Step 4: Removing Cursor Project configuration in ${ABS_PROJECT_PATH}...${NC}"
+
+        if [[ -d "$PROJECT_RULES_DIR" ]]; then
+            for rule in coding-principles backend-dotnet frontend-web mobile-flutter agents-orchestration; do
+                link_path="${PROJECT_RULES_DIR}/${rule}.mdc"
+                if [[ -L "$link_path" ]]; then
+                    rm -f "$link_path"
+                    echo -e "  ${GREEN}✓ Removed project rule link:${NC} ${link_path}"
+                fi
+            done
+            rmdir "$PROJECT_RULES_DIR" 2>/dev/null || true
+        fi
+
+        echo -e "  ${BLUE}→ Removing ecc-lite-brain from Project MCP configuration...${NC}"
+        remove_mcp_server "$PROJECT_MCP_FILE"
+        rmdir "$PROJECT_CURSOR_DIR" 2>/dev/null || true
+    else
+        echo -e "  ${YELLOW}ℹ Project directory not found: ${CURSOR_PROJECT_PATH}${NC}"
+    fi
+fi
+
+# ------------------------------------------------------------------------------
+# 5. Deregister ecc-lite-brain from MCP Configurations
+# ------------------------------------------------------------------------------
+echo ""
+echo -e "${BLUE}[*] Step 5: Deregistering ecc-lite-brain from MCP configurations...${NC}"
+
+if [[ "$UNINSTALL_ANTIGRAVITY" == true ]]; then
+    echo -e "  ${BLUE}→ Updating Antigravity MCP configuration...${NC}"
+    remove_mcp_server "$MCP_CONFIG_FILE"
+fi
+
+if [[ "$UNINSTALL_CURSOR_GLOBAL" == true ]]; then
+    echo -e "  ${BLUE}→ Updating Cursor Global MCP configuration...${NC}"
+    remove_mcp_server "$CURSOR_MCP_FILE"
+fi
+
+# ------------------------------------------------------------------------------
+# 6. Remove Plugins Directory (If --all was requested)
 # ------------------------------------------------------------------------------
 if [[ "$REMOVE_PLUGINS" == true ]]; then
     echo ""
-    echo -e "${YELLOW}[*] Step 4 (--all): Removing plugin directories from ~/.gemini/config/plugins/...${NC}"
+    echo -e "${YELLOW}[*] Step 6 (--all): Removing plugin directories from ~/.gemini/config/plugins/...${NC}"
     if [[ -d "${GEMINI_PLUGINS_DIR}/ecc-lite" ]]; then
         rm -rf "${GEMINI_PLUGINS_DIR}/ecc-lite"
         echo -e "  ${GREEN}✓ Removed ${GEMINI_PLUGINS_DIR}/ecc-lite${NC}"
@@ -174,10 +323,15 @@ fi
 echo ""
 echo -e "${GREEN}${BOLD}=========================================================="
 echo "    ✨ Uninstallation completed successfully!             "
-echo "==========================================================${NC}"
+echo -e "==========================================================${NC}"
 echo -e "Summary:"
-echo -e "  • Claude Code & ~/.agents symlinks removed"
-echo -e "  • MCP Server ecc-lite-brain deregistered"
+[[ "$UNINSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code & ~/.agents symlinks removed"
+[[ "$UNINSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global symlinks and MCP registration removed"
+[[ -n "$CURSOR_PROJECT_PATH" ]] && echo -e "  • Cursor Project configuration removed from ${CURSOR_PROJECT_PATH}"
+[[ "$UNINSTALL_ANTIGRAVITY" == true ]] && echo -e "  • Antigravity MCP server ecc-lite-brain deregistered"
+if [[ "$REMOVE_PLUGINS" == true ]]; then
+    echo -e "  • Plugin directories removed from ~/.gemini/config/plugins"
+fi
 if [[ -f "${BACKUP_BASE_DIR}/instincts.md.bak" ]]; then
     echo -e "  • User Instincts preserved at: ${BACKUP_BASE_DIR}/instincts.md.bak"
 fi
