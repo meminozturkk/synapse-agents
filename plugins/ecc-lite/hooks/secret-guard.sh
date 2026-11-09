@@ -25,7 +25,7 @@ except Exception:
     sys.exit(1)
 
 tool_call = data.get("toolCall") or {}
-tool_name = (tool_call.get("name") or data.get("tool") or data.get("name") or "").lower()
+tool_name = (tool_call.get("name") or data.get("tool_name") or data.get("tool") or data.get("name") or "").lower()
 args = tool_call.get("args") or tool_call.get("arguments") or data.get("tool_input") or data.get("input") or {}
 
 write_tools = {"write_file", "edit_file", "write", "edit", "write_to_file", "replace_file_content"}

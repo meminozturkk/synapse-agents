@@ -87,6 +87,9 @@ Bu sentez sonucunda **Synapse Agents** mimarisini geliştirdik:
 ### 2. Claude Code CLI
 * Sembolik bağlar: `~/.agents/` (`hooks`, `kb`, `mcp`, `rules`, `skills`).
 * Ajanlar `~/.claude/agents/`, uzmanlık becerileri ise `~/.claude/skills/` altına bağlanır.
+* 0-token hook'lar `~/.claude/settings.json` içine kaydedilir: `PreToolUse` (`Write|Edit|MultiEdit|NotebookEdit|Bash`) için `secret-guard`, `Stop` için `verify-quiet`. Kullanıcının mevcut hook ve ayarları birleştirilir, asla ezilmez.
+* `ecc-lite-brain` MCP sunucusu kullanıcı kapsamında `~/.claude.json` içine kaydedilir (Claude Code içinde `/mcp` ile kontrol edilebilir).
+* Build/tip kontrolü başarısız olursa `verify-quiet` exit code 2 ile çıkar; hata Claude'a geri iletilir ve düzeltmesi sağlanır. `stop_hook_active` ayarlıysa tekrar kontrol yapılmaz, böylece Stop hook döngüsü oluşmaz.
 
 ### 3. Cursor IDE (Genel & Proje Bazlı)
 * MCP sunucu kaydı: `~/.cursor/mcp.json`.
@@ -321,9 +324,10 @@ Windows üzerinde Git Bash kullanarak doğrudan `./install.sh` betiğini de koş
 1. **Otomatik Yedekleme:** Mevcut eklenti ve ajan yapılandırmalarını `~/.claude/backups/pre-install-<zaman_damgası>` altına yedekler.
 2. **Antigravity Senkronizasyonu:** `ecc-lite` ve `orchestration` eklentilerini `~/.gemini/config/plugins/` altına kopyalar.
 3. **Reflekslerin Korunması:** **Mevcut `instincts.md` dosyaları asla ezilmez.** Takımın öğrendiği refleksler 3 katmanlı koruma ile saklanır.
-4. **MCP Brain Kaydı:** `ecc-lite-brain` sunucusunu `~/.gemini/config/mcp_config.json` ve `~/.cursor/mcp.json` içine atomik olarak kaydeder.
+4. **MCP Brain Kaydı:** `ecc-lite-brain` sunucusunu `~/.gemini/config/mcp_config.json`, `~/.cursor/mcp.json` ve (Claude Code için) `~/.claude.json` içine atomik olarak kaydeder.
 5. **Claude ve Cursor Bağlantıları:** `~/.agents/`, `~/.claude/` ve `~/.cursor/` altında gerekli sembolik bağları (`symlink`) üretir.
-6. **Çoklu Platform Motor Yapılandırması:** Antigravity için Gemini 3.8 Flash; Claude Code ve Cursor için Claude 3.5 Sonnet / Haiku yerel modellerini otomatik yapılandırır.
+6. **Claude Code Hook'ları:** `scripts/register_claude.py` ile `secret-guard` (PreToolUse) ve `verify-quiet` (Stop) hook'larını `~/.claude/settings.json` içine birleştirir; önce mevcut dosyayı yedekler. Geçersiz JSON asla ezilmez.
+7. **Çoklu Platform Motor Yapılandırması:** Antigravity için Gemini 3.8 Flash; Claude Code ve Cursor için Claude 3.5 Sonnet / Haiku yerel modellerini otomatik yapılandırır.
 
 ### 2. Kaldırma (Uninstall)
 

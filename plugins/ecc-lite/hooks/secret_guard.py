@@ -59,7 +59,7 @@ def is_self_edit_attempt(raw_data: str) -> bool:
 
     tool_call = data.get("toolCall") if isinstance(data.get("toolCall"), dict) else {}
     tool_name = str(
-        tool_call.get("name") or data.get("tool") or data.get("name") or ""
+        tool_call.get("name") or data.get("tool_name") or data.get("tool") or data.get("name") or ""
     ).strip().lower()
 
     if tool_name not in WRITE_TOOLS:

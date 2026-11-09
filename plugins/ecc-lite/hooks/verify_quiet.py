@@ -39,9 +39,10 @@ def stop_fail(stack_name: str, raw_err: str, mode: str) -> None:
         sys.stdout.flush()
         sys.exit(0)
     else:
+        # Claude Code: exit 2 blocks the stop and feeds stderr back to Claude so it can fix the error
         sys.stderr.write(f"VERIFICATION ERROR ({stack_name}): {clean_err}\n")
         sys.stderr.flush()
-        sys.exit(1)
+        sys.exit(2)
 
 
 # Function alias for backward compatibility / readability
@@ -108,6 +109,24 @@ def main() -> None:
                     stop_ok(mode)
             else:
                 stop_ok(mode)
+    else:
+        try:
+            data = json.loads(raw_input) if raw_input.strip() else {}
+        except Exception:
+            data = {}
+
+        if isinstance(data, dict):
+            # Claude Code: already continuing because of a Stop hook -> do not loop forever
+            if data.get("stop_hook_active") is True:
+                stop_ok(mode)
+
+            # Run checks inside the project Claude Code is working in
+            cwd = data.get("cwd")
+            if isinstance(cwd, str) and cwd and Path(cwd).is_dir():
+                try:
+                    os.chdir(cwd)
+                except Exception:
+                    stop_ok(mode)
 
     # Silently exit if git is not available or not inside a git repository
     if not shutil.which("git"):

@@ -87,6 +87,9 @@ By synthesizing these principles, we architected **Synapse Agents**:
 ### 2. Claude Code CLI
 * Standardized symlinks mapped into `~/.agents/` (`hooks`, `kb`, `mcp`, `rules`, `skills`).
 * Agent definitions linked into `~/.claude/agents/` and skill packages into `~/.claude/skills/`.
+* 0-token hooks registered in `~/.claude/settings.json`: `secret-guard` on `PreToolUse` (`Write|Edit|MultiEdit|NotebookEdit|Bash`) and `verify-quiet` on `Stop`. Existing user hooks and settings are merged, never overwritten.
+* `ecc-lite-brain` MCP server registered at user scope in `~/.claude.json` (check with `/mcp` inside Claude Code).
+* On a failed build/type check, `verify-quiet` exits with code 2 so the error is fed back to Claude to fix; it skips the re-check when `stop_hook_active` is set, preventing stop-hook loops.
 
 ### 3. Cursor IDE (Global & Project-Specific)
 * MCP server registered in `~/.cursor/mcp.json`.
@@ -321,9 +324,10 @@ You can also run `./install.sh` directly within Git Bash on Windows:
 1. **Automated Backups:** Backs up existing plugin and agent configurations into `~/.claude/backups/pre-install-<timestamp>`.
 2. **Antigravity Sync:** Synchronizes `ecc-lite` and `orchestration` plugins to `~/.gemini/config/plugins/`.
 3. **Non-Destructive Instinct Preservation:** **Existing `instincts.md` files are never overwritten.** Learned team knowledge is safely preserved.
-4. **MCP Brain Registration:** Atomically registers `ecc-lite-brain` into `~/.gemini/config/mcp_config.json` and `~/.cursor/mcp.json`.
+4. **MCP Brain Registration:** Atomically registers `ecc-lite-brain` into `~/.gemini/config/mcp_config.json`, `~/.cursor/mcp.json`, and (for Claude Code) `~/.claude.json`.
 5. **Claude & Cursor Symlinks:** Generates required symlinks in `~/.agents/`, `~/.claude/`, and `~/.cursor/`.
-6. **Multi-Platform Engine Provisioning:** Automatically provisions native agent models — Gemini 3.8 Flash for Antigravity, and Claude 3.5 Sonnet / Haiku for Claude Code & Cursor.
+6. **Claude Code Hooks:** Merges `secret-guard` (PreToolUse) and `verify-quiet` (Stop) into `~/.claude/settings.json` via `scripts/register_claude.py`, backing up the previous file first. Invalid JSON is never overwritten.
+7. **Multi-Platform Engine Provisioning:** Automatically provisions native agent models — Gemini 3.8 Flash for Antigravity, and Claude 3.5 Sonnet / Haiku for Claude Code & Cursor.
 
 ### 2. Uninstallation
 
