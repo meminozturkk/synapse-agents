@@ -131,6 +131,40 @@ function Get-SafePython {
     return $null
 }
 
+function Invoke-PythonScript {
+    param(
+        [Parameter(Mandatory=$true)][string]$Python,
+        [Parameter(Mandatory=$true)][string]$Script,
+        [Parameter(ValueFromRemainingArguments=$true)][string[]]$Arguments
+    )
+
+    if (-not (Test-Path -LiteralPath $Script)) {
+        Write-Error "[!] Error: Python script not found: $Script"
+        exit 1
+    }
+
+    $exe = $Python
+    $preArgs = @()
+
+    if (Test-Path -LiteralPath $Python) {
+        $exe = $Python
+    } elseif ($Python -match '\s+') {
+        $parts = $Python -split '\s+'
+        $exe = $parts[0]
+        if ($parts.Count -gt 1) {
+            $preArgs = $parts[1..($parts.Count - 1)]
+        }
+    }
+
+    & $exe @preArgs $Script @Arguments
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "[!] Error: Python script failed ($Script with exit code $LASTEXITCODE)"
+        exit $LASTEXITCODE
+    }
+}
+
+
 function Remove-SafeReparseOrItem {
     param(
         [Parameter(Mandatory=$true)][string]$Path,
@@ -184,30 +218,11 @@ function Remove-McpServer {
 
     $safePy = Get-SafePython
     if ($safePy) {
-        $pyRemoveScript = @'
-import json, os, sys
-
-config_path = os.path.expanduser(sys.argv[1])
-if os.path.exists(config_path):
-    try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if isinstance(data, dict) and "mcpServers" in data and "ecc-lite-brain" in data["mcpServers"]:
-            del data["mcpServers"]["ecc-lite-brain"]
-            with open(config_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-                f.write("\n")
-            print(f"  [OK] ecc-lite-brain successfully removed from {config_path}")
-        else:
-            print(f"  [i] ecc-lite-brain was not present in {config_path}")
-    except Exception as e:
-        print(f"  [!] Failed to update {config_path}: {e}")
-'@
-        if ($safePy -eq "py -3") {
-            & py -3 -c $pyRemoveScript $ConfigFile
-        } else {
-            & $safePy -c $pyRemoveScript $ConfigFile
-        }
+        $unregisterScript = Join-Path $ScriptDir "scripts\unregister_mcp.py"
+        Invoke-PythonScript -Python $safePy -Script $unregisterScript -Arguments @(
+            "--config", $ConfigFile,
+            "--name", "ecc-lite-brain"
+        )
     } else {
         # Fallback to PowerShell JSON parsing
         try {

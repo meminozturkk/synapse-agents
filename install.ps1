@@ -147,6 +147,40 @@ function Resolve-PythonCommand {
     exit 1
 }
 
+function Invoke-PythonScript {
+    param(
+        [Parameter(Mandatory=$true)][string]$Python,
+        [Parameter(Mandatory=$true)][string]$Script,
+        [Parameter(ValueFromRemainingArguments=$true)][string[]]$Arguments
+    )
+
+    if (-not (Test-Path -LiteralPath $Script)) {
+        Write-Error "[!] Error: Python script not found: $Script"
+        exit 1
+    }
+
+    $exe = $Python
+    $preArgs = @()
+
+    if (Test-Path -LiteralPath $Python) {
+        $exe = $Python
+    } elseif ($Python -match '\s+') {
+        $parts = $Python -split '\s+'
+        $exe = $parts[0]
+        if ($parts.Count -gt 1) {
+            $preArgs = $parts[1..($parts.Count - 1)]
+        }
+    }
+
+    & $exe @preArgs $Script @Arguments
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "[!] Error: Python script failed ($Script with exit code $LASTEXITCODE)"
+        exit $LASTEXITCODE
+    }
+}
+
+
 function Remove-SafeItem {
     param([string]$Path)
     if ([string]::IsNullOrWhiteSpace($Path)) { return }
@@ -263,42 +297,12 @@ function Update-McpConfig {
         New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
     }
 
-    $pyUpdateMcp = @'
-import json, os, sys
-
-config_path = os.path.expanduser(sys.argv[1])
-python_cmd = sys.argv[2]
-brain_server = os.path.expanduser(sys.argv[3])
-
-data = {}
-if os.path.exists(config_path):
-    try:
-        with open(config_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception as e:
-        print(f"    [!] Warning: Existing MCP config could not be parsed: {e}. Reinitializing.")
-        data = {}
-
-if not isinstance(data, dict):
-    data = {}
-
-if "mcpServers" not in data or not isinstance(data["mcpServers"], dict):
-    data["mcpServers"] = {}
-
-data["mcpServers"]["ecc-lite-brain"] = {
-    "command": python_cmd,
-    "args": [brain_server]
-}
-
-os.makedirs(os.path.dirname(config_path), exist_ok=True)
-with open(config_path, "w", encoding="utf-8") as f:
-    json.dump(data, f, indent=2, ensure_ascii=False)
-    f.write("\n")
-
-print(f"    [OK] ecc-lite-brain registered successfully in {config_path}")
-'@
-
-    & $PythonExe -c $pyUpdateMcp $ConfigFile $PythonExe $BrainServerPath
+    $registerScript = Join-Path $ScriptDir "scripts\register_mcp.py"
+    Invoke-PythonScript -Python $PythonExe -Script $registerScript -Arguments @(
+        "--config", $ConfigFile,
+        "--python", $PythonExe,
+        "--server", $BrainServerPath
+    )
 }
 
 # ------------------------------------------------------------------------------
@@ -430,62 +434,13 @@ if ($TempInstincts -and (Test-Path -LiteralPath $TempInstincts)) {
 Write-Host "  -> Configuring Windows-native hooks.json..." -ForegroundColor Cyan
 $HooksFile = Join-Path $GeminiPluginsDir "ecc-lite\hooks.json"
 $HooksDir = ($GeminiPluginsDir -replace '\\', '/') + "/ecc-lite/hooks"
+$patchHooksScript = Join-Path $ScriptDir "scripts\patch_hooks.py"
 
-$pyUpdateHooks = @'
-import json, os, sys
-
-hooks_path = os.path.expanduser(sys.argv[1])
-python_exe = sys.argv[2]
-hooks_dir = sys.argv[3]
-
-secret_cmd = f'"{python_exe}" "{hooks_dir}/secret_guard.py" --antigravity'
-verify_cmd = f'"{python_exe}" "{hooks_dir}/verify_quiet.py" --antigravity'
-
-data = {}
-if os.path.exists(hooks_path):
-    try:
-        with open(hooks_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception:
-        data = {}
-
-if not isinstance(data, dict):
-    data = {}
-
-data["ecc-secret-guard"] = {
-    "PreToolUse": [
-        {
-            "matcher": "write_file|edit_file|run_command",
-            "hooks": [
-                {
-                    "type": "command",
-                    "command": secret_cmd,
-                    "timeout": 10
-                }
-            ]
-        }
-    ]
-}
-
-data["ecc-verify-quiet"] = {
-    "Stop": [
-        {
-            "type": "command",
-            "command": verify_cmd,
-            "timeout": 30
-        }
-    ]
-}
-
-os.makedirs(os.path.dirname(hooks_path), exist_ok=True)
-with open(hooks_path, "w", encoding="utf-8") as f:
-    json.dump(data, f, indent=2, ensure_ascii=False)
-    f.write("\n")
-
-print(f"  [OK] Windows hooks configured in {hooks_path}")
-'@
-
-& $ResolvedPython -c $pyUpdateHooks $HooksFile $ResolvedPython $HooksDir
+Invoke-PythonScript -Python $ResolvedPython -Script $patchHooksScript -Arguments @(
+    "--hooks-json", $HooksFile,
+    "--python", $ResolvedPython,
+    "--hooks-dir", $HooksDir
+)
 
 $BrainServer = ($GeminiPluginsDir -replace '\\', '/') + "/ecc-lite/mcp/brain_server.py"
 
