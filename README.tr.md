@@ -238,8 +238,8 @@ Yürütme sırasında ajanlar önemsiz mikro kararlar için kullanıcıyı gerek
 ## 🛡️ 0-Token OS Kalkanları ve Aşamalı Bellek
 
 ### 1. Sıfır-Token OS Kalkanları (`plugins/ecc-lite/hooks/`)
-* **`secret-guard.sh` (Araç Öncesi Kanca):** Dosya düzenlemelerini ve terminal komutlarını işletim sistemi seviyesinde hızlı regex desenleriyle inceler. Özel anahtarların, API şifrelerinin, `.env` dökümlerinin ve yıkıcı komutların sızmasını 0 model token harcayarak anında engeller.
-* **`verify-quiet.sh` (Durdurma Kancası):** Görev bitiminde tetiklenir; değiştirilen dosya uzantılarını (.NET, Flutter, Web/TS) analiz ederek arka planda sessizce derleme ve tip denetimi yapar. Çıkış kodu 0 ise modele sıfır token basarak tamamen sessiz kalır.
+* **`secret-guard.sh` / `secret_guard.py` (Araç Öncesi Kanca):** Dosya düzenlemelerini ve terminal komutlarını işletim sistemi seviyesinde hızlı regex desenleriyle inceler. Özel anahtarların, API şifrelerinin, `.env` dökümlerinin ve yıkıcı komutların sızmasını 0 model token harcayarak anında engeller. Bash ve yerel Windows Python üzerinde çalışır.
+* **`verify-quiet.sh` / `verify_quiet.py` (Durdurma Kancası):** Görev bitiminde tetiklenir; değiştirilen dosya uzantılarını (.NET, Flutter, Web/TS) analiz ederek arka planda sessizce derleme ve tip denetimi yapar. Çıkış kodu 0 ise modele sıfır token basarak tamamen sessiz kalır.
 
 ### 2. 2-Aşamalı Progresif Bellek (`ecc-lite-brain`)
 * **1. Aşama (`search_knowledge_index`):** Yalnızca başlık ve kısa özetleri tarar (çok düşük token maliyeti).
@@ -251,12 +251,14 @@ Yürütme sırasında ajanlar önemsiz mikro kararlar için kullanıcıyı gerek
 ## 🚀 Kurulum ve Kullanım Kılavuzu
 
 ### Önkoşullar
-* **macOS** veya **Linux**
-* **Bash 4.0+**
-* **Python 3.8+** (standart kütüphane tabanlı MCP sunucusu için)
+* **macOS**, **Linux** veya **Windows** (PowerShell 5.1+ / PowerShell Core 7+ veya Git Bash)
+* **Bash 4.0+** (macOS/Linux/Git Bash) veya **PowerShell** (Windows)
+* **Python 3.8+** (standart kütüphane tabanlı MCP sunucusu ve çapraz platform hook'ları için)
 * **Antigravity**, **Claude Code CLI** veya **Cursor IDE**
 
 ### 1. Kurulum
+
+#### 🍎 🐧 macOS & Linux (Bash)
 
 Depoyu klonlayın ve idempotent yükleyiciyi çalıştırın:
 
@@ -275,6 +277,41 @@ cd synapse-agents
 # Projeye özel Cursor yapılandırması:
 ./install.sh --cursor-project /projenizin/tam/yolu
 ```
+
+#### 🪟 Windows Kurulumu (PowerShell & Git Bash)
+
+`synapse-agents`, hem yerel PowerShell hem de Git Bash üzerinden tam ve yerel Windows desteği sunar.
+
+##### Seçenek A: Yerel Windows PowerShell (Önerilen)
+PowerShell konsolunu açarak çalıştırın (**Yönetici / Administrator yetkisi veya Windows Geliştirici Modu gerektirmez**):
+
+```powershell
+# 1. Varsayılan (Antigravity + Claude Code + Cursor Global kurulumu)
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+
+# 2. Platforma özel bayraklar
+.\install.ps1 -AntigravityOnly
+.\install.ps1 -ClaudeOnly
+.\install.ps1 -CursorOnly
+.\install.ps1 -CursorProject "C:\path\to\your-project"
+
+# 3. Güvenli Kaldırma (Safe Uninstall)
+powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
+.\uninstall.ps1 -All
+```
+
+##### Seçenek B: Git Bash / MSYS2 / WSL
+Windows üzerinde Git Bash kullanarak doğrudan `./install.sh` betiğini de koşturabilirsiniz:
+
+```bash
+./install.sh
+```
+
+##### Windows Mühendislik Detayları:
+* **Yönetici Yetkisi Gerektirmeyen NTFS Kavşakları (Junctions) & HardLink/Kopya:** Dizinler için NTFS Junction (`mklink /J`), dosyalar için ise HardLink/kopya fallback mekanizması kullanarak Developer Mode veya Administrator yetkisi zorunluluğunu ortadan kaldırır.
+* **Windows Store `python3` Sahte Alias Atlatma:** Microsoft Store'un 0 baytlık yönlendirici stubs yapısını otomatik olarak tespit edip aşar; sistemdeki gerçek Python 3 yorumlayıcısını (`python3`, `python` veya `py -3`) güvenle çözer.
+* **UTF-8 Konsol ve Kod Sayfası Koruması:** `cp1252` ve Türkçe `cp1254` kod sayfası bozulmalarını önleyerek PowerShell ve dosya akışlarında tam UTF-8 bütünlüğü sağlar.
+* **Yerel Çapraz Platform 0-Token Kancaları (`secret_guard.py` & `verify_quiet.py`):** Bash bağımlılığı olmadan Windows `cmd.exe`/PowerShell altında yerel olarak koşan ve 0-token maliyetini koruyan Python güvenlik kalkanları sunar.
 
 #### Yükleyicinin Yaptığı İşlemler:
 1. **Otomatik Yedekleme:** Mevcut eklenti ve ajan yapılandırmalarını `~/.claude/backups/pre-install-<zaman_damgası>` altına yedekler.
@@ -301,15 +338,17 @@ cd synapse-agents
 
 ```
 synapse-agents/
-├── install.sh              # Çoklu platform yükleyici (Antigravity, Claude Code, Cursor)
+├── install.sh              # Çoklu platform yükleyici (macOS/Linux/Git Bash)
 ├── uninstall.sh            # Yedekleme garantili güvenli kaldırma betiği
+├── install.ps1             # Yerel Windows PowerShell yükleyicisi (Yönetici yetkisi gerektirmez)
+├── uninstall.ps1           # Yerel Windows PowerShell güvenli kaldırma betiği
 ├── README.md               # İngilizce ana mimari ve sistem dokümantasyonu
 ├── README.tr.md            # Türkçe eksiksiz mimari ve sistem dokümantasyonu
 ├── LICENSE                 # MIT Lisansı
 ├── .gitignore              # Çalışma zamanı durumları, Python bytecode ve instincts.md yok sayılır
 └── plugins/
     ├── ecc-lite/           # Çekirdek araçlar, 0-token hook'ları, KB brain & MCP sunucusu
-    │   ├── hooks/          # secret-guard.sh, verify-quiet.sh
+    │   ├── hooks/          # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
     │   ├── kb/             # instincts.example.md, bilgi konuları
     │   ├── mcp/            # brain_server.py (Hafif ve bağımsızlıksız Python MCP uygulaması)
     │   ├── rules/          # Karpathy cerrahi ve Ponytail minimalizm kuralları

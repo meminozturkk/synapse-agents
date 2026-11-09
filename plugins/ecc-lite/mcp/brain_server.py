@@ -12,6 +12,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+if hasattr(sys.stdin, "reconfigure"):
+    sys.stdin.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 # Plugin kb directory or fallback ~/.agents/kb
 _PLUGIN_KB = Path(__file__).resolve().parent.parent / "kb"
 GLOBAL_KB = _PLUGIN_KB if _PLUGIN_KB.exists() else (Path.home() / ".agents" / "kb")

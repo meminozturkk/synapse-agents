@@ -238,8 +238,8 @@ The workspace includes 10 production-tested engineering skills:
 ## 🛡️ 0-Token OS Shields & Progressive Memory
 
 ### 1. Zero-Token OS Shields (`plugins/ecc-lite/hooks/`)
-* **`secret-guard.sh` (Pre-Tool Hook):** Evaluates file edits and commands via ultra-fast local regex patterns. Blocks leaked private keys, API secrets, `.env` dumps, and destructive commands at the OS layer without expending a single model token.
-* **`verify-quiet.sh` (Stop Hook):** Triggered upon task completion. Analyzes modified file extensions (.NET, Flutter, Web/TS) and silently verifies compilation and typing. Remains completely silent on exit code 0, consuming 0 tokens.
+* **`secret-guard.sh` / `secret_guard.py` (Pre-Tool Hook):** Evaluates file edits and commands via ultra-fast local regex patterns. Blocks leaked private keys, API secrets, `.env` dumps, and destructive commands at the OS layer without expending a single model token. Operates natively on bash and Windows Python.
+* **`verify-quiet.sh` / `verify_quiet.py` (Stop Hook):** Triggered upon task completion. Analyzes modified file extensions (.NET, Flutter, Web/TS) and silently verifies compilation and typing. Remains completely silent on exit code 0, consuming 0 tokens.
 
 ### 2. 2-Stage Progressive Memory (`ecc-lite-brain`)
 * **Stage 1 (`search_knowledge_index`):** Scans compact topic headers and summaries (low token footprint).
@@ -251,12 +251,14 @@ The workspace includes 10 production-tested engineering skills:
 ## 🚀 Installation & Usage Guide
 
 ### Prerequisites
-* **macOS** or **Linux**
-* **Bash 4.0+**
-* **Python 3.8+** (for standard-library MCP server)
+* **macOS**, **Linux**, or **Windows** (PowerShell 5.1+ / PowerShell Core 7+ or Git Bash)
+* **Bash 4.0+** (macOS/Linux/Git Bash) or **PowerShell** (Windows)
+* **Python 3.8+** (for standard-library MCP server and cross-platform hooks)
 * **Antigravity**, **Claude Code CLI**, or **Cursor IDE**
 
 ### 1. Installation
+
+#### 🍎 🐧 macOS & Linux (Bash)
 
 Clone the repository and run the idempotent installer:
 
@@ -275,6 +277,41 @@ cd synapse-agents
 # Project-specific Cursor configuration:
 ./install.sh --cursor-project /path/to/your/project
 ```
+
+#### 🪟 Windows Installation (PowerShell & Git Bash)
+
+`synapse-agents` provides first-class, native Windows support via both native PowerShell and Git Bash.
+
+##### Option A: Native Windows PowerShell (Recommended)
+Run PowerShell (**Admin privileges and Windows Developer Mode are NOT required**):
+
+```powershell
+# 1. Default (Installs Antigravity + Claude Code + Cursor Global)
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+
+# 2. Platform-specific flags
+.\install.ps1 -AntigravityOnly
+.\install.ps1 -ClaudeOnly
+.\install.ps1 -CursorOnly
+.\install.ps1 -CursorProject "C:\path\to\your-project"
+
+# 3. Safe Uninstall
+powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
+.\uninstall.ps1 -All
+```
+
+##### Option B: Git Bash / MSYS2 / WSL
+You can also run `./install.sh` directly within Git Bash on Windows:
+
+```bash
+./install.sh
+```
+
+##### Windows Engineering Highlights:
+* **Admin-Free NTFS Junctions & HardLink/Copy Fallback:** Uses NTFS Directory Junctions (`mklink /J`) for folders and HardLink/Copy fallback for files, eliminating the need for elevated Administrator privileges or Windows Developer Mode.
+* **Automatic Windows Store `python3` Stub Bypass:** Intelligently checks and resolves functional Python interpreters (`python3`, `python`, `py -3`), bypassing Microsoft Store 0-byte execution stubs that trigger GUI store popups.
+* **UTF-8 Console & Codepage Protection:** Enforces UTF-8 console streams and file operations, preventing legacy `cp1252` and Turkish `cp1254` codepage corruption.
+* **Native Python 0-Token Hooks (`secret_guard.py` & `verify_quiet.py`):** Ships with native Python implementations of the 0-token OS shields that execute seamlessly under Windows `cmd.exe`/PowerShell while maintaining identical zero-token overhead.
 
 #### What the Installer Does:
 1. **Automated Backups:** Backs up existing plugin and agent configurations into `~/.claude/backups/pre-install-<timestamp>`.
@@ -301,15 +338,17 @@ Safely remove the framework while keeping your team's learned instincts intact:
 
 ```
 synapse-agents/
-├── install.sh              # Idempotent installer (Antigravity, Claude Code, Cursor)
+├── install.sh              # Idempotent installer (macOS/Linux/Git Bash)
 ├── uninstall.sh            # Safe uninstallation script with backup guarantees
+├── install.ps1             # Native Windows PowerShell Installer (Admin-free)
+├── uninstall.ps1           # Native Windows PowerShell Uninstaller with backup guarantees
 ├── README.md               # English master architecture & system documentation
 ├── README.tr.md            # Turkish complete architecture & system documentation
 ├── LICENSE                 # MIT License
 ├── .gitignore              # Ignores runtime states, Python bytecode, instincts.md
 └── plugins/
     ├── ecc-lite/           # Core tools, 0-token hooks, KB brain & MCP server
-    │   ├── hooks/          # secret-guard.sh, verify-quiet.sh
+    │   ├── hooks/          # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
     │   ├── kb/             # instincts.example.md, knowledge topics
     │   ├── mcp/            # brain_server.py (Stateless Python MCP implementation)
     │   ├── rules/          # Karpathy surgical & Ponytail minimalism guidelines

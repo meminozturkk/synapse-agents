@@ -41,6 +41,18 @@ INSTALL_CURSOR_GLOBAL=true
 CURSOR_PROJECT_PATH=""
 EXPLICIT_MODE=false
 
+# Resolve functional Python 3 command (resilient against Windows Store stubs)
+resolve_python() {
+    local cmd
+    for cmd in "python3" "python" "py -3"; do
+        if $cmd -c "import sys; assert sys.version_info[0] >= 3" >/dev/null 2>&1; then
+            echo "$cmd"
+            return 0
+        fi
+    done
+    return 1
+}
+
 # Parse Flags
 usage() {
     echo -e "${BOLD}Usage:${NC} $0 [OPTIONS]"
@@ -109,6 +121,14 @@ if [[ -n "$CURSOR_PROJECT_PATH" ]]; then
         echo -e "${RED}[!] Error: Specified project path does not exist or is not a directory: ${CURSOR_PROJECT_PATH}${NC}"
         exit 1
     fi
+fi
+
+# Resolve functional Python 3 interpreter
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    echo -e "${RED}[!] Error: Python 3 is required but could not be found (checked: python3, python, py -3).${NC}"
+    echo -e "${YELLOW}Please install Python 3 or ensure it is added to your PATH.${NC}"
+    exit 1
 fi
 
 echo -e "${CYAN}${BOLD}"
@@ -210,22 +230,51 @@ echo -e "  ${BLUE}→ Granting execution permissions...${NC}"
 if compgen -G "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks/*.sh" > /dev/null; then
     chmod +x "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks/"*.sh
 fi
+if compgen -G "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks/*.py" > /dev/null; then
+    chmod +x "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks/"*.py
+fi
 if [[ -f "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" ]]; then
     chmod +x "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py"
 fi
 echo -e "  ${GREEN}✓ Execution permissions verified.${NC}"
 
+# Git Bash / MSYS / MINGW Windows resilience: adapt hooks.json to use python hooks
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+        TARGET_HOOKS="${GEMINI_PLUGINS_DIR}/ecc-lite/hooks.json"
+        if [[ -f "$TARGET_HOOKS" ]]; then
+            echo -e "  ${YELLOW}ℹ Git Bash / Windows environment detected ($(uname -s)). Adapting hooks.json for native Windows Python hooks...${NC}"
+            $PYTHON_CMD - "$TARGET_HOOKS" << 'EOF'
+import sys
+
+hooks_path = sys.argv[1]
+try:
+    with open(hooks_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    content = content.replace("secret-guard.sh", "secret_guard.py")
+    content = content.replace("verify-quiet.sh", "verify_quiet.py")
+    with open(hooks_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print("  ✓ Updated hooks.json to use secret_guard.py and verify_quiet.py")
+except Exception as e:
+    print(f"  [!] Warning: Failed to adapt hooks.json for Windows: {e}")
+EOF
+        fi
+        ;;
+esac
+
 # Configure ~/.gemini/config/mcp_config.json
 if [[ "$INSTALL_ANTIGRAVITY" == true ]]; then
     echo -e "  ${BLUE}→ Updating Antigravity MCP configuration (${MCP_CONFIG_FILE})...${NC}"
     mkdir -p "$(dirname "$MCP_CONFIG_FILE")"
-    python3 - <<EOF
+    $PYTHON_CMD - "$MCP_CONFIG_FILE" "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" "$PYTHON_CMD" << 'EOF'
 import json
 import os
 import sys
 
-config_path = os.path.expanduser("${MCP_CONFIG_FILE}")
-brain_server = os.path.expanduser("${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py")
+config_path = os.path.expanduser(sys.argv[1])
+brain_server = os.path.expanduser(sys.argv[2])
+python_cmd = sys.argv[3]
 
 data = {}
 if os.path.exists(config_path):
@@ -236,14 +285,22 @@ if os.path.exists(config_path):
         print(f"    [!] Warning: Existing mcp_config.json could not be parsed: {e}. Reinitializing.")
         data = {}
 
+if not isinstance(data, dict):
+    data = {}
+
 if "mcpServers" not in data or not isinstance(data["mcpServers"], dict):
     data["mcpServers"] = {}
 
+cmd_parts = python_cmd.split()
+cmd = cmd_parts[0]
+args = cmd_parts[1:] + [brain_server]
+
 data["mcpServers"]["ecc-lite-brain"] = {
-    "command": "python3",
-    "args": [brain_server]
+    "command": cmd,
+    "args": args
 }
 
+os.makedirs(os.path.dirname(config_path), exist_ok=True)
 with open(config_path, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
     f.write("\n")
@@ -315,13 +372,14 @@ if [[ "$INSTALL_CURSOR_GLOBAL" == true ]]; then
     # 4A. Update ~/.cursor/mcp.json
     echo -e "  ${BLUE}→ Updating Cursor Global MCP configuration (${CURSOR_MCP_FILE})...${NC}"
     mkdir -p "$CURSOR_BASE_DIR"
-    python3 - "$CURSOR_MCP_FILE" "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" << 'EOF'
+    $PYTHON_CMD - "$CURSOR_MCP_FILE" "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" "$PYTHON_CMD" << 'EOF'
 import json
 import os
 import sys
 
 config_path = os.path.expanduser(sys.argv[1])
 brain_server = os.path.expanduser(sys.argv[2])
+python_cmd = sys.argv[3]
 
 data = {}
 if os.path.exists(config_path):
@@ -338,9 +396,13 @@ if not isinstance(data, dict):
 if "mcpServers" not in data or not isinstance(data["mcpServers"], dict):
     data["mcpServers"] = {}
 
+cmd_parts = python_cmd.split()
+cmd = cmd_parts[0]
+args = cmd_parts[1:] + [brain_server]
+
 data["mcpServers"]["ecc-lite-brain"] = {
-    "command": "python3",
-    "args": [brain_server]
+    "command": cmd,
+    "args": args
 }
 
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -415,13 +477,14 @@ if [[ -n "$CURSOR_PROJECT_PATH" ]]; then
     # MCP
     echo -e "  ${BLUE}→ Updating Project MCP configuration (${PROJECT_MCP_FILE})...${NC}"
     mkdir -p "$PROJECT_CURSOR_DIR"
-    python3 - "$PROJECT_MCP_FILE" "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" << 'EOF'
+    $PYTHON_CMD - "$PROJECT_MCP_FILE" "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" "$PYTHON_CMD" << 'EOF'
 import json
 import os
 import sys
 
 config_path = os.path.expanduser(sys.argv[1])
 brain_server = os.path.expanduser(sys.argv[2])
+python_cmd = sys.argv[3]
 
 data = {}
 if os.path.exists(config_path):
@@ -438,9 +501,13 @@ if not isinstance(data, dict):
 if "mcpServers" not in data or not isinstance(data["mcpServers"], dict):
     data["mcpServers"] = {}
 
+cmd_parts = python_cmd.split()
+cmd = cmd_parts[0]
+args = cmd_parts[1:] + [brain_server]
+
 data["mcpServers"]["ecc-lite-brain"] = {
-    "command": "python3",
-    "args": [brain_server]
+    "command": cmd,
+    "args": args
 }
 
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -458,6 +525,7 @@ echo "    ✨ Installation completed successfully!               "
 echo -e "==========================================================${NC}"
 echo -e "Active Configuration:"
 echo -e "  • Core Plugins       : ${GEMINI_PLUGINS_DIR}"
+echo -e "  • Resolved Python    : ${PYTHON_CMD}"
 [[ "$INSTALL_ANTIGRAVITY" == true ]] && echo -e "  • Antigravity MCP    : ecc-lite-brain active in ${MCP_CONFIG_FILE}"
 [[ "$INSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code Agents : explorer, planner, coder, reviewer"
 [[ "$INSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, MCP active"

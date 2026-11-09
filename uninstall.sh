@@ -38,6 +38,18 @@ UNINSTALL_CURSOR_GLOBAL=true
 CURSOR_PROJECT_PATH=""
 EXPLICIT_MODE=false
 
+# Resolve functional Python 3 command (resilient against Windows Store stubs)
+resolve_python() {
+    local cmd
+    for cmd in "python3" "python" "py -3"; do
+        if $cmd -c "import sys; assert sys.version_info[0] >= 3" >/dev/null 2>&1; then
+            echo "$cmd"
+            return 0
+        fi
+    done
+    return 1
+}
+
 usage() {
     echo -e "${BOLD}Usage:${NC} $0 [OPTIONS]"
     echo ""
@@ -105,11 +117,19 @@ if [[ "$EXPLICIT_MODE" == false && -n "$CURSOR_PROJECT_PATH" ]]; then
     UNINSTALL_CURSOR_GLOBAL=false
 fi
 
+# Resolve functional Python 3 interpreter
+PYTHON_CMD="$(resolve_python || true)"
+if [[ -z "$PYTHON_CMD" ]]; then
+    echo -e "${RED}[!] Error: Python 3 is required but could not be found (checked: python3, python, py -3).${NC}"
+    echo -e "${YELLOW}Please install Python 3 or ensure it is added to your PATH.${NC}"
+    exit 1
+fi
+
 # Helper to remove ecc-lite-brain from any mcp config file
 remove_mcp_server() {
     local config_file="$1"
     if [[ -f "$config_file" ]]; then
-        python3 - "$config_file" << 'EOF'
+        $PYTHON_CMD - "$config_file" << 'EOF'
 import json
 import os
 import sys
