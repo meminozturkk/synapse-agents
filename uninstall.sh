@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# ecc-lite-orchestrator Uninstaller
+# Synapse Agents Uninstaller
 # Safe Uninstallation & Symlink Cleanup for Antigravity, Claude Code & Cursor
 # ==============================================================================
 
@@ -137,7 +137,8 @@ EOF
 
 echo -e "${CYAN}${BOLD}"
 echo "=========================================================="
-echo "    🧹 ecc-lite-orchestrator System Uninstaller          "
+echo "    🧹 Synapse Agents System Uninstaller                 "
+echo "       (ECC-Lite v2.0 + Orchestration v2.1.0)            "
 echo "=========================================================="
 echo -e "${NC}"
 

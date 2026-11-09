@@ -1,5 +1,6 @@
-# ⚡ ecc-lite-orchestrator
+# 🧠 Synapse Agents
 
+> **Unified Multi-Agent Orchestration & Zero-Token Engineering Guardrails for Antigravity, Claude Code & Cursor**  
 > 🌐 **Language / Dil:** **[🇬🇧 English](README.md)** | [🇹🇷 Türkçe](README.tr.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -12,42 +13,59 @@
 
 ## 🌐 Overview
 
-**`ecc-lite-orchestrator`** is an enterprise-grade multi-agent engineering framework that transforms AI-assisted software development from hit-or-miss prompt experiments into a deterministic, surgical, and production-tested engineering discipline.
+**`synapse-agents`** is an enterprise-grade multi-agent engineering framework that transforms AI-assisted software development from hit-or-miss prompt experiments into a deterministic, surgical, and production-tested engineering discipline.
 
-Designed for modern IDEs and autonomous development environments, the framework operates through a **Hands-Off Chief Architect** coordinating **4 Universal Subagents (`explorer`, `planner`, `coder`, `reviewer`)** exclusively running on **Gemini 3.8 Flash** (High & Medium Effort modes). Instead of exhausting the LLM context window with raw code files, `ecc-lite-orchestrator` fuses the proven core principles of 5 prominent open-source paradigms into a single, cohesive developer stack.
+Designed for modern IDEs and autonomous development environments, the framework operates through a **Hands-Off Chief Architect** coordinating **4 Universal Subagents (`explorer`, `planner`, `coder`, `reviewer`)** exclusively running on **Gemini 3.8 Flash** (High & Medium Effort modes). Instead of exhausting the LLM context window with raw code files, `synapse-agents` fuses the proven core principles of 5 prominent open-source paradigms into a single, cohesive developer stack.
 
 ---
 
-## 🧬 Architectural Philosophy (5-Repo Synthesis)
+## 🏛️ Architectural Genesis: How & Why We Built Synapse Agents
 
-`ecc-lite-orchestrator` synthesizes the strongest insights of the open-source agentic engineering community while deliberately rejecting bloated or destructive patterns:
+Every resilient engineering system is born out of frustration with existing tools. In our daily production workflows, we observed three systemic failure modes when letting AI models write code:
 
-| # | Paradigm & Source | Primary Principles & Core Implementation |
-|:---:|---|---|
-| **1** | **[obra/superpowers](https://github.com/obra/superpowers)** | **Systematic Debugging & Verification Gate:** Speculative patches and symptom guessing are strictly prohibited. Root causes must be isolated and proven before fixes are made. **"NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"** (exit code 0 terminal proof required). |
-| **2** | **[DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)** | **Ponytail Minimalism, YAGNI & Debt Ledger:** Ruthlessly prune one-off abstractions, redundant factories, and bloated dependencies. Intentional shortcuts are explicitly tracked via `// shortcut: <limit>, <trigger>` in a structured debt ledger. Includes **Ponytail Scope Discovery**. |
-| **3** | **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)** | **Surgical Diffs & Low Cognitive Load:** Edits are restricted strictly to the lines essential for the task. Adjacent blocks, comments, and existing styling remain untouched, eliminating diff noise and regressions. |
-| **4** | **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)** | **2-Stage Progressive Search:** Never dump dozens of documentation files into context. Query a lightweight topic index first (`search_knowledge_index`), then retrieve only targeted detail sections (`get_knowledge_detail`), slashing token burn. |
-| **5** | **[ecc-lite](https://github.com/muhammeteminozturk/ecc-lite)** | **0-Token OS Shields:** Execute pre-tool parameter validations and secret scanning via local bash hooks (`secret-guard.sh`, `verify-quiet.sh`) at OS speed with zero model token consumption. |
+1. **Context Window Exhaustion & Hallucination:** Asking a single lead conversational model to explore files, devise plans, write code across layers, and run tests rapidly inflates its context window with 20–30 raw source files and thousands of terminal output lines. The model inevitably suffers from recency bias, hallucinated API contracts, and catastrophic forgetting.
+2. **Speculative Ad-Hoc Patching:** Without a mandatory root-cause isolation phase, models guess solutions and apply hasty symptom patches. One patch breaks another module, causing endless debugging loops.
+3. **Bloated Abstractions & Unchecked Scope:** AI code generators eagerly introduce unneeded factory patterns, redundant DTO layers, single-use interfaces, and untrusted third-party dependencies that inflate tech debt.
 
-### 🚫 Deliberately Rejected Patterns
+### The 5-Repo Source Code Investigation
 
-To maintain peak reasoning quality and operational stability, two popular community practices were explicitly rejected:
+Rather than blindly adopting an existing framework or reinventing the wheel from scratch, we started from our local production setup (**ECC-Lite**—which already pioneered zero-token OS bash shields, domain instincts, and stateless MCP memory). We then cloned and deeply analyzed the source code of the 5 most popular engineering repositories in the open-source agentic ecosystem:
 
-1. **`caveman` (Extreme Token Compression / Grammar Butchery):**  
-   Compressing agent output into broken, caveman-style telegraphic language degrades the underlying model's chain-of-thought depth, semantic precision, and architectural reasoning. We achieve superior token economy through **Ponytail Minimalism** and **2-Stage Progressive Memory Retrieval**, preserving pristine technical communication.
-2. **`claude-mem` Background Daemon:**  
-   Persistent background daemons introduce socket leaks, runaway memory footprints, zombie processes, and hidden CPU/token polling. `ecc-lite-orchestrator` replaces this with an on-demand, stateless Python standard-library MCP server (`ecc-lite-brain`) that wakes up only when queried.
+1. **[obra/superpowers](https://github.com/obra/superpowers)**
+2. **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)**
+3. **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)**
+4. **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)**
+5. **[JuliusBrussee/caveman](https://github.com/juliusbrussee/caveman)**
+
+### The Architectural Synthesis & Rejection Matrix
+
+Instead of adopting any single project dogma, we extracted the crowning jewels of each philosophy while ruthlessly pruning their operational liabilities:
+
+| Source Repository | Extracted & Integrated Principle | Why We Integrated It into Synapse Agents | What We Deliberately Rejected & Why |
+|---|---|---|---|
+| **[obra/superpowers](https://github.com/obra/superpowers)** | **Systematic Debugging & The Verification Gate** | The iron law: *"No completion claims without fresh verification evidence."* We mandated automated test/build commands with exit code 0 evidence before any task is marked done. | Heavy agent orchestration scripts with rigid Python assumptions; we redesigned all workflows around decoupled, language-agnostic subagents. |
+| **[DietrichGebert/ponytail](https://github.com/dietrichgebert/ponytail)** | **Ponytail Minimalism, YAGNI & Debt Ledger** | Relentlessly eliminates redundant abstractions, single-use factories, and unvetted third-party libraries. All intentional shortcuts are recorded with `// shortcut: <limit>, <trigger>`. | Single-file script execution limits; we elevated Ponytail into a full **Caller-Aware Review** stage and **Scope Discovery** pipeline. |
+| **[multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)** | **Karpathy Surgical Changes & Low Cognitive Load** | Edits must touch only the precise lines required for the change. Neighboring code, unrelated formatting, and non-pertinent comments remain completely untouched. | Monolithic execution prompts; we isolated surgical coding into dedicated, parallel-capable `coder` subagents. |
+| **[thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)** | **2-Stage Progressive Memory Retrieval** | Instead of flooding the LLM context with entire documentation libraries, we query a lightweight topic index first, then retrieve only the exact required sections. | **Rejected the Daemon:** Background daemons (Bun, SQLite, ChromaDB, vector embeddings) cause socket leaks, runaway memory footprints, zombie processes, and CPU polling. We implemented the progressive concept as a zero-dependency, on-demand Python MCP server (`ecc-lite-brain`). |
+| **[JuliusBrussee/caveman](https://github.com/juliusbrussee/caveman)** | *Conceptual Token Economy* | Inspired the pursuit of high token efficiency and zero context waste. | **Rejected the Methodology (Grammar Butchery):** Forcing models into telegraphic "caveman" speech degrades complex chain-of-thought, semantic nuance, and deep architectural reasoning in frontier models (Gemini 3.8 Flash). We achieve superior token savings via architectural triage and progressive search. |
+| **[ecc-lite](https://github.com/muhammeteminozturk/ecc-lite)** | **0-Token OS Shields & Multi-Platform Symlinks** | Pre-tool parameter validation, dangerous command interception, and secret leakage prevention executed at OS speed via local bash hooks without consuming a single LLM token. | N/A — Served as the core bedrock foundation for the entire framework. |
+
+### The Synapse Agents Breakthrough: Hands-Off Chief + 4 Universal Subagents
+
+By synthesizing these principles, we architected **Synapse Agents**:
+- **0% Raw Code Ingestion for the Chief Architect:** The lead model (Chief Architect) never ingests raw source files or terminal output directly into its conversational context. It delegates exploration to `explorer`, blueprinting to `planner`, surgical implementation to parallel `coder` streams, and rigorous audit to `reviewer`.
+- **4-Point Chief Architect Plan Audit Gate:** Before any plan reaches the user or coder agents, the Chief audits it against Ponytail Minimalism, Contract & Layer Locks, Karpathy Scope Control, and Security/Data Integrity.
+- **Strictly Gemini 3.8 Flash (High/Medium Effort):** Engineered specifically to harness the unprecedented deep reasoning and cost-efficiency of Gemini 3.8 Flash without falling into pro-tier token traps or flash-lite shallow hallucinations.
 
 ---
 
 ## 🖥️ Triple-Platform Support
 
-`ecc-lite-orchestrator` natively equips three major AI developer platforms through a single unified installation:
+`synapse-agents` natively equips three major AI developer platforms through a single unified installation:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        ecc-lite-orchestrator                           │
+│                             synapse-agents                             │
 │               Core Plugins, 10 Skills, 0-Token Shields                 │
 └──────────────┬─────────────────────────┬───────────────────────────────┘
                │                         │
@@ -244,8 +262,8 @@ The workspace includes 10 production-tested engineering skills:
 Clone the repository and run the idempotent installer:
 
 ```bash
-git clone https://github.com/your-org/ecc-lite-orchestrator.git
-cd ecc-lite-orchestrator
+git clone https://github.com/meminozturkk/synapse-agents.git
+cd synapse-agents
 
 # Default: Installs for Antigravity, Claude Code, and Cursor IDE (Global)
 ./install.sh
@@ -283,7 +301,7 @@ Safely remove the framework while keeping your team's learned instincts intact:
 ## 📂 Repository Structure
 
 ```
-ecc-lite-orchestrator/
+synapse-agents/
 ├── install.sh              # Idempotent installer (Antigravity, Claude Code, Cursor)
 ├── uninstall.sh            # Safe uninstallation script with backup guarantees
 ├── README.md               # English master architecture & system documentation

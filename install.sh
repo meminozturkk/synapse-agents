@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# ecc-lite-orchestrator Installer
+# Synapse Agents Installer
 # Multi-Platform Idempotent Installation for Antigravity, Claude Code & Cursor
 # ==============================================================================
 
@@ -113,7 +113,8 @@ fi
 
 echo -e "${CYAN}${BOLD}"
 echo "=========================================================="
-echo "    🚀 ecc-lite-orchestrator System Installer            "
+echo "    🚀 Synapse Agents System Installer                   "
+echo "       (ECC-Lite v2.0 + Orchestration v2.1.0)            "
 echo "=========================================================="
 echo -e "${NC}"
 
