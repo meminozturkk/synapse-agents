@@ -1,0 +1,23 @@
+{
+  "name": "orchestration",
+  "displayName": "Gemini 3.8 Flash Multi-Agent Orchestration",
+  "version": "2.1.0",
+  "description": "Gemini 3.8 Flash Multi-Agent Orchestration v2.1 with Hands-Off Chief Architect, 4 Universal Subagents (explorer, planner, coder, reviewer), Chief Architect Plan Audit Gate, Smart Triage, Superpowers Discipline, and Ponytail Caller-Aware Reviews.",
+  "author": {
+    "name": "ECC-Lite Team"
+  },
+  "keywords": [
+    "orchestrator",
+    "chief-architect",
+    "subagents",
+    "explorer",
+    "planner",
+    "coder",
+    "reviewer",
+    "gemini-3.8-flash",
+    "superpowers",
+    "karpathy-surgical",
+    "ponytail-caller-aware",
+    "verification-gate"
+  ]
+}

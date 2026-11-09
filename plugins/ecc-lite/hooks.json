@@ -1,0 +1,25 @@
+{
+  "ecc-secret-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "write_file|edit_file|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.gemini/config/plugins/ecc-lite/hooks/secret-guard.sh --antigravity",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "ecc-verify-quiet": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "~/.gemini/config/plugins/ecc-lite/hooks/verify-quiet.sh --antigravity",
+        "timeout": 30
+      }
+    ]
+  }
+}
