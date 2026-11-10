@@ -458,6 +458,22 @@ EOF
         --source "${GEMINI_PLUGINS_DIR}/orchestration/agents" \
         --dest "$CURSOR_AGENTS_DIR" \
         --platform cursor
+
+    # 4E. Cursor Global Hooks (~/.cursor/hooks.json)
+    CURSOR_HOOKS_FILE="${CURSOR_BASE_DIR}/hooks.json"
+    echo -e "  ${BLUE}→ Registering 0-token hooks in Cursor Global (${CURSOR_HOOKS_FILE})...${NC}"
+    PLATFORM_FLAG="unix"
+    case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*)
+            PLATFORM_FLAG="windows"
+            ;;
+    esac
+    $PYTHON_CMD "${SCRIPT_DIR}/scripts/register_cursor_hooks.py" \
+        --action install \
+        --hooks-file "$CURSOR_HOOKS_FILE" \
+        --hooks-dir "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks" \
+        --python "$PYTHON_CMD" \
+        --platform "$PLATFORM_FLAG"
 fi
 
 # ------------------------------------------------------------------------------
@@ -524,6 +540,22 @@ with open(config_path, "w", encoding="utf-8") as f:
 
 print(f"    ✓ ecc-lite-brain registered successfully in {config_path}")
 EOF
+
+    # Hooks
+    PROJECT_HOOKS_FILE="${PROJECT_CURSOR_DIR}/hooks.json"
+    echo -e "  ${BLUE}→ Registering 0-token hooks in Project Cursor (${PROJECT_HOOKS_FILE})...${NC}"
+    PLATFORM_FLAG="unix"
+    case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*)
+            PLATFORM_FLAG="windows"
+            ;;
+    esac
+    $PYTHON_CMD "${SCRIPT_DIR}/scripts/register_cursor_hooks.py" \
+        --action install \
+        --hooks-file "$PROJECT_HOOKS_FILE" \
+        --hooks-dir "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks" \
+        --python "$PYTHON_CMD" \
+        --platform "$PLATFORM_FLAG"
 fi
 
 echo ""
@@ -537,7 +569,7 @@ echo -e "  • Resolved Python    : ${PYTHON_CMD}"
 [[ "$INSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code Agents : explorer, planner, coder, reviewer"
 [[ "$INSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code Hooks  : secret-guard (PreToolUse), verify-quiet (Stop) in ${CLAUDE_BASE_DIR}/settings.json"
 [[ "$INSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code MCP    : ecc-lite-brain active in ${HOME}/.claude.json (user scope)"
-[[ "$INSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, MCP active"
-[[ -n "$CURSOR_PROJECT_PATH" ]] && echo -e "  • Cursor Project     : rules (.mdc) & MCP active in ${ABS_PROJECT_PATH}"
+[[ "$INSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, hooks & MCP active"
+[[ -n "$CURSOR_PROJECT_PATH" ]] && echo -e "  • Cursor Project     : rules (.mdc), hooks & MCP active in ${ABS_PROJECT_PATH}"
 echo -e "  • User Instincts     : ${TARGET_INSTINCTS} (preserved)"
 echo ""

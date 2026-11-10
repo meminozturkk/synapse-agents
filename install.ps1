@@ -573,6 +573,18 @@ if ($InstallCursorGlobal) {
         "--dest", $CursorAgentsDir,
         "--platform", "cursor"
     )
+
+    # 4E. Cursor Global Hooks (~/.cursor/hooks.json)
+    Write-Host "  -> Registering 0-token hooks in Cursor Global ($CursorBaseDir\hooks.json)..." -ForegroundColor Cyan
+    $registerCursorScript = Join-Path $ScriptDir "scripts\register_cursor_hooks.py"
+    $cursorHooksFile = Join-Path $CursorBaseDir "hooks.json"
+    Invoke-PythonScript -Python $ResolvedPython -Script $registerCursorScript -Arguments @(
+        "--action", "install",
+        "--hooks-file", $cursorHooksFile,
+        "--hooks-dir", $HooksDir,
+        "--python", $ResolvedPython,
+        "--platform", "windows"
+    )
 }
 
 # ------------------------------------------------------------------------------
@@ -606,6 +618,18 @@ if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
 
     Write-Host "  -> Updating Project MCP configuration ($ProjectMcpFile)..." -ForegroundColor Cyan
     Update-McpConfig -ConfigFile $ProjectMcpFile -PythonExe $ResolvedPython -BrainServerPath $BrainServer
+
+    # Hooks
+    Write-Host "  -> Registering 0-token hooks in Project Cursor ($ProjectCursorDir\hooks.json)..." -ForegroundColor Cyan
+    $registerCursorScript = Join-Path $ScriptDir "scripts\register_cursor_hooks.py"
+    $projectHooksFile = Join-Path $ProjectCursorDir "hooks.json"
+    Invoke-PythonScript -Python $ResolvedPython -Script $registerCursorScript -Arguments @(
+        "--action", "install",
+        "--hooks-file", $projectHooksFile,
+        "--hooks-dir", $HooksDir,
+        "--python", $ResolvedPython,
+        "--platform", "windows"
+    )
 }
 
 # ------------------------------------------------------------------------------
@@ -626,10 +650,10 @@ if ($InstallClaude) {
     Write-Host "  - Claude Code MCP    : ecc-lite-brain active in $HOME\.claude.json (user scope)"
 }
 if ($InstallCursorGlobal) {
-    Write-Host "  - Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, MCP active"
+    Write-Host "  - Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, hooks & MCP active"
 }
 if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
-    Write-Host "  - Cursor Project     : rules (.mdc) & MCP active in $AbsProjectPath"
+    Write-Host "  - Cursor Project     : rules (.mdc), hooks & MCP active in $AbsProjectPath"
 }
 Write-Host "  - User Instincts     : $TargetInstincts (preserved)"
 Write-Host ""
