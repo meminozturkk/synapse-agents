@@ -24,7 +24,7 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 MCP_NAME = "ecc-lite-brain"
-HOOK_DIR_MARKER = "ecc-lite/hooks/"
+HOOK_DIR_MARKERS = ("ecc-lite/hooks/", ".agents/hooks/")
 PRE_TOOL_MATCHER = "Write|Edit|MultiEdit|NotebookEdit|Bash"
 HOOK_SCRIPTS = {
     "sh": {"guard": "secret-guard.sh", "verify": "verify-quiet.sh"},
@@ -81,7 +81,7 @@ def write_json(path: str, data: dict, backup_dir: str = "") -> None:
 
 def split_python(python_val: str):
     """'python3' -> ('python3', []), 'py -3' -> ('py', ['-3']), a path with spaces stays whole."""
-    python_val = python_val.strip()
+    python_val = python_val.strip().strip("'\"")
     if os.path.exists(python_val) or " " not in python_val:
         return python_val.replace("\\", "/"), []
     parts = python_val.split()
@@ -101,7 +101,7 @@ def hook_command(runtime: str, script_path: str, python_val: str) -> str:
 
 def is_synapse_hook(hook: dict) -> bool:
     command = str(hook.get("command", "")).replace("\\", "/")
-    return HOOK_DIR_MARKER in command and any(
+    return any(marker in command for marker in HOOK_DIR_MARKERS) and any(
         name in command for names in HOOK_SCRIPTS.values() for name in names.values()
     )
 

@@ -1,5 +1,5 @@
 ---
-description: Global Multi-Agent Orchestration Rules (1 Hands-Off Chief Architect + 4 Universal Subagents on Gemini 3.8 Flash & Claude 3.5 Sonnet/Haiku)
+description: Global Multi-Agent Orchestration Rules (1 Hands-Off Chief Architect + 4 Universal Subagents on Gemini 3.8 Flash & Claude Sonnet 5.5 / Haiku)
 alwaysApply: true
 ---
 
@@ -36,12 +36,12 @@ All subagents operate strictly on the **Gemini 3.8 Flash** model:
 #### 2. Gemini 3.8 Flash (Medium Effort)
 * **`explorer`**: Rapid codebase search, symbol locating, and **Ponytail Scope Discovery** (callers, tests, fixtures, configs, exports mapping; max 150-word summary).
 
-### B. Claude Code & Cursor IDE (Anthropic Claude 3.5 Engine)
+### B. Claude Code & Cursor IDE (Anthropic Claude 5.5 Engine)
 When installed for Claude Code or Cursor, the installer automatically provisions native Anthropic models:
 * **`explorer`**: **Claude 3.5 Haiku** (`model: haiku`) for rapid, low-cost scope discovery and caller mapping with minimal token overhead.
-* **`planner`**: **Claude 3.5 Sonnet** (`model: sonnet`) for deep architectural planning, contract generation, and multi-layer dependency analysis.
-* **`coder`**: **Claude 3.5 Sonnet** (`model: sonnet`) for surgical implementation, test execution, and satisfying the Verification Gate.
-* **`reviewer`**: **Claude 3.5 Sonnet** (`model: sonnet`) for strict contract compliance, caller-aware review, and security audit.
+* **`planner`**: **Claude Sonnet 5.5** (`model: sonnet`) for deep architectural planning, contract generation, and multi-layer dependency analysis.
+* **`coder`**: **Claude Sonnet 5.5** (`model: sonnet`) for surgical implementation, test execution, and satisfying the Verification Gate.
+* **`reviewer`**: **Claude Sonnet 5.5** (`model: sonnet`) for strict contract compliance, caller-aware review, and security audit.
 
 ---
 
@@ -123,9 +123,9 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
      - `Role="Reviewer [Gemini 3.8 Flash - High]"`
    - **Claude Code & Cursor:**
      - `Role="Explorer [Claude 3.5 Haiku]"`
-     - `Role="Planner [Claude 3.5 Sonnet]"`
-     - `Role="Coder (<Scope/Layer>) [Claude 3.5 Sonnet]"`
-     - `Role="Reviewer [Claude 3.5 Sonnet]"`
+     - `Role="Planner [Claude Sonnet 5.5]"`
+     - `Role="Coder (<Scope/Layer>) [Claude Sonnet 5.5]"`
+     - `Role="Reviewer [Claude Sonnet 5.5]"`
 
 2. **Orchestrator Reporting:**
    When launching a subagent or reporting results, the Chief Architect must display a clear tag or table indicating each agent's active model and effort level.
@@ -139,9 +139,9 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
      - `🤖 **[Agent: reviewer | Model: Gemini 3.8 Flash (High Effort)]**`
    - **Claude Code & Cursor:**
      - `🤖 **[Agent: explorer | Model: Claude 3.5 Haiku]**`
-     - `🤖 **[Agent: planner | Model: Claude 3.5 Sonnet]**`
-     - `🤖 **[Agent: coder | Model: Claude 3.5 Sonnet]**`
-     - `🤖 **[Agent: reviewer | Model: Claude 3.5 Sonnet]**`
+     - `🤖 **[Agent: planner | Model: Claude Sonnet 5.5]**`
+     - `🤖 **[Agent: coder | Model: Claude Sonnet 5.5]**`
+     - `🤖 **[Agent: reviewer | Model: Claude Sonnet 5.5]**`
 
 ---
 

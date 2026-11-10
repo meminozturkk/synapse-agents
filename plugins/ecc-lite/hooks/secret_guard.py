@@ -27,6 +27,7 @@ WRITE_TOOLS = {
     "write",
     "edit",
     "multiedit",
+    "notebookedit",
 }
 
 SECRET_PATTERNS = [
