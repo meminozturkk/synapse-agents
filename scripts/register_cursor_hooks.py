@@ -5,7 +5,7 @@ Register or unregister Synapse Agents' 0-token hooks in Cursor hooks.json.
 Supports Cursor hooks configuration (~/.cursor/hooks.json or <project>/.cursor/hooks.json).
 Crucial Rule: NEVER overwrite existing user-defined hooks (e.g. post-dev-review.ps1).
 Only manage Synapse-owned hooks:
-  - preToolUse : secret-guard.sh (Unix) or secret_guard.py (Windows)
+  - preToolUse : secret-guard.sh (Unix) or secret_guard.py (Windows) with matcher "Write|Shell|Edit|Bash"
   - stop       : verify-quiet.sh (Unix) or verify_quiet.py (Windows)
 """
 
@@ -124,12 +124,16 @@ def install(args) -> int:
         i for i, h in enumerate(pre_list)
         if isinstance(h, dict) and is_synapse_secret_guard(str(h.get("command", "")))
     ]
+    pre_hook_entry = {
+        "command": pre_cmd,
+        "matcher": "Write|Shell|Edit|Bash",
+    }
     if synapse_pre_indices:
-        pre_list[synapse_pre_indices[0]] = {"command": pre_cmd}
+        pre_list[synapse_pre_indices[0]] = pre_hook_entry
         for idx in reversed(synapse_pre_indices[1:]):
             del pre_list[idx]
     else:
-        pre_list.append({"command": pre_cmd})
+        pre_list.append(pre_hook_entry)
 
     # 2. Update or add stop (verify-quiet)
     stop_list = hooks.setdefault("stop", [])
