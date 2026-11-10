@@ -5,7 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Architecture: Chief + 4 Subagents](https://img.shields.io/badge/Architecture-Chief_%2B_4_Agents-8A2BE2.svg)](#-agent-matrix--roles)
-[![Models: Gemini 3.8 Flash | Claude 3.5](https://img.shields.io/badge/Models-Gemini_3.8_Flash_%7C_Claude_3.5-FF6F00.svg)](#-agent-matrix--roles)
+[![Models: Gemini 3.8 Flash | Claude 5.5](https://img.shields.io/badge/Models-Gemini_3.8_Flash_%7C_Claude_5.5-FF6F00.svg)](#-agent-matrix--roles)
 [![OS Guards: 0--Token](https://img.shields.io/badge/OS_Guards-0--Token_Bash-success.svg)](#-0-token-os-shields--progressive-memory)
 [![Compatibility: Triple--Platform](https://img.shields.io/badge/Compatibility-Antigravity_%7C_Claude_Code_%7C_Cursor-brightgreen.svg)](#-triple-platform-support)
 
@@ -15,7 +15,7 @@
 
 **`synapse-agents`** is an enterprise-grade multi-agent engineering framework that transforms AI-assisted software development from hit-or-miss prompt experiments into a deterministic, surgical, and production-tested engineering discipline.
 
-Designed for modern IDEs and autonomous development environments, the framework operates through a **Hands-Off Chief Architect** coordinating **4 Universal Subagents (`explorer`, `planner`, `coder`, `reviewer`)** with seamless dual-engine support (**Gemini 3.8 Flash** on Antigravity; **Claude 3.5 Sonnet & Haiku** on Claude Code and Cursor). Instead of exhausting the LLM context window with raw code files, `synapse-agents` fuses the proven core principles of 5 prominent open-source paradigms into a single, cohesive developer stack.
+Designed for modern IDEs and autonomous development environments, the framework operates through a **Hands-Off Chief Architect** coordinating **4 Universal Subagents (`explorer`, `planner`, `coder`, `reviewer`)** with seamless dual-engine support (**Gemini 3.8 Flash** on Antigravity; **Claude Sonnet 5.5 & Haiku** on Claude Code and Cursor). Instead of exhausting the LLM context window with raw code files, `synapse-agents` fuses the proven core principles of 5 prominent open-source paradigms into a single, cohesive developer stack.
 
 ---
 
@@ -54,7 +54,7 @@ Instead of adopting any single project dogma, we extracted the crowning jewels o
 By synthesizing these principles, we architected **Synapse Agents**:
 - **0% Raw Code Ingestion for the Chief Architect:** The lead model (Chief Architect) never ingests raw source files or terminal output directly into its conversational context. It delegates exploration to `explorer`, blueprinting to `planner`, surgical implementation to parallel `coder` streams, and rigorous audit to `reviewer`.
 - **4-Point Chief Architect Plan Audit Gate:** Before any plan reaches the user or coder agents, the Chief audits it against Ponytail Minimalism, Contract & Layer Locks, Karpathy Scope Control, and Security/Data Integrity.
-- **Seamless Dual-Engine Support (Google Gemini & Anthropic Claude):** You get the exact same deterministic 1 Chief + 4 Subagent architecture whether running under Google Gemini or Anthropic Claude! Powered natively by **Gemini 3.8 Flash** (High/Medium Effort) under Google Antigravity, and automatically provisioned with **Claude 3.5 Sonnet** (deep planning, surgical coding, security review) and **Claude 3.5 Haiku** (rapid scope discovery) under Claude Code and Cursor.
+- **Seamless Dual-Engine Support (Google Gemini & Anthropic Claude):** You get the exact same deterministic 1 Chief + 4 Subagent architecture whether running under Google Gemini or Anthropic Claude! Powered natively by **Gemini 3.8 Flash** (High/Medium Effort) under Google Antigravity, and automatically provisioned with **Claude Sonnet 5.5** (deep planning, surgical coding, security review) and **Claude 3.5 Haiku** (rapid scope discovery) under Claude Code and Cursor.
 
 ---
 
@@ -87,6 +87,9 @@ By synthesizing these principles, we architected **Synapse Agents**:
 ### 2. Claude Code CLI
 * Standardized symlinks mapped into `~/.agents/` (`hooks`, `kb`, `mcp`, `rules`, `skills`).
 * Agent definitions linked into `~/.claude/agents/` and skill packages into `~/.claude/skills/`.
+* 0-token hooks registered in `~/.claude/settings.json`: `secret-guard` on `PreToolUse` (`Write|Edit|MultiEdit|NotebookEdit|Bash`) and `verify-quiet` on `Stop`. Existing user hooks and settings are merged, never overwritten.
+* `ecc-lite-brain` MCP server registered at user scope in `~/.claude.json` (check with `/mcp` inside Claude Code).
+* On a failed build/type check, `verify-quiet` exits with code 2 so the error is fed back to Claude to fix; it skips the re-check when `stop_hook_active` is set, preventing stop-hook loops.
 
 ### 3. Cursor IDE (Global & Project-Specific)
 * MCP server registered in `~/.cursor/mcp.json`.
@@ -100,7 +103,7 @@ By synthesizing these principles, we architected **Synapse Agents**:
 
 The system is governed by **1 Hands-Off Chief Architect** and **4 Universal Subagents**. The framework automatically provisions optimal models depending on your host platform:
 * **Google Antigravity:** Agents run natively on **Gemini 3.8 Flash** (`explorer` in Medium Effort; `planner`, `coder`, `reviewer` in High Effort / Deep Reasoning mode).
-* **Claude Code & Cursor:** The installers (`install.sh` and `install.ps1`) automatically provision native Anthropic models: **Claude 3.5 Haiku** for rapid scope discovery, and **Claude 3.5 Sonnet** for deep planning, surgical implementation, and contract/security reviews.
+* **Claude Code & Cursor:** The installers (`install.sh` and `install.ps1`) automatically provision native Anthropic models: **Claude 3.5 Haiku** for rapid scope discovery, and **Claude Sonnet 5.5** for deep planning, surgical implementation, and contract/security reviews.
 
 ```mermaid
 flowchart TD
@@ -142,9 +145,9 @@ flowchart TD
 |---|---|---|---|:---:|
 | **Şef (Chief Architect)** | Top Host Model *(e.g., Gemini 4 Argon)* | Top Host Model *(e.g., Claude 3.7 Sonnet / Opus)* | Understands intent, performs triage, enforces audit gates, coordinates subagents. | **Coordinator Only:** Zero code writing (`write_to_file`, `replace_file_content`), zero terminal execution, zero raw source reading. |
 | **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude 3.5 Haiku** (`model: haiku`) | **Ponytail Scope Discovery:** Maps callers, dependencies, fixtures, configs; produces a crisp summary (max 150 words). | Read-Only |
-| **`planner`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude 3.5 Sonnet** (`model: sonnet`) | Absorbs raw source files in an isolated context; outputs a 40–80 line architectural plan with locked DTO/DB contracts. | Read-Only |
-| **`coder`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude 3.5 Sonnet** (`model: sonnet`) | Spawned as N parallel roles (`Coder (Backend)`, `Coder (Mobile)`, etc.); performs surgical edits and runs the Verification Gate. | Write & Execute |
-| **`reviewer`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude 3.5 Sonnet** (`model: sonnet`) | Two-Stage Audit: 1) Strict Contract Adherence, 2) Ponytail Caller-Aware deep review, security, and N+1 query scans. | Read-Only |
+| **`planner`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Absorbs raw source files in an isolated context; outputs a 40–80 line architectural plan with locked DTO/DB contracts. | Read-Only |
+| **`coder`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Spawned as N parallel roles (`Coder (Backend)`, `Coder (Mobile)`, etc.); performs surgical edits and runs the Verification Gate. | Write & Execute |
+| **`reviewer`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Two-Stage Audit: 1) Strict Contract Adherence, 2) Ponytail Caller-Aware deep review, security, and N+1 query scans. | Read-Only |
 
 ---
 
@@ -321,9 +324,10 @@ You can also run `./install.sh` directly within Git Bash on Windows:
 1. **Automated Backups:** Backs up existing plugin and agent configurations into `~/.claude/backups/pre-install-<timestamp>`.
 2. **Antigravity Sync:** Synchronizes `ecc-lite` and `orchestration` plugins to `~/.gemini/config/plugins/`.
 3. **Non-Destructive Instinct Preservation:** **Existing `instincts.md` files are never overwritten.** Learned team knowledge is safely preserved.
-4. **MCP Brain Registration:** Atomically registers `ecc-lite-brain` into `~/.gemini/config/mcp_config.json` and `~/.cursor/mcp.json`.
+4. **MCP Brain Registration:** Atomically registers `ecc-lite-brain` into `~/.gemini/config/mcp_config.json`, `~/.cursor/mcp.json`, and (for Claude Code) `~/.claude.json`.
 5. **Claude & Cursor Symlinks:** Generates required symlinks in `~/.agents/`, `~/.claude/`, and `~/.cursor/`.
-6. **Multi-Platform Engine Provisioning:** Automatically provisions native agent models — Gemini 3.8 Flash for Antigravity, and Claude 3.5 Sonnet / Haiku for Claude Code & Cursor.
+6. **Claude Code Hooks:** Merges `secret-guard` (PreToolUse) and `verify-quiet` (Stop) into `~/.claude/settings.json` via `scripts/register_claude.py`, backing up the previous file first. Invalid JSON is never overwritten.
+7. **Multi-Platform Engine Provisioning:** Automatically provisions native agent models — Gemini 3.8 Flash for Antigravity, and Claude Sonnet 5.5 / Haiku for Claude Code & Cursor.
 
 ### 2. Uninstallation
 

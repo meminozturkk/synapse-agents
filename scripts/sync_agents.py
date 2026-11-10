@@ -97,18 +97,18 @@ def transform_agent_content(content: str, agent_stem: str, platform: str) -> str
     text = f"---{frontmatter}---{body}" if has_frontmatter else body
 
     # Deep reasoning / operating mode
-    text = text.replace("Gemini 3.8 Flash (High Effort / Deep Reasoning)", "Claude 3.5 Sonnet (Deep Reasoning)")
+    text = text.replace("Gemini 3.8 Flash (High Effort / Deep Reasoning)", "Claude Sonnet 5.5 (Deep Reasoning)")
 
     # Dispatch roles in coder/planner
-    text = text.replace("[Gemini 3.8 Flash - High]", "[Claude 3.5 Sonnet]")
+    text = text.replace("[Gemini 3.8 Flash - High]", "[Claude Sonnet 5.5]")
 
     # Persona titles with hyphen
     text = text.replace("Gemini 3.8 Flash - Medium Effort", "Claude 3.5 Haiku")
-    text = text.replace("Gemini 3.8 Flash - High Effort", "Claude 3.5 Sonnet")
+    text = text.replace("Gemini 3.8 Flash - High Effort", "Claude Sonnet 5.5")
 
     # Badges, descriptions, and rule specifications
     text = text.replace("Gemini 3.8 Flash (Medium Effort)", "Claude 3.5 Haiku")
-    text = text.replace("Gemini 3.8 Flash (High Effort)", "Claude 3.5 Sonnet")
+    text = text.replace("Gemini 3.8 Flash (High Effort)", "Claude Sonnet 5.5")
 
     # Claude Code body tool mention updates (e.g. reviewer.md `grep_search` -> `Grep`)
     if platform == "claude":

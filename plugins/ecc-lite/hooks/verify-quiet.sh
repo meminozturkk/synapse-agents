@@ -31,8 +31,9 @@ report_error() {
     printf '{"decision": "continue", "reason": "VERIFICATION ERROR (%s): %s"}\n' "$stack_name" "$clean_err"
     exit 0
   else
+    # Claude Code: exit 2 blocks the stop and feeds stderr back to Claude so it can fix the error
     printf 'VERIFICATION ERROR (%s): %s\n' "$stack_name" "$clean_err" >&2
-    exit 1
+    exit 2
   fi
 }
 
@@ -51,6 +52,17 @@ if [ "$MODE" = "antigravity" ]; then
     cd "$WS_DIR" || stop_ok
   else
     stop_ok
+  fi
+else
+  # Claude Code: already continuing because of a Stop hook -> do not loop forever
+  if printf '%s' "$INPUT" | grep -qE '"stop_hook_active":[[:space:]]*true'; then
+    stop_ok
+  fi
+
+  # Run checks inside the project Claude Code is working in
+  CLAUDE_CWD="$(printf '%s' "$INPUT" | python3 -c 'import json,sys; d=json.loads(sys.stdin.read() or "{}"); c=d.get("cwd") if isinstance(d, dict) else ""; print(c if isinstance(c, str) else "")' 2>/dev/null || true)"
+  if [ -n "$CLAUDE_CWD" ] && [ -d "$CLAUDE_CWD" ]; then
+    cd "$CLAUDE_CWD" || stop_ok
   fi
 fi
 

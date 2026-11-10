@@ -333,6 +333,19 @@ if ($UninstallClaude) {
         Remove-SafeReparseOrItem -Path $claudeRulesLink -IsDirectory
         Write-Host "  [OK] Removed link: $claudeRulesLink" -ForegroundColor Green
     }
+
+    # Remove Synapse hooks from ~/.claude/settings.json and ecc-lite-brain from ~/.claude.json
+    Write-Host "  -> Removing Claude Code hooks and ecc-lite-brain MCP registration..." -ForegroundColor Cyan
+    $safePy = Get-SafePython
+    if ($safePy) {
+        $registerClaudeScript = Join-Path $ScriptDir "scripts\register_claude.py"
+        Invoke-PythonScript -Python $safePy -Script $registerClaudeScript -Arguments @(
+            "uninstall",
+            "--backup-dir", (Join-Path $BackupBaseDir "pre-uninstall-$Timestamp")
+        )
+    } else {
+        Write-Host "  [!] Python not found; remove the ecc-lite hooks from ~/.claude/settings.json and ecc-lite-brain from ~/.claude.json by hand." -ForegroundColor Yellow
+    }
 }
 
 # ------------------------------------------------------------------------------
@@ -466,6 +479,7 @@ Write-Host "==========================================================" -Foregro
 Write-Host "Summary:"
 if ($UninstallClaude) {
     Write-Host "  - Claude Code & ~/.agents symlinks removed"
+    Write-Host "  - Claude Code hooks and ecc-lite-brain MCP registration removed"
 }
 if ($UninstallCursorGlobal) {
     Write-Host "  - Cursor Global symlinks and MCP registration removed"

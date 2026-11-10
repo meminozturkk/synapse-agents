@@ -357,6 +357,19 @@ if [[ "$INSTALL_CLAUDE" == true ]]; then
         ln -sfn "${DOT_AGENTS_DIR}/rules" "${CLAUDE_BASE_DIR}/rules"
         echo -e "  ${GREEN}✓ Linked ~/.claude/rules -> ~/.agents/rules${NC}"
     fi
+
+    # 3E. Claude Code hooks (~/.claude/settings.json) & MCP brain (~/.claude.json)
+    echo -e "  ${BLUE}→ Registering 0-token hooks and ecc-lite-brain MCP with Claude Code...${NC}"
+    CLAUDE_HOOK_RUNTIME="sh"
+    case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*) CLAUDE_HOOK_RUNTIME="py" ;;
+    esac
+    $PYTHON_CMD "${SCRIPT_DIR}/scripts/register_claude.py" install \
+        --python "$PYTHON_CMD" \
+        --hooks-dir "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks" \
+        --server "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" \
+        --runtime "$CLAUDE_HOOK_RUNTIME" \
+        --backup-dir "$BACKUP_DIR"
 fi
 
 # ------------------------------------------------------------------------------
@@ -522,6 +535,8 @@ echo -e "  • Core Plugins       : ${GEMINI_PLUGINS_DIR}"
 echo -e "  • Resolved Python    : ${PYTHON_CMD}"
 [[ "$INSTALL_ANTIGRAVITY" == true ]] && echo -e "  • Antigravity MCP    : ecc-lite-brain active in ${MCP_CONFIG_FILE}"
 [[ "$INSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code Agents : explorer, planner, coder, reviewer"
+[[ "$INSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code Hooks  : secret-guard (PreToolUse), verify-quiet (Stop) in ${CLAUDE_BASE_DIR}/settings.json"
+[[ "$INSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code MCP    : ecc-lite-brain active in ${HOME}/.claude.json (user scope)"
 [[ "$INSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, MCP active"
 [[ -n "$CURSOR_PROJECT_PATH" ]] && echo -e "  • Cursor Project     : rules (.mdc) & MCP active in ${ABS_PROJECT_PATH}"
 echo -e "  • User Instincts     : ${TARGET_INSTINCTS} (preserved)"

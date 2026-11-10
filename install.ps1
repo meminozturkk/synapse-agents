@@ -502,6 +502,18 @@ if ($InstallClaude) {
         New-SafeDirectoryLink -LinkPath $claudeRulesLink -TargetPath $dotAgentsRules
         Write-Host "  [OK] Linked ~/.claude/rules -> ~/.agents/rules" -ForegroundColor Green
     }
+
+    # 3E. Claude Code hooks (~/.claude/settings.json) & MCP brain (~/.claude.json)
+    Write-Host "  -> Registering 0-token hooks and ecc-lite-brain MCP with Claude Code..." -ForegroundColor Cyan
+    $registerClaudeScript = Join-Path $ScriptDir "scripts\register_claude.py"
+    Invoke-PythonScript -Python $ResolvedPython -Script $registerClaudeScript -Arguments @(
+        "install",
+        "--python", $ResolvedPython,
+        "--hooks-dir", $HooksDir,
+        "--server", $BrainServer,
+        "--runtime", "py",
+        "--backup-dir", $BackupDir
+    )
 }
 
 # ------------------------------------------------------------------------------
@@ -610,6 +622,8 @@ if ($InstallAntigravity) {
 }
 if ($InstallClaude) {
     Write-Host "  - Claude Code Agents : explorer, planner, coder, reviewer"
+    Write-Host "  - Claude Code Hooks  : secret-guard (PreToolUse), verify-quiet (Stop) in $ClaudeBaseDir\settings.json"
+    Write-Host "  - Claude Code MCP    : ecc-lite-brain active in $HOME\.claude.json (user scope)"
 }
 if ($InstallCursorGlobal) {
     Write-Host "  - Cursor Global      : 5 rules (.mdc), 11 skills, 4 agents, MCP active"

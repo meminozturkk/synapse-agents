@@ -14,6 +14,7 @@ RED="\033[0;31m"
 CYAN="\033[0;36m"
 NC="\033[0m"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 
 GEMINI_PLUGINS_DIR="${HOME}/.gemini/config/plugins"
@@ -229,6 +230,12 @@ if [[ "$UNINSTALL_CLAUDE" == true ]]; then
             echo -e "  ${GREEN}✓ Removed link:${NC} ${CLAUDE_BASE_DIR}/rules"
         fi
     fi
+
+    # Remove Synapse hooks from ~/.claude/settings.json and ecc-lite-brain from ~/.claude.json
+    echo -e "  ${BLUE}→ Removing Claude Code hooks and ecc-lite-brain MCP registration...${NC}"
+    $PYTHON_CMD "${SCRIPT_DIR}/scripts/register_claude.py" uninstall \
+        --backup-dir "${BACKUP_BASE_DIR}/pre-uninstall-${TIMESTAMP}" || \
+        echo -e "  ${YELLOW}[!] Could not update Claude Code configuration; see message above.${NC}"
 fi
 
 # ------------------------------------------------------------------------------
@@ -347,6 +354,7 @@ echo "    ✨ Uninstallation completed successfully!             "
 echo -e "==========================================================${NC}"
 echo -e "Summary:"
 [[ "$UNINSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code & ~/.agents symlinks removed"
+[[ "$UNINSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code hooks and ecc-lite-brain MCP registration removed"
 [[ "$UNINSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global symlinks and MCP registration removed"
 [[ -n "$CURSOR_PROJECT_PATH" ]] && echo -e "  • Cursor Project configuration removed from ${CURSOR_PROJECT_PATH}"
 [[ "$UNINSTALL_ANTIGRAVITY" == true ]] && echo -e "  • Antigravity MCP server ecc-lite-brain deregistered"
