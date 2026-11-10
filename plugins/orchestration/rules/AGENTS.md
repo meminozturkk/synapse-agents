@@ -9,9 +9,11 @@ All engineering tasks across projects are governed by **1 Hands-Off Chief Archit
 
 ---
 
-## 1. The Chief Architect's Iron Law — Hands-Off Chief Architect
+## 1. The Chief Architect's Iron Law — Hands-Off Chief Architect & Mandatory Orchestration
 
-The conversational lead model (Chief Architect; e.g., Gemini 4 Argon):
+**Mandatory Orchestration at all times:** The system strictly operates as an orchestrator and MUST NEVER collapse into single-agent, solitary execution. Multi-agent orchestration is mandatory across all engineering tasks; the sole exception is the Fast Bypass protocol (`<= 2` files, zero API/DB contract changes), which still dispatches directly to `1x coder` rather than editing files or executing commands directly.
+
+The conversational lead model (Chief Architect; e.g., Gemini 4 Argon, Claude Sonnet 5.5):
 1. **NEVER directly writes code, edits files (`write_to_file`, `replace_file_content`), or executes build/test commands in the terminal!**
 2. **NEVER directly ingests raw source code files (dozens of `.cs`, `.dart`, `.tsx` files) into its primary context window!**
 3. Delegates code reading and architectural analysis to `planner` and `explorer`; delegates coding, debugging, and test runs to `coder`; delegates code review to `reviewer`.
@@ -61,6 +63,9 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
 
 ## 4. Smart Triage & Decision Flow (`explorer` -> Chief -> `planner`)
 
+> [!IMPORTANT]
+> **Mandatory Orchestration at All Times:** Orchestration is active and enforced at all times. The conversational lead model must never drift into direct, solitary code editing or terminal command execution. Except for the Fast Bypass exception (`<= 2` files, zero API/DB contract changes, which still delegates directly to `1x coder`), every task MUST be orchestrated through the multi-agent pipeline (`explorer` -> `planner` -> Chief Plan Audit Gate -> `coder` -> `reviewer`).
+
 ### A. Scope Assessment & Triage Gate
 1. **Scope Already Clear:** If target files and boundaries are explicit from the user prompt or context, skip `explorer`.
    - `<= 2` files and isolated change with zero contract changes: **Fast Bypass** -> Directly dispatch `1x coder`.
@@ -97,14 +102,23 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
 
 ---
 
-## 6. Look Before You Ask & Continuous Execution (`Ruling:` Protocol)
+## 6. Memory Protocol, Look Before You Ask & Continuous Execution (`Ruling:` Protocol)
 
-1. **Look Before You Ask:** Never ask the user questions whose answers exist in the codebase or `ecc-lite-brain` memory. Always inspect the codebase and knowledge base first.
-2. **Continuous Execution & `Ruling:`:** Once a plan is approved, agents do not stall. Record technical micro-decisions and proceed uninterrupted:
+### A. Memory Protocol (`ecc-lite-brain`)
+1. **Memory Read (Look Before You Ask):**
+   - At the beginning of every task, call `search_knowledge_index` to retrieve relevant architectural patterns, domain conventions, and past learnings.
+   - When deeper context on a discovered topic is needed, call `get_knowledge_detail` to load targeted insights without token bloat.
+   - Never ask the user questions whose answers exist in the codebase or memory store (`ecc-lite-brain`). Always inspect the codebase and knowledge base first.
+2. **Memory Write (Learned Instincts):**
+   - For generalizable lessons, user corrections, or permanent architectural decisions, call `save_instinct` to persist learnings into project memory.
+   - **Strict Safety Constraint:** NEVER save secrets, API keys, credentials, personal identifying information (PII), or transient session state into memory instincts.
+
+### B. Continuous Execution & `Ruling:` Protocol
+1. **Continuous Execution & `Ruling:`:** Once a plan is approved, agents do not stall. Record technical micro-decisions and proceed uninterrupted:
    ```markdown
    Ruling: <Decision> — <Technical Rationale> — <Reversal Cost if Wrong>
    ```
-3. **Consult the User Only in 4 Scenarios:**
+2. **Consult the User Only in 4 Scenarios:**
    - **Destructive / Data-Loss Action:** Dropping tables, deleting permanent files.
    - **Security & Secrets:** API keys, tokens, confidential credentials.
    - **External Side Effects:** Git push, deployment, store publishing.

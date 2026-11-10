@@ -6,6 +6,19 @@
 # ==============================================================================
 set -u
 
+resolve_python() {
+  local cmd
+  for cmd in python3 python "py -3"; do
+    if $cmd -c "import sys; assert sys.version_info[0] >= 3" >/dev/null 2>&1; then
+      echo "$cmd"
+      return 0
+    fi
+  done
+  return 1
+}
+
+PY_BIN="$(resolve_python || true)"
+
 INPUT="$(cat 2>/dev/null || true)"
 
 if [[ "${1:-}" == "--antigravity" ]] || printf '%s' "$INPUT" | grep -q '"fullyIdle"'; then
@@ -47,9 +60,18 @@ if [ "$MODE" = "antigravity" ]; then
   fi
 
   # 2. Extract workspace directory and navigate to it
-  WS_DIR="$(printf '%s' "$INPUT" | python3 -c 'import json,sys; d=json.loads(sys.stdin.read() or "{}"); w=d.get("workspacePaths") or []; print(w[0] if w else "")' 2>/dev/null || true)"
+  WS_DIR=""
+  if [ -n "$PY_BIN" ]; then
+    WS_DIR="$(printf '%s' "$INPUT" | $PY_BIN -c 'import json,sys; d=json.loads(sys.stdin.read() or "{}"); w=d.get("workspacePaths") or []; print(w[0] if w else "")' 2>/dev/null || true)"
+  fi
+  if [ -z "$WS_DIR" ]; then
+    WS_DIR="$(printf '%s' "$INPUT" | tr '\n\r' '  ' | sed -n 's/.*"workspacePaths"[[:space:]]*:[[:space:]]*\[[[:space:]]*"\([^"]*\)".*/\1/p' || true)"
+  fi
+
   if [ -n "$WS_DIR" ] && [ -d "$WS_DIR" ]; then
     cd "$WS_DIR" || stop_ok
+  elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    : # Current directory is already inside a git repository
   else
     stop_ok
   fi
@@ -60,9 +82,18 @@ else
   fi
 
   # Run checks inside the project Claude Code is working in
-  CLAUDE_CWD="$(printf '%s' "$INPUT" | python3 -c 'import json,sys; d=json.loads(sys.stdin.read() or "{}"); c=d.get("cwd") if isinstance(d, dict) else ""; print(c if isinstance(c, str) else "")' 2>/dev/null || true)"
+  CLAUDE_CWD=""
+  if [ -n "$PY_BIN" ]; then
+    CLAUDE_CWD="$(printf '%s' "$INPUT" | $PY_BIN -c 'import json,sys; d=json.loads(sys.stdin.read() or "{}"); c=d.get("cwd") if isinstance(d, dict) else ""; print(c if isinstance(c, str) else "")' 2>/dev/null || true)"
+  fi
+  if [ -z "$CLAUDE_CWD" ]; then
+    CLAUDE_CWD="$(printf '%s' "$INPUT" | tr '\n\r' '  ' | sed -n 's/.*"cwd"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' || true)"
+  fi
+
   if [ -n "$CLAUDE_CWD" ] && [ -d "$CLAUDE_CWD" ]; then
     cd "$CLAUDE_CWD" || stop_ok
+  elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    : # Current directory is already inside a git repository
   fi
 fi
 

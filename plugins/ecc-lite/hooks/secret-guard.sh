@@ -5,6 +5,19 @@
 # ==============================================================================
 set -u
 
+resolve_python() {
+  local cmd
+  for cmd in python3 python "py -3"; do
+    if $cmd -c "import sys; assert sys.version_info[0] >= 3" >/dev/null 2>&1; then
+      echo "$cmd"
+      return 0
+    fi
+  done
+  return 1
+}
+
+PY_BIN="$(resolve_python || true)"
+
 INPUT="$(cat 2>/dev/null || true)"
 
 # Auto-detect calling CLI
@@ -17,7 +30,9 @@ fi
 # Self-edit bypass check:
 # ONLY allow when using file write/edit tools AND the target file path ends with 'secret-guard.sh'.
 # NEVER bypass for run_command, Bash, or terminal commands.
-IS_SELF_EDIT="$(printf '%s' "$INPUT" | python3 -c '
+IS_SELF_EDIT="no"
+if [ -n "$PY_BIN" ]; then
+  IS_SELF_EDIT="$(printf '%s' "$INPUT" | $PY_BIN -c '
 import json, sys
 try:
     data = json.loads(sys.stdin.read() or "{}")
@@ -36,6 +51,12 @@ if tool_name in write_tools:
 
 sys.exit(1)
 ' 2>/dev/null && echo "yes" || echo "no")"
+else
+  # Fallback if no Python 3: check if input references secret-guard.sh and a write tool
+  if printf '%s' "$INPUT" | grep -qE '("write_file"|"edit_file"|"write"|"edit"|"write_to_file"|"replace_file_content"|"multiedit"|"notebookedit")' && printf '%s' "$INPUT" | grep -qE 'secret-guard\.sh"'; then
+    IS_SELF_EDIT="yes"
+  fi
+fi
 
 if [ "$IS_SELF_EDIT" = "yes" ]; then
   if [ "$MODE" = "antigravity" ]; then

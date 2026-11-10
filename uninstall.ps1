@@ -400,6 +400,20 @@ if ($UninstallCursorGlobal) {
         }
         Remove-DirectoryIfEmpty $CursorSkillsDir
     }
+
+    # Cursor Global Hooks
+    $cursorHooksFile = Join-Path $CursorBaseDir "hooks.json"
+    if (Test-Path -LiteralPath $cursorHooksFile) {
+        Write-Host "  -> Removing Synapse hooks from Cursor Global ($cursorHooksFile)..." -ForegroundColor Cyan
+        $safePy = Get-SafePython
+        if ($safePy) {
+            $registerCursorScript = Join-Path $ScriptDir "scripts\register_cursor_hooks.py"
+            Invoke-PythonScript -Python $safePy -Script $registerCursorScript -Arguments @(
+                "--action", "uninstall",
+                "--hooks-file", $cursorHooksFile
+            )
+        }
+    }
 }
 
 # ------------------------------------------------------------------------------
@@ -411,6 +425,7 @@ if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
         $ProjectCursorDir = Join-Path $AbsProjectPath ".cursor"
         $ProjectRulesDir = Join-Path $ProjectCursorDir "rules"
         $ProjectMcpFile = Join-Path $ProjectCursorDir "mcp.json"
+        $projectHooksFile = Join-Path $ProjectCursorDir "hooks.json"
 
         Write-Host ""
         Write-Host "[*] Step 4: Removing Cursor Project configuration in $AbsProjectPath..." -ForegroundColor Cyan
@@ -425,6 +440,18 @@ if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
                 }
             }
             Remove-DirectoryIfEmpty $ProjectRulesDir
+        }
+
+        if (Test-Path -LiteralPath $projectHooksFile) {
+            Write-Host "  -> Removing Synapse hooks from Project Cursor ($projectHooksFile)..." -ForegroundColor Cyan
+            $safePy = Get-SafePython
+            if ($safePy) {
+                $registerCursorScript = Join-Path $ScriptDir "scripts\register_cursor_hooks.py"
+                Invoke-PythonScript -Python $safePy -Script $registerCursorScript -Arguments @(
+                    "--action", "uninstall",
+                    "--hooks-file", $projectHooksFile
+                )
+            }
         }
 
         Write-Host "  -> Removing ecc-lite-brain from Project MCP configuration..." -ForegroundColor Cyan
@@ -482,10 +509,10 @@ if ($UninstallClaude) {
     Write-Host "  - Claude Code hooks and ecc-lite-brain MCP registration removed"
 }
 if ($UninstallCursorGlobal) {
-    Write-Host "  - Cursor Global symlinks and MCP registration removed"
+    Write-Host "  - Cursor Global symlinks, hooks, and MCP registration removed"
 }
 if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
-    Write-Host "  - Cursor Project configuration removed from $CursorProject"
+    Write-Host "  - Cursor Project rules, hooks, & MCP removed from $CursorProject"
 }
 if ($UninstallAntigravity) {
     Write-Host "  - Antigravity MCP server ecc-lite-brain deregistered"

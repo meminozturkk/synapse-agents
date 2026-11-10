@@ -282,6 +282,15 @@ if [[ "$UNINSTALL_CURSOR_GLOBAL" == true ]]; then
         done
         rmdir "$CURSOR_SKILLS_DIR" 2>/dev/null || true
     fi
+
+    # Hooks
+    CURSOR_HOOKS_FILE="${CURSOR_BASE_DIR}/hooks.json"
+    if [[ -f "$CURSOR_HOOKS_FILE" ]]; then
+        echo -e "  ${BLUE}→ Removing Synapse hooks from Cursor Global (${CURSOR_HOOKS_FILE})...${NC}"
+        $PYTHON_CMD "${SCRIPT_DIR}/scripts/register_cursor_hooks.py" \
+            --action uninstall \
+            --hooks-file "$CURSOR_HOOKS_FILE" || true
+    fi
 fi
 
 # ------------------------------------------------------------------------------
@@ -293,6 +302,7 @@ if [[ -n "$CURSOR_PROJECT_PATH" ]]; then
         PROJECT_CURSOR_DIR="${ABS_PROJECT_PATH}/.cursor"
         PROJECT_RULES_DIR="${PROJECT_CURSOR_DIR}/rules"
         PROJECT_MCP_FILE="${PROJECT_CURSOR_DIR}/mcp.json"
+        PROJECT_HOOKS_FILE="${PROJECT_CURSOR_DIR}/hooks.json"
 
         echo ""
         echo -e "${BLUE}[*] Step 4: Removing Cursor Project configuration in ${ABS_PROJECT_PATH}...${NC}"
@@ -306,6 +316,13 @@ if [[ -n "$CURSOR_PROJECT_PATH" ]]; then
                 fi
             done
             rmdir "$PROJECT_RULES_DIR" 2>/dev/null || true
+        fi
+
+        if [[ -f "$PROJECT_HOOKS_FILE" ]]; then
+            echo -e "  ${BLUE}→ Removing Synapse hooks from Project Cursor (${PROJECT_HOOKS_FILE})...${NC}"
+            $PYTHON_CMD "${SCRIPT_DIR}/scripts/register_cursor_hooks.py" \
+                --action uninstall \
+                --hooks-file "$PROJECT_HOOKS_FILE" || true
         fi
 
         echo -e "  ${BLUE}→ Removing ecc-lite-brain from Project MCP configuration...${NC}"
@@ -355,8 +372,8 @@ echo -e "==========================================================${NC}"
 echo -e "Summary:"
 [[ "$UNINSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code & ~/.agents symlinks removed"
 [[ "$UNINSTALL_CLAUDE" == true ]] && echo -e "  • Claude Code hooks and ecc-lite-brain MCP registration removed"
-[[ "$UNINSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global symlinks and MCP registration removed"
-[[ -n "$CURSOR_PROJECT_PATH" ]] && echo -e "  • Cursor Project configuration removed from ${CURSOR_PROJECT_PATH}"
+[[ "$UNINSTALL_CURSOR_GLOBAL" == true ]] && echo -e "  • Cursor Global symlinks, hooks, and MCP registration removed"
+[[ -n "$CURSOR_PROJECT_PATH" ]] && echo -e "  • Cursor Project configuration, hooks, & MCP removed from ${CURSOR_PROJECT_PATH}"
 [[ "$UNINSTALL_ANTIGRAVITY" == true ]] && echo -e "  • Antigravity MCP server ecc-lite-brain deregistered"
 if [[ "$REMOVE_PLUGINS" == true ]]; then
     echo -e "  • Plugin directories removed from ~/.gemini/config/plugins"
