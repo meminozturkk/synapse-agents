@@ -5,10 +5,12 @@ MCP server with Claude Code.
 
   * Hooks      -> ~/.claude/settings.json  ("hooks.PreToolUse" / "hooks.Stop")
   * MCP server -> ~/.claude.json           ("mcpServers", user scope)
+  * AGENTS.md  -> ~/.claude/CLAUDE.md      (@import in a marked block, optional)
 
-Both files are merged, never overwritten: only entries owned by Synapse Agents
-(hook commands pointing into an 'ecc-lite/hooks/' directory, and the
-'ecc-lite-brain' MCP entry) are added or removed. Re-running is idempotent.
+All files are merged, never overwritten: only entries owned by Synapse Agents
+(hook commands pointing into an 'ecc-lite/hooks/' directory, the
+'ecc-lite-brain' MCP entry, and the synapse-agents block in CLAUDE.md) are
+added or removed. Re-running is idempotent.
 """
 
 import argparse
@@ -26,6 +28,8 @@ if hasattr(sys.stderr, "reconfigure"):
 MCP_NAME = "ecc-lite-brain"
 HOOK_DIR_MARKERS = ("ecc-lite/hooks/", ".agents/hooks/")
 PRE_TOOL_MATCHER = "Write|Edit|MultiEdit|NotebookEdit|Bash"
+AGENTS_BLOCK_BEGIN = "<!-- synapse-agents:begin (managed by install.sh; do not edit) -->"
+AGENTS_BLOCK_END = "<!-- synapse-agents:end -->"
 HOOK_SCRIPTS = {
     "sh": {"guard": "secret-guard.sh", "verify": "verify-quiet.sh"},
     "py": {"guard": "secret_guard.py", "verify": "verify_quiet.py"},
@@ -54,6 +58,10 @@ def load_json(path: str) -> dict:
 
 
 def write_json(path: str, data: dict, backup_dir: str = "") -> None:
+    write_text(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n", backup_dir)
+
+
+def write_text(path: str, out_text: str, backup_dir: str = "") -> None:
     """Back up the existing file, then write atomically (temp file + rename)."""
     if os.path.exists(path):
         if backup_dir:
@@ -65,7 +73,6 @@ def write_json(path: str, data: dict, backup_dir: str = "") -> None:
 
     parent = os.path.dirname(path) or "."
     os.makedirs(parent, exist_ok=True)
-    out_text = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
     fd, tmp_path = tempfile.mkstemp(dir=parent, prefix=".synapse-", suffix=".tmp")
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -136,6 +143,21 @@ def strip_synapse_hooks(settings: dict) -> bool:
     return changed
 
 
+def strip_agents_block(text: str) -> str:
+    """Remove the Synapse-owned import block (markers included) from CLAUDE.md text."""
+    start, end = text.find(AGENTS_BLOCK_BEGIN), text.find(AGENTS_BLOCK_END)
+    if start == -1 or end < start:
+        return text
+    return (text[:start].rstrip("\n") + "\n" + text[end + len(AGENTS_BLOCK_END):].lstrip("\n")).lstrip("\n")
+
+
+def read_text(path: str) -> str:
+    if not os.path.exists(path):
+        return ""
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
 def install(args) -> int:
     hooks_dir = os.path.abspath(os.path.expanduser(args.hooks_dir)).replace("\\", "/")
     server = os.path.abspath(os.path.expanduser(args.server)).replace("\\", "/")
@@ -173,6 +195,19 @@ def install(args) -> int:
     servers[MCP_NAME] = {"type": "stdio", "command": cmd, "args": extra + [server], "env": {}}
     write_json(args.claude_json, claude_json, args.backup_dir)
     print(f"  [OK] {MCP_NAME} MCP server registered (user scope) in {args.claude_json}")
+
+    # 3. Orchestration rules -> ~/.claude/CLAUDE.md (@import inside a managed block)
+    if args.agents_md:
+        agents_md = os.path.abspath(os.path.expanduser(args.agents_md)).replace("\\", "/")
+        if not os.path.isfile(agents_md):
+            raise ConfigError(f"AGENTS.md not found: {agents_md}")
+        current = read_text(args.claude_md)
+        block = f"{AGENTS_BLOCK_BEGIN}\n@{agents_md}\n{AGENTS_BLOCK_END}\n"
+        rest = strip_agents_block(current)
+        updated = block + ("\n" + rest if rest.strip() else "")
+        if updated != current:
+            write_text(args.claude_md, updated, args.backup_dir)
+        print(f"  [OK] Orchestration rules (AGENTS.md) imported in {args.claude_md}")
     return 0
 
 
@@ -194,6 +229,18 @@ def uninstall(args) -> int:
             print(f"  [OK] {MCP_NAME} removed from {args.claude_json}")
         else:
             print(f"  [i] {MCP_NAME} was not present in {args.claude_json}")
+
+    current = read_text(args.claude_md)
+    if AGENTS_BLOCK_BEGIN in current:
+        rest = strip_agents_block(current)
+        if rest.strip():
+            write_text(args.claude_md, rest, args.backup_dir)
+        else:
+            if args.backup_dir:
+                os.makedirs(args.backup_dir, exist_ok=True)
+                shutil.copy2(args.claude_md, os.path.join(args.backup_dir, "CLAUDE.md"))
+            os.remove(args.claude_md)
+        print(f"  [OK] Orchestration rules import removed from {args.claude_md}")
     return 0
 
 
@@ -207,6 +254,8 @@ def main() -> int:
                        help="Claude Code user settings file (default: ~/.claude/settings.json)")
         p.add_argument("--claude-json", default=os.path.join(home, ".claude.json"),
                        help="Claude Code user state file holding MCP servers (default: ~/.claude.json)")
+        p.add_argument("--claude-md", default=os.path.join(home, ".claude", "CLAUDE.md"),
+                       help="Claude Code user memory file (default: ~/.claude/CLAUDE.md)")
         p.add_argument("--backup-dir", default="", help="Directory for backups (default: <file>.bak)")
 
     p_install = sub.add_parser("install", help="Register hooks and MCP server")
@@ -216,6 +265,8 @@ def main() -> int:
     p_install.add_argument("--server", required=True, help="Path to brain_server.py")
     p_install.add_argument("--runtime", choices=["sh", "py"], default="sh",
                            help="Use bash (.sh) or Python (.py) hook scripts (default: sh)")
+    p_install.add_argument("--agents-md", default="",
+                           help="Orchestration AGENTS.md to @import from ~/.claude/CLAUDE.md (optional)")
 
     p_uninstall = sub.add_parser("uninstall", help="Remove hooks and MCP server")
     add_common(p_uninstall)
@@ -223,6 +274,7 @@ def main() -> int:
     args = parser.parse_args()
     args.settings = os.path.abspath(os.path.expanduser(args.settings))
     args.claude_json = os.path.abspath(os.path.expanduser(args.claude_json))
+    args.claude_md = os.path.abspath(os.path.expanduser(args.claude_md))
     try:
         return install(args) if args.action == "install" else uninstall(args)
     except ConfigError as e:

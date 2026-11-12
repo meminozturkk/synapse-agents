@@ -369,6 +369,7 @@ if [[ "$INSTALL_CLAUDE" == true ]]; then
         --hooks-dir "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks" \
         --server "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" \
         --runtime "$CLAUDE_HOOK_RUNTIME" \
+        --agents-md "${GEMINI_PLUGINS_DIR}/orchestration/rules/AGENTS.md" \
         --backup-dir "$BACKUP_DIR"
 fi
 

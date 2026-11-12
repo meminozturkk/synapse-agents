@@ -512,6 +512,7 @@ if ($InstallClaude) {
         "--hooks-dir", $HooksDir,
         "--server", $BrainServer,
         "--runtime", "py",
+        "--agents-md", (Join-Path $GeminiPluginsDir "orchestration\rules\AGENTS.md"),
         "--backup-dir", $BackupDir
     )
 }
