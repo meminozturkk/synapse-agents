@@ -54,7 +54,7 @@ Tek bir repoyu körü körüne benimsemek yerine, her felsefenin en üstün meka
 Bu sentez sonucunda **Synapse Agents** mimarisini geliştirdik:
 - **Şef İçin %0 Ham Kod Okuma (Sıfır Context Şişmesi):** Ana konuşulan model (Hands-Off Chief Architect) context penceresine ASLA ham kod dosyaları basmaz. Kod taramayı `explorer`'a, mimari planlamayı `planner`'a, cerrahi uygulamayı paralel `coder` izleklerine, güvenlik ve sözleşme denetimini ise `reviewer`'a devreder.
 - **4 Süzgeçli Şef Baş Mimar Denetim Kapısı:** Hazırlanan planlar kullanıcıya veya kodlayıcılara sunulmadan önce Şef tarafından Ponytail Minimalizmi, Sözleşme & Katman Kilidi, Karpathy Kapsam Kontrolü ve Güvenlik filtrelerinden geçirilir.
-- **Kusursuz Çift Motor Desteği (Google Gemini & Anthropic Claude):** İster Google Gemini ister Anthropic Claude altında çalışın, aynı deterministik 1 Şef + 4 Alt Ajan mimarisine sahip olursunuz! Google Antigravity altında yerel **Gemini 3.8 Flash** (High/Medium Effort) ile güçlendirilir; Claude Code ve Cursor altında ise otomatik olarak **Claude Sonnet 5.5** (derin planlama, cerrahi kodlama, güvenlik denetimi) ve **Claude 3.5 Haiku** (hızlı kapsam keşfi) ile donatılır.
+- **Kusursuz Çift Motor Desteği (Google Gemini & Anthropic Claude):** İster Google Gemini ister Anthropic Claude altında çalışın, aynı deterministik 1 Şef + 4 Alt Ajan mimarisine sahip olursunuz! Google Antigravity altında yerel **Gemini 3.8 Flash** (High/Medium Effort) ile güçlendirilir; Claude Code ve Cursor altında ise otomatik olarak **Claude Sonnet 5.5** (derin planlama, cerrahi kodlama, güvenlik denetimi) ve **Claude Haiku 5.5** (hızlı kapsam keşfi) ile donatılır.
 
 ---
 
@@ -103,7 +103,7 @@ Bu sentez sonucunda **Synapse Agents** mimarisini geliştirdik:
 
 Sistem, **1 Şef (Hands-Off Chief Architect)** ve **4 Evrensel Alt Ajan** hiyerarşisiyle çalışır. Çerçeve, kullanılan platforma göre en uygun modelleri otomatik olarak atar:
 * **Google Antigravity:** Ajanlar doğrudan **Gemini 3.8 Flash** (`explorer` için Medium Effort; `planner`, `coder`, `reviewer` için High Effort / Derin Muhakeme modunda) üzerinde çalışır.
-* **Claude Code & Cursor:** Yükleyiciler (`install.sh` ve `install.ps1`) yerel Anthropic modellerini otomatik yapılandırır: Hızlı kapsam keşfi için **Claude 3.5 Haiku**, derin planlama, cerrahi kodlama ve güvenlik/sözleşme denetimi için **Claude Sonnet 5.5**.
+* **Claude Code & Cursor:** Yükleyiciler (`install.sh` ve `install.ps1`) yerel Anthropic modellerini otomatik yapılandırır: Hızlı kapsam keşfi için **Claude Haiku 5.5**, derin planlama, cerrahi kodlama ve güvenlik/sözleşme denetimi için **Claude Sonnet 5.5**.
 
 ```mermaid
 flowchart TD
@@ -144,7 +144,7 @@ flowchart TD
 | Ajan Rolü | Google Antigravity | Claude Code & Cursor IDE | Temel Görevi | Araç Yetkileri |
 |---|---|---|---|:---:|
 | **Şef (Chief Architect)** | Yerel Lider Model *(Örn. Gemini 4 Argon)* | Yerel Lider Model *(Örn. Claude 3.7 Sonnet / Opus)* | Kullanıcı hedefini anlar, triyaj uygular, denetim kapılarını işletir ve alt ajanları yönetir. | **Yalnızca Koordinatör:** Kod yazma (`write_to_file`, `replace_file_content`) YOK, terminal çalıştırma YOK, ham kod okuma YOK. |
-| **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude 3.5 Haiku** (`model: haiku`) | **Ponytail Kapsam Keşfi:** Arayanları, bağımlılıkları, testleri ve yapılandırmaları haritalar; özet sunar (maks. 150 kelime). | Salt Okunur (Read-Only) |
+| **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude Haiku 5.5** (`model: haiku`) | **Ponytail Kapsam Keşfi:** Arayanları, bağımlılıkları, testleri ve yapılandırmaları haritalar; özet sunar (maks. 150 kelime). | Salt Okunur (Read-Only) |
 | **`planner`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Ham dosyaları izole context'te okur; kilitli DTO/DB sözleşmeleriyle 40–80 satırlık mimari plan üretir. | Salt Okunur (Read-Only) |
 | **`coder`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | N paralel rolde çağrılır (`Coder (Backend)`, `Coder (Mobile)` vb.); cerrahi kodlama yapar ve Verification Gate'i işletir. | Yazma ve Çalıştırma |
 | **`reviewer`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | İki Aşamalı İnceleme: 1) Kilitli Sözleşme Uyumu, 2) Ponytail Caller-Aware derin inceleme, güvenlik ve N+1 sorgu taraması. | Salt Okunur (Read-Only) |

@@ -103,11 +103,11 @@ def transform_agent_content(content: str, agent_stem: str, platform: str) -> str
     text = text.replace("[Gemini 3.8 Flash - High]", "[Claude Sonnet 5.5]")
 
     # Persona titles with hyphen
-    text = text.replace("Gemini 3.8 Flash - Medium Effort", "Claude 3.5 Haiku")
+    text = text.replace("Gemini 3.8 Flash - Medium Effort", "Claude Haiku 5.5")
     text = text.replace("Gemini 3.8 Flash - High Effort", "Claude Sonnet 5.5")
 
     # Badges, descriptions, and rule specifications
-    text = text.replace("Gemini 3.8 Flash (Medium Effort)", "Claude 3.5 Haiku")
+    text = text.replace("Gemini 3.8 Flash (Medium Effort)", "Claude Haiku 5.5")
     text = text.replace("Gemini 3.8 Flash (High Effort)", "Claude Sonnet 5.5")
 
     # Claude Code body tool mention updates (e.g. reviewer.md `grep_search` -> `Grep`)

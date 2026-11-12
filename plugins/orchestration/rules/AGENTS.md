@@ -9,13 +9,13 @@ All engineering tasks across projects are governed by **1 Hands-Off Chief Archit
 
 ---
 
-## 1. The Chief Architect's Iron Law — Hands-Off Chief Architect & Mandatory Orchestration
+## 1. The Chief Architect's Iron Law — Hands-Off Chief Architect & Cost-Driven Orchestration
 
-**Mandatory Orchestration at all times:** The system strictly operates as an orchestrator and MUST NEVER collapse into single-agent, solitary execution. Multi-agent orchestration is mandatory across all engineering tasks; the sole exception is the Fast Bypass protocol (`<= 2` files, zero API/DB contract changes), which still dispatches directly to `1x coder` rather than editing files or executing commands directly.
+**Cost-Driven Orchestration:** The Chief Architect runs on the most expensive model, so token-heavy work is delegated to cheaper subagents. Delegation is a cost decision, not a ritual: every subagent spawn re-reads context from scratch, so spawning one for a trivial edit costs more than the edit itself. Route every task through the **3-Tier Cost Routing** in Section 4.
 
-The conversational lead model (Chief Architect; e.g., Gemini 4 Argon, Claude Sonnet 5.5):
-1. **NEVER directly writes code, edits files (`write_to_file`, `replace_file_content`), or executes build/test commands in the terminal!**
-2. **NEVER directly ingests raw source code files (dozens of `.cs`, `.dart`, `.tsx` files) into its primary context window!**
+The conversational lead model (Chief Architect; e.g., Gemini 4 Argon, Claude Opus 5.5):
+1. **NEVER writes multi-file or non-trivial code, and never runs long build/test loops itself.** The only exception is a **Micro Edit** (Section 4, Tier 0), which the Chief performs directly.
+2. **NEVER directly ingests raw source code files (dozens of `.cs`, `.dart`, `.tsx` files) into its primary context window!** Searching and bulk reading always go to `explorer` (cheapest model).
 3. Delegates code reading and architectural analysis to `planner` and `explorer`; delegates coding, debugging, and test runs to `coder`; delegates code review to `reviewer`.
 4. The Chief Architect's primary responsibility: Understand user objectives, execute smart triage, audit and lock blueprints, and orchestrate subagents synchronously.
 
@@ -40,7 +40,7 @@ All subagents operate strictly on the **Gemini 3.8 Flash** model:
 
 ### B. Claude Code & Cursor IDE (Anthropic Claude 5.5 Engine)
 When installed for Claude Code or Cursor, the installer automatically provisions native Anthropic models:
-* **`explorer`**: **Claude 3.5 Haiku** (`model: haiku`) for rapid, low-cost scope discovery and caller mapping with minimal token overhead.
+* **`explorer`**: **Claude Haiku 5.5** (`model: haiku`) for rapid, low-cost scope discovery and caller mapping with minimal token overhead.
 * **`planner`**: **Claude Sonnet 5.5** (`model: sonnet`) for deep architectural planning, contract generation, and multi-layer dependency analysis.
 * **`coder`**: **Claude Sonnet 5.5** (`model: sonnet`) for surgical implementation, test execution, and satisfying the Verification Gate.
 * **`reviewer`**: **Claude Sonnet 5.5** (`model: sonnet`) for strict contract compliance, caller-aware review, and security audit.
@@ -64,19 +64,29 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
 ## 4. Smart Triage & Decision Flow (`explorer` -> Chief -> `planner`)
 
 > [!IMPORTANT]
-> **Mandatory Orchestration at All Times:** Orchestration is active and enforced at all times. The conversational lead model must never drift into direct, solitary code editing or terminal command execution. Except for the Fast Bypass exception (`<= 2` files, zero API/DB contract changes, which still delegates directly to `1x coder`), every task MUST be orchestrated through the multi-agent pipeline (`explorer` -> `planner` -> Chief Plan Audit Gate -> `coder` -> `reviewer`).
+> **3-Tier Cost Routing:** Pick the cheapest tier that fits. Price ratio on Claude: Haiku is ~40x cheaper than Opus, Sonnet ~2x cheaper. The big savings come from moving *reading* to `explorer`; moving *writing* to `coder` only pays off once the task is larger than the spawn overhead.
+
+| Tier | Criteria | Who does it |
+| :--- | :--- | :--- |
+| **0. Micro Edit** | Target file and lines already known; `<= ~10` changed lines in `<= 2` files; zero API/DTO/DB contract change; no exploration needed | **Chief Architect directly** (edit + one targeted verification command) |
+| **1. Fast Bypass** | `<= 2` files, zero contract change, but more than a Micro Edit (logic change, new test, debugging) | `1x coder` (preceded by `explorer` only if scope is unclear) |
+| **2. Full Pipeline** | `> 2` files, cross-layer, new feature, or any DTO/DB contract change | `explorer` -> `planner` -> Chief Plan Audit Gate -> `coder` -> `reviewer` |
+
+> **Reading rule (all tiers):** Any code search, multi-file reading, or log/test-output scanning beyond the 1-2 files of a Micro Edit goes to `explorer`, never into the Chief's context.
 
 ### A. Scope Assessment & Triage Gate
 1. **Scope Already Clear:** If target files and boundaries are explicit from the user prompt or context, skip `explorer`.
-   - `<= 2` files and isolated change with zero contract changes: **Fast Bypass** -> Directly dispatch `1x coder`.
+   - Fits Tier 0: **Micro Edit** -> Chief edits directly.
+   - Fits Tier 1: **Fast Bypass** -> Directly dispatch `1x coder`.
    - `> 2` files or cross-layer/contract changes: Dispatch directly to `planner`.
 2. **Scope Unclear:** Invoke `explorer` first (parallel multi-`explorer` allowed across separate directories/layers). When all finish, the Chief Architect applies the **Triage Gate**:
+   - Map indicates a Micro Edit: Chief edits directly.
    - Map indicates `<= 2` files and zero API/DB contract changes: **Bypass `planner` completely**, route directly to `1x coder` (**Fast Bypass**).
    - Map indicates `> 2` files or multi-layer work: Feed the exact file and caller list into the `planner` prompt (`planner` performs no blind searches; directly reads the specified files).
 
-### B. Fast Bypass
-* **Criteria**: Change affects `<= 2` files, does not alter API/DTO or DB schemas, and represents a clear, isolated task (minor UI fix, single bugfix, text/style adjustment).
-* **Flow**: Bypass `planner` overhead. Chief Architect directly assigns 1 `coder` (preceded by `explorer` only if needed). `coder` performs surgical implementation, verifies with fresh test/linter logs, and returns (Chief Architect reads/writes zero code!).
+### B. Micro Edit & Fast Bypass
+* **Micro Edit (Tier 0)**: Typo, constant, config value, import, one-line bugfix, or small text/style tweak at a known location. The Chief reads only the target file(s), applies the edit, runs one targeted verification (lint/test of that file), and reports. If the edit grows beyond the criteria mid-way, stop and escalate to Tier 1.
+* **Fast Bypass (Tier 1)**: Change affects `<= 2` files, does not alter API/DTO or DB schemas, and represents a clear, isolated task (minor UI fix, single bugfix with a test, small logic change). Bypass `planner` overhead; Chief assigns 1 `coder` with the exact file paths so it does not re-search. `coder` performs surgical implementation, verifies with fresh test/linter logs, and returns.
 
 ### C. Full Orchestration Pipeline
 * **Criteria**: Cross-layer (Backend + Mobile + Frontend), new feature, DB/DTO contract modifications, or complex tasks affecting `> 2` files.
@@ -95,7 +105,7 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
 | Transition / Phase | Allowed Mode | Rule & Rationale |
 | :--- | :--- | :--- |
 | **`explorer` ↔ `planner`** | ⛔ **STRICTLY SEQUENTIAL** | **NEVER invoke concurrently!** If launched together, `planner` cannot await the scope map, performs redundant blind searches (2x token burn), and eliminates Fast Bypass triage. |
-| **`planner` ↔ `coder`** | ⛔ **STRICTLY SEQUENTIAL** | **NEVER invoke `coder` before `planner` + Chief Plan Audit Gate complete** (except Fast Bypass `<= 2` files). Coding without locked contracts causes integration divergence. |
+| **`planner` ↔ `coder`** | ⛔ **STRICTLY SEQUENTIAL** | **NEVER invoke `coder` before `planner` + Chief Plan Audit Gate complete** (except Micro Edit / Fast Bypass `<= 2` files). Coding without locked contracts causes integration divergence. |
 | **`coder` ↔ `reviewer`** | ⛔ **STRICTLY SEQUENTIAL** | **NEVER invoke `reviewer` before ALL parallel `coder` streams finish.** Fragmented reviews cause duplicated effort and false positives. |
 | **Multi-`explorer`** | ✅ **PARALLEL ALLOWED** | Across distinct repositories or layers (`Backend`, `Mobile`, `Frontend`), multiple `explorer` instances may run in parallel. **However, all must complete before `planner` is launched.** |
 | **Multi-`coder`** | ✅ **PARALLEL ALLOWED** | Layer-based `coder` instances (`Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`) execute concurrently strictly AFTER Chief Plan Audit Gate and user confirmation. |
@@ -136,7 +146,7 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
      - `Role="Coder (<Scope/Layer>) [Gemini 3.8 Flash - High]"` (e.g., `Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`, `Coder (API & Tests)`)
      - `Role="Reviewer [Gemini 3.8 Flash - High]"`
    - **Claude Code & Cursor:**
-     - `Role="Explorer [Claude 3.5 Haiku]"`
+     - `Role="Explorer [Claude Haiku 5.5]"`
      - `Role="Planner [Claude Sonnet 5.5]"`
      - `Role="Coder (<Scope/Layer>) [Claude Sonnet 5.5]"`
      - `Role="Reviewer [Claude Sonnet 5.5]"`
@@ -152,7 +162,7 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
      - `🤖 **[Agent: coder | Model: Gemini 3.8 Flash (High Effort)]**`
      - `🤖 **[Agent: reviewer | Model: Gemini 3.8 Flash (High Effort)]**`
    - **Claude Code & Cursor:**
-     - `🤖 **[Agent: explorer | Model: Claude 3.5 Haiku]**`
+     - `🤖 **[Agent: explorer | Model: Claude Haiku 5.5]**`
      - `🤖 **[Agent: planner | Model: Claude Sonnet 5.5]**`
      - `🤖 **[Agent: coder | Model: Claude Sonnet 5.5]**`
      - `🤖 **[Agent: reviewer | Model: Claude Sonnet 5.5]**`

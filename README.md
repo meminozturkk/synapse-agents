@@ -54,7 +54,7 @@ Instead of adopting any single project dogma, we extracted the crowning jewels o
 By synthesizing these principles, we architected **Synapse Agents**:
 - **0% Raw Code Ingestion for the Chief Architect:** The lead model (Chief Architect) never ingests raw source files or terminal output directly into its conversational context. It delegates exploration to `explorer`, blueprinting to `planner`, surgical implementation to parallel `coder` streams, and rigorous audit to `reviewer`.
 - **4-Point Chief Architect Plan Audit Gate:** Before any plan reaches the user or coder agents, the Chief audits it against Ponytail Minimalism, Contract & Layer Locks, Karpathy Scope Control, and Security/Data Integrity.
-- **Seamless Dual-Engine Support (Google Gemini & Anthropic Claude):** You get the exact same deterministic 1 Chief + 4 Subagent architecture whether running under Google Gemini or Anthropic Claude! Powered natively by **Gemini 3.8 Flash** (High/Medium Effort) under Google Antigravity, and automatically provisioned with **Claude Sonnet 5.5** (deep planning, surgical coding, security review) and **Claude 3.5 Haiku** (rapid scope discovery) under Claude Code and Cursor.
+- **Seamless Dual-Engine Support (Google Gemini & Anthropic Claude):** You get the exact same deterministic 1 Chief + 4 Subagent architecture whether running under Google Gemini or Anthropic Claude! Powered natively by **Gemini 3.8 Flash** (High/Medium Effort) under Google Antigravity, and automatically provisioned with **Claude Sonnet 5.5** (deep planning, surgical coding, security review) and **Claude Haiku 5.5** (rapid scope discovery) under Claude Code and Cursor.
 
 ---
 
@@ -103,7 +103,7 @@ By synthesizing these principles, we architected **Synapse Agents**:
 
 The system is governed by **1 Hands-Off Chief Architect** and **4 Universal Subagents**. The framework automatically provisions optimal models depending on your host platform:
 * **Google Antigravity:** Agents run natively on **Gemini 3.8 Flash** (`explorer` in Medium Effort; `planner`, `coder`, `reviewer` in High Effort / Deep Reasoning mode).
-* **Claude Code & Cursor:** The installers (`install.sh` and `install.ps1`) automatically provision native Anthropic models: **Claude 3.5 Haiku** for rapid scope discovery, and **Claude Sonnet 5.5** for deep planning, surgical implementation, and contract/security reviews.
+* **Claude Code & Cursor:** The installers (`install.sh` and `install.ps1`) automatically provision native Anthropic models: **Claude Haiku 5.5** for rapid scope discovery, and **Claude Sonnet 5.5** for deep planning, surgical implementation, and contract/security reviews.
 
 ```mermaid
 flowchart TD
@@ -144,7 +144,7 @@ flowchart TD
 | Agent Role | Google Antigravity | Claude Code & Cursor IDE | Primary Mission | Tool Permissions |
 |---|---|---|---|:---:|
 | **Şef (Chief Architect)** | Top Host Model *(e.g., Gemini 4 Argon)* | Top Host Model *(e.g., Claude 3.7 Sonnet / Opus)* | Understands intent, performs triage, enforces audit gates, coordinates subagents. | **Coordinator Only:** Zero code writing (`write_to_file`, `replace_file_content`), zero terminal execution, zero raw source reading. |
-| **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude 3.5 Haiku** (`model: haiku`) | **Ponytail Scope Discovery:** Maps callers, dependencies, fixtures, configs; produces a crisp summary (max 150 words). | Read-Only |
+| **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude Haiku 5.5** (`model: haiku`) | **Ponytail Scope Discovery:** Maps callers, dependencies, fixtures, configs; produces a crisp summary (max 150 words). | Read-Only |
 | **`planner`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Absorbs raw source files in an isolated context; outputs a 40–80 line architectural plan with locked DTO/DB contracts. | Read-Only |
 | **`coder`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Spawned as N parallel roles (`Coder (Backend)`, `Coder (Mobile)`, etc.); performs surgical edits and runs the Verification Gate. | Write & Execute |
 | **`reviewer`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Two-Stage Audit: 1) Strict Contract Adherence, 2) Ponytail Caller-Aware deep review, security, and N+1 query scans. | Read-Only |
