@@ -207,7 +207,7 @@ def install(args) -> int:
         updated = block + ("\n" + rest if rest.strip() else "")
         if updated != current:
             write_text(args.claude_md, updated, args.backup_dir)
-        print(f"  [OK] Orchestration rules (AGENTS.md) imported in {args.claude_md}")
+        print(f"  [OK] {os.path.basename(agents_md)} imported in {args.claude_md}")
     return 0
 
 

@@ -486,13 +486,10 @@ if ($InstallClaude) {
             New-SafeDirectoryLink -LinkPath $linkSkill -TargetPath $_.FullName
         }
     }
-    $orchSkillsDir = Join-Path $GeminiPluginsDir "orchestration\skills"
-    if (Test-Path -LiteralPath $orchSkillsDir) {
-        Get-ChildItem -LiteralPath $orchSkillsDir -Directory | ForEach-Object {
-            $linkSkill = Join-Path $ClaudeSkillsDir $_.Name
-            New-SafeDirectoryLink -LinkPath $linkSkill -TargetPath $_.FullName
-        }
-    }
+    # Claude uses the short CLAUDE-ROUTING.md instead of the orchestrator skill; drop a link left by older installs.
+    $oldOrchLink = Join-Path $ClaudeSkillsDir "orchestrator"
+    $oldOrchItem = Get-Item -LiteralPath $oldOrchLink -Force -ErrorAction SilentlyContinue
+    if ($oldOrchItem -and ($oldOrchItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { [System.IO.Directory]::Delete($oldOrchLink) }
     Write-Host "  [OK] Linked all skills to ~/.claude/skills/" -ForegroundColor Green
 
     # 3D. ~/.claude/rules symlink
@@ -512,7 +509,7 @@ if ($InstallClaude) {
         "--hooks-dir", $HooksDir,
         "--server", $BrainServer,
         "--runtime", "py",
-        "--agents-md", (Join-Path $GeminiPluginsDir "orchestration\rules\AGENTS.md"),
+        "--agents-md", (Join-Path $GeminiPluginsDir "orchestration\rules\CLAUDE-ROUTING.md"),
         "--backup-dir", $BackupDir
     )
 }
@@ -534,7 +531,7 @@ if ($InstallCursorGlobal) {
         "backend-dotnet.mdc"     = Join-Path $GeminiPluginsDir "ecc-lite\rules\backend-dotnet.md"
         "frontend-web.mdc"       = Join-Path $GeminiPluginsDir "ecc-lite\rules\frontend-web.md"
         "mobile-flutter.mdc"     = Join-Path $GeminiPluginsDir "ecc-lite\rules\mobile-flutter.md"
-        "agents-orchestration.mdc" = Join-Path $GeminiPluginsDir "orchestration\rules\AGENTS.md"
+        "agents-orchestration.mdc" = Join-Path $GeminiPluginsDir "orchestration\rules\CLAUDE-ROUTING.md"
     }
 
     foreach ($ruleName in $ruleMappings.Keys) {
@@ -605,7 +602,7 @@ if (-not [string]::IsNullOrWhiteSpace($CursorProject)) {
         "backend-dotnet.mdc"     = Join-Path $GeminiPluginsDir "ecc-lite\rules\backend-dotnet.md"
         "frontend-web.mdc"       = Join-Path $GeminiPluginsDir "ecc-lite\rules\frontend-web.md"
         "mobile-flutter.mdc"     = Join-Path $GeminiPluginsDir "ecc-lite\rules\mobile-flutter.md"
-        "agents-orchestration.mdc" = Join-Path $GeminiPluginsDir "orchestration\rules\AGENTS.md"
+        "agents-orchestration.mdc" = Join-Path $GeminiPluginsDir "orchestration\rules\CLAUDE-ROUTING.md"
     }
 
     foreach ($ruleName in $ruleMappings.Keys) {

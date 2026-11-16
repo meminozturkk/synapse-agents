@@ -13,6 +13,10 @@ All engineering tasks across projects are governed by **1 Hands-Off Chief Archit
 
 **Cost-Driven Orchestration:** The Chief Architect runs on the most expensive model, so token-heavy work is delegated to cheaper subagents. Delegation is a cost decision, not a ritual: every subagent spawn re-reads context from scratch, so spawning one for a trivial edit costs more than the edit itself. Route every task through the **3-Tier Cost Routing** in Section 4.
 
+> [!IMPORTANT]
+> **Headless Exception (delegated runs):** A prompt that starts with `[HEADLESS]` is a non-interactive delegated run (`agy -p`, `claude -p`, a wrapper such as `agy-delegate`). There you are the executor, not the Chief: do the task yourself in the current turn and return the result. NEVER invoke subagents, never defer work to a later turn, and never reply with only a plan or "I have dispatched X" — there is no later turn to collect it.
+> **Callers:** Whenever you hand a task to another CLI agent non-interactively (e.g. `agy -p`, `agy-delegate`, `/antigravity:delegate`), start the task text with `[HEADLESS]`. The model on the other side cannot detect print mode by itself.
+
 The conversational lead model (Chief Architect; e.g., Gemini 4 Argon, Claude Opus 5.5):
 1. **NEVER writes multi-file or non-trivial code, and never runs long build/test loops itself.** The only exception is a **Micro Edit** (Section 4, Tier 0), which the Chief performs directly.
 2. **NEVER directly ingests raw source code files (dozens of `.cs`, `.dart`, `.tsx` files) into its primary context window!** Searching and bulk reading always go to `explorer` (cheapest model).
@@ -88,13 +92,32 @@ When `planner` completes its analysis and returns a draft plan, the Chief Archit
 * **Micro Edit (Tier 0)**: Typo, constant, config value, import, one-line bugfix, or small text/style tweak at a known location. The Chief reads only the target file(s), applies the edit, runs one targeted verification (lint/test of that file), and reports. If the edit grows beyond the criteria mid-way, stop and escalate to Tier 1.
 * **Fast Bypass (Tier 1)**: Change affects `<= 2` files, does not alter API/DTO or DB schemas, and represents a clear, isolated task (minor UI fix, single bugfix with a test, small logic change). Bypass `planner` overhead; Chief assigns 1 `coder` with the exact file paths so it does not re-search. `coder` performs surgical implementation, verifies with fresh test/linter logs, and returns.
 
+### B2. Executor Choice (Claude Code with the Antigravity plugin)
+When the `antigravity` plugin is installed in Claude Code, Antigravity (`agy`, Gemini) is a third, external executor beside `explorer` and `coder`. Pick by volume and judgement:
+
+| Work | Executor |
+| :--- | :--- |
+| Code search, caller mapping, reading a handful to a few dozen files | `explorer` (Haiku 5.5) |
+| Logic-bearing or contract-sensitive code, debugging, anything that needs judgement | `coder` (Sonnet 5.5) |
+| Bulk, well-specified output: full test suites, scaffolding/boilerplate, mechanical migrations across many files | Antigravity, tier `flash` (`antigravity-delegate` subagent or `/antigravity:delegate`) |
+| A whole, test-covered task of ~200+ lines | `/antigravity:handoff` (dedicated branch/worktree only — it runs with all tools auto-approved) |
+| Long-context digests (huge logs, very large files), web research | Antigravity, tier `flash` with `--digest`; `/antigravity:research` for multi-source |
+| Second opinion on a large diff | `/antigravity:review` (tier `pro`), then `reviewer` / Chief decides |
+
+Rules for every Antigravity delegation:
+1. Start the task text with `[HEADLESS]` and ask for a digest, never a raw dump.
+2. One large, fully specified batch beats many small round-trips; below the break-even, use `coder` or do it yourself.
+3. Writes only on a dedicated branch or worktree; review `git diff`, never re-read the files agy produced.
+4. Never trust agy's own "tests pass": the Chief runs the verification gate itself.
+5. If agy fails twice on the same piece (empty output, permission denial, wrong result), stop delegating it and hand it to `coder`.
+
 ### C. Full Orchestration Pipeline
 * **Criteria**: Cross-layer (Backend + Mobile + Frontend), new feature, DB/DTO contract modifications, or complex tasks affecting `> 2` files.
 * **Mandatory Sequence**:
   1. **Discovery (if scope unclear):** `ecc-lite-brain` + `explorer` (wait for all parallel explorers to finish and return the map to Chief).
   2. **Isolated Planning:** Chief passes target file list to `planner`; `planner` reads raw code and generates draft blueprint + locked contracts.
   3. **Chief Architect Plan Audit & Approval:** Chief filters, prunes, and locks the plan through the 4-Point Filter, then presents it to the user for confirmation.
-  4. **Parallel Surgical Execution:** Parallel N `coder` instances (`Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`, etc. — each executes Verification Gate and provides fresh test evidence).
+  4. **Parallel Surgical Execution:** Parallel N `coder` instances (`Coder (Backend)`, `Coder (Mobile)`, `Coder (Frontend)`, etc. — each executes Verification Gate and provides fresh test evidence). Bulk parts of the plan (test suites, scaffolding, migrations) go to Antigravity per Section 4.B2.
   5. **Two-Stage Review:** Once all `coder` streams complete, run a single `reviewer` pass (Stage 1: Contract Alignment, Stage 2: Caller-Aware & Security Audit).
   6. **Transparent Delivery:** Chief delivers the consolidated success report with all verification evidence.
 
