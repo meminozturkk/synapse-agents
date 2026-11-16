@@ -4,6 +4,7 @@
 > 🌐 **Language / Dil:** [🇬🇧 English](README.md) | **[🇹🇷 Türkçe](README.tr.md)**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/meminozturkk/synapse-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/meminozturkk/synapse-agents/actions/workflows/ci.yml)
 [![Architecture: Chief + 4 Subagents](https://img.shields.io/badge/Mimari-1_%C5%9Eef_%2B_4_Alt_Ajan-8A2BE2.svg)](#-ajan-matrisi-ve-rol-dağılımı)
 [![Model: Gemini 3.8 Flash | Claude 5.5](https://img.shields.io/badge/Model-Gemini_3.8_Flash_%7C_Claude_5.5-FF6F00.svg)](#-ajan-matrisi-ve-rol-dağılımı)
 [![OS Guards: 0--Token](https://img.shields.io/badge/OS_Kalkanlar%C4%B1-0--Token_Bash-success.svg)](#-0-token-os-kalkanları-ve-aşamalı-bellek)
@@ -347,26 +348,37 @@ Windows üzerinde Git Bash kullanarak doğrudan `./install.sh` betiğini de koş
 
 ```
 synapse-agents/
-├── install.sh              # Çoklu platform yükleyici (macOS/Linux/Git Bash)
-├── uninstall.sh            # Yedekleme garantili güvenli kaldırma betiği
-├── install.ps1             # Yerel Windows PowerShell yükleyicisi (Yönetici yetkisi gerektirmez)
-├── uninstall.ps1           # Yerel Windows PowerShell güvenli kaldırma betiği
-├── README.md               # İngilizce ana mimari ve sistem dokümantasyonu
-├── README.tr.md            # Türkçe eksiksiz mimari ve sistem dokümantasyonu
-├── LICENSE                 # MIT Lisansı
-├── .gitignore              # Çalışma zamanı durumları, Python bytecode ve instincts.md yok sayılır
+├── .github/workflows/ci.yml # Çapraz platform CI (Ubuntu, macOS, Windows)
+├── install.sh               # Çoklu platform yükleyici (macOS/Linux/Git Bash)
+├── uninstall.sh             # Yedekleme garantili güvenli kaldırma betiği
+├── install.ps1              # Yerel Windows PowerShell yükleyicisi (Yönetici yetkisi gerektirmez)
+├── uninstall.ps1            # Yerel Windows PowerShell güvenli kaldırma betiği
+├── scripts/                 # Claude/Cursor hook, MCP ve ajan senkronizasyon araçları
+├── tests/                   # Hook, MCP ve script'ler için bağımlılıksız unittest paketi
+├── CONTRIBUTING.md          # Katkı rehberi ve yerel doğrulama komutları
+├── CHANGELOG.md             # Sürüm geçmişi
+├── README.md                # İngilizce ana mimari ve sistem dokümantasyonu
+├── README.tr.md             # Türkçe eksiksiz mimari ve sistem dokümantasyonu
+├── LICENSE                  # MIT Lisansı
+├── .gitignore               # Çalışma zamanı durumları, Python bytecode ve instincts.md yok sayılır
 └── plugins/
-    ├── ecc-lite/           # Çekirdek araçlar, 0-token hook'ları, KB brain & MCP sunucusu
-    │   ├── hooks/          # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
-    │   ├── kb/             # instincts.example.md, bilgi konuları
-    │   ├── mcp/            # brain_server.py (Hafif ve bağımsızlıksız Python MCP uygulaması)
-    │   ├── rules/          # Karpathy cerrahi ve Ponytail minimalizm kuralları
-    │   └── skills/         # 10 seçkin mühendislik becerisi
-    └── orchestration/      # Şef Baş Mimar ve 4 alt ajan tanımları
-        ├── agents/         # explorer.md, planner.md, coder.md, reviewer.md
-        ├── rules/          # AGENTS.md (Şef denetim kapısı, triyaj ve paralellik matrisi)
-        └── skills/         # orchestrator uzmanlık becerisi
+    ├── ecc-lite/            # Çekirdek araçlar, 0-token hook'ları, KB brain & MCP sunucusu
+    │   ├── hooks/           # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
+    │   ├── kb/              # instincts.example.md, bilgi konuları
+    │   ├── mcp/             # brain_server.py (Hafif ve bağımsızlıksız Python MCP uygulaması)
+    │   ├── rules/           # Karpathy cerrahi ve Ponytail minimalizm kuralları
+    │   └── skills/          # 10 seçkin mühendislik becerisi
+    └── orchestration/       # Şef Baş Mimar ve 4 alt ajan tanımları
+        ├── agents/          # explorer.md, planner.md, coder.md, reviewer.md
+        ├── rules/           # AGENTS.md, CLAUDE-ROUTING.md
+        └── skills/          # orchestrator uzmanlık becerisi
 ```
+
+---
+
+## 🤝 Katkıda Bulunma ve Testler
+
+Bağımlılıksız test paketini yerelde `python3 -m unittest discover -s tests -v` ile çalıştırabilirsiniz. Ayrıntılar için [CONTRIBUTING.md](CONTRIBUTING.md) ve [CHANGELOG.md](CHANGELOG.md) dosyalarına bakın.
 
 ---
 

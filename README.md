@@ -4,6 +4,7 @@
 > 🌐 **Language / Dil:** **[🇬🇧 English](README.md)** | [🇹🇷 Türkçe](README.tr.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/meminozturkk/synapse-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/meminozturkk/synapse-agents/actions/workflows/ci.yml)
 [![Architecture: Chief + 4 Subagents](https://img.shields.io/badge/Architecture-Chief_%2B_4_Agents-8A2BE2.svg)](#-agent-matrix--roles)
 [![Models: Gemini 3.8 Flash | Claude 5.5](https://img.shields.io/badge/Models-Gemini_3.8_Flash_%7C_Claude_5.5-FF6F00.svg)](#-agent-matrix--roles)
 [![OS Guards: 0--Token](https://img.shields.io/badge/OS_Guards-0--Token_Bash-success.svg)](#-0-token-os-shields--progressive-memory)
@@ -347,26 +348,37 @@ Safely remove the framework while keeping your team's learned instincts intact:
 
 ```
 synapse-agents/
-├── install.sh              # Idempotent installer (macOS/Linux/Git Bash)
-├── uninstall.sh            # Safe uninstallation script with backup guarantees
-├── install.ps1             # Native Windows PowerShell Installer (Admin-free)
-├── uninstall.ps1           # Native Windows PowerShell Uninstaller with backup guarantees
-├── README.md               # English master architecture & system documentation
-├── README.tr.md            # Turkish complete architecture & system documentation
-├── LICENSE                 # MIT License
-├── .gitignore              # Ignores runtime states, Python bytecode, instincts.md
+├── .github/workflows/ci.yml # Cross-platform CI (Ubuntu, macOS, Windows)
+├── install.sh               # Idempotent installer (macOS/Linux/Git Bash)
+├── uninstall.sh             # Safe uninstallation script with backup guarantees
+├── install.ps1              # Native Windows PowerShell Installer (Admin-free)
+├── uninstall.ps1            # Native Windows PowerShell Uninstaller with backup guarantees
+├── scripts/                 # Claude/Cursor hook, MCP, and agent sync utilities
+├── tests/                   # Zero-dependency unittest suite for hooks, MCP, and scripts
+├── CONTRIBUTING.md          # Contribution guide and local verification commands
+├── CHANGELOG.md             # Release history
+├── README.md                # English master architecture & system documentation
+├── README.tr.md             # Turkish complete architecture & system documentation
+├── LICENSE                  # MIT License
+├── .gitignore               # Ignores runtime states, Python bytecode, instincts.md
 └── plugins/
-    ├── ecc-lite/           # Core tools, 0-token hooks, KB brain & MCP server
-    │   ├── hooks/          # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
-    │   ├── kb/             # instincts.example.md, knowledge topics
-    │   ├── mcp/            # brain_server.py (Stateless Python MCP implementation)
-    │   ├── rules/          # Karpathy surgical & Ponytail minimalism guidelines
-    │   └── skills/         # 10 curated engineering skills
-    └── orchestration/      # Chief Architect & 4 subagent definitions
-        ├── agents/         # explorer.md, planner.md, coder.md, reviewer.md
-        ├── rules/          # AGENTS.md (Chief gate, triage & parallelism matrix)
-        └── skills/         # orchestrator skill
+    ├── ecc-lite/            # Core tools, 0-token hooks, KB brain & MCP server
+    │   ├── hooks/           # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
+    │   ├── kb/              # instincts.example.md, knowledge topics
+    │   ├── mcp/             # brain_server.py (Stateless Python MCP implementation)
+    │   ├── rules/           # Karpathy surgical & Ponytail minimalism guidelines
+    │   └── skills/          # 10 curated engineering skills
+    └── orchestration/       # Chief Architect & 4 subagent definitions
+        ├── agents/          # explorer.md, planner.md, coder.md, reviewer.md
+        ├── rules/           # AGENTS.md, CLAUDE-ROUTING.md
+        └── skills/          # orchestrator skill
 ```
+
+---
+
+## 🤝 Contributing & Tests
+
+Run the zero-dependency test suite locally with `python3 -m unittest discover -s tests -v`. See [CONTRIBUTING.md](CONTRIBUTING.md) and [CHANGELOG.md](CHANGELOG.md) for details.
 
 ---
 
