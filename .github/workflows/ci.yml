@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unix:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Shell syntax checks
+        run: |
+          bash -n install.sh uninstall.sh \
+            plugins/ecc-lite/hooks/secret-guard.sh \
+            plugins/ecc-lite/hooks/verify-quiet.sh \
+            plugins/ecc-lite/skills/systematic-debugging/find-polluter.sh
+
+      - name: Python syntax checks
+        run: |
+          python3 -m py_compile \
+            plugins/ecc-lite/mcp/brain_server.py \
+            plugins/ecc-lite/hooks/secret_guard.py \
+            plugins/ecc-lite/hooks/verify_quiet.py \
+            scripts/*.py \
+            tests/*.py
+
+      - name: Run unit tests
+        run: python3 -m unittest discover -s tests -v
+
+  windows:
+    name: Test (windows-latest)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax checks
+        run: |
+          python -m py_compile `
+            plugins/ecc-lite/mcp/brain_server.py `
+            plugins/ecc-lite/hooks/secret_guard.py `
+            plugins/ecc-lite/hooks/verify_quiet.py `
+            scripts/patch_hooks.py `
+            scripts/register_claude.py `
+            scripts/register_cursor_hooks.py `
+            scripts/register_mcp.py `
+            scripts/sync_agents.py `
+            tests/test_brain_server.py `
+            tests/test_hooks.py `
+            tests/test_scripts.py
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v

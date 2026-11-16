@@ -4,6 +4,7 @@
 > 🌐 **Language / Dil:** **[🇬🇧 English](README.md)** | [🇹🇷 Türkçe](README.tr.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/meminozturkk/synapse-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/meminozturkk/synapse-agents/actions/workflows/ci.yml)
 [![Architecture: Chief + 4 Subagents](https://img.shields.io/badge/Architecture-Chief_%2B_4_Agents-8A2BE2.svg)](#-agent-matrix--roles)
 [![Models: Gemini 3.8 Flash | Claude 5.5](https://img.shields.io/badge/Models-Gemini_3.8_Flash_%7C_Claude_5.5-FF6F00.svg)](#-agent-matrix--roles)
 [![OS Guards: 0--Token](https://img.shields.io/badge/OS_Guards-0--Token_Bash-success.svg)](#-0-token-os-shields--progressive-memory)
@@ -54,7 +55,7 @@ Instead of adopting any single project dogma, we extracted the crowning jewels o
 By synthesizing these principles, we architected **Synapse Agents**:
 - **0% Raw Code Ingestion for the Chief Architect:** The lead model (Chief Architect) never ingests raw source files or terminal output directly into its conversational context. It delegates exploration to `explorer`, blueprinting to `planner`, surgical implementation to parallel `coder` streams, and rigorous audit to `reviewer`.
 - **4-Point Chief Architect Plan Audit Gate:** Before any plan reaches the user or coder agents, the Chief audits it against Ponytail Minimalism, Contract & Layer Locks, Karpathy Scope Control, and Security/Data Integrity.
-- **Seamless Dual-Engine Support (Google Gemini & Anthropic Claude):** You get the exact same deterministic 1 Chief + 4 Subagent architecture whether running under Google Gemini or Anthropic Claude! Powered natively by **Gemini 3.8 Flash** (High/Medium Effort) under Google Antigravity, and automatically provisioned with **Claude Sonnet 5.5** (deep planning, surgical coding, security review) and **Claude 3.5 Haiku** (rapid scope discovery) under Claude Code and Cursor.
+- **Seamless Dual-Engine Support (Google Gemini & Anthropic Claude):** You get the exact same deterministic 1 Chief + 4 Subagent architecture whether running under Google Gemini or Anthropic Claude! Powered natively by **Gemini 3.8 Flash** (High/Medium Effort) under Google Antigravity, and automatically provisioned with **Claude Sonnet 5.5** (deep planning, surgical coding, security review) and **Claude Haiku 5.5** (rapid scope discovery) under Claude Code and Cursor.
 
 ---
 
@@ -103,7 +104,7 @@ By synthesizing these principles, we architected **Synapse Agents**:
 
 The system is governed by **1 Hands-Off Chief Architect** and **4 Universal Subagents**. The framework automatically provisions optimal models depending on your host platform:
 * **Google Antigravity:** Agents run natively on **Gemini 3.8 Flash** (`explorer` in Medium Effort; `planner`, `coder`, `reviewer` in High Effort / Deep Reasoning mode).
-* **Claude Code & Cursor:** The installers (`install.sh` and `install.ps1`) automatically provision native Anthropic models: **Claude 3.5 Haiku** for rapid scope discovery, and **Claude Sonnet 5.5** for deep planning, surgical implementation, and contract/security reviews.
+* **Claude Code & Cursor:** The installers (`install.sh` and `install.ps1`) automatically provision native Anthropic models: **Claude Haiku 5.5** for rapid scope discovery, and **Claude Sonnet 5.5** for deep planning, surgical implementation, and contract/security reviews.
 
 ```mermaid
 flowchart TD
@@ -144,7 +145,7 @@ flowchart TD
 | Agent Role | Google Antigravity | Claude Code & Cursor IDE | Primary Mission | Tool Permissions |
 |---|---|---|---|:---:|
 | **Şef (Chief Architect)** | Top Host Model *(e.g., Gemini 4 Argon)* | Top Host Model *(e.g., Claude 3.7 Sonnet / Opus)* | Understands intent, performs triage, enforces audit gates, coordinates subagents. | **Coordinator Only:** Zero code writing (`write_to_file`, `replace_file_content`), zero terminal execution, zero raw source reading. |
-| **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude 3.5 Haiku** (`model: haiku`) | **Ponytail Scope Discovery:** Maps callers, dependencies, fixtures, configs; produces a crisp summary (max 150 words). | Read-Only |
+| **`explorer`** | **Gemini 3.8 Flash** *(Medium Effort)* | **Claude Haiku 5.5** (`model: haiku`) | **Ponytail Scope Discovery:** Maps callers, dependencies, fixtures, configs; produces a crisp summary (max 150 words). | Read-Only |
 | **`planner`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Absorbs raw source files in an isolated context; outputs a 40–80 line architectural plan with locked DTO/DB contracts. | Read-Only |
 | **`coder`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Spawned as N parallel roles (`Coder (Backend)`, `Coder (Mobile)`, etc.); performs surgical edits and runs the Verification Gate. | Write & Execute |
 | **`reviewer`** | **Gemini 3.8 Flash** *(High Effort)* | **Claude Sonnet 5.5** (`model: sonnet`) | Two-Stage Audit: 1) Strict Contract Adherence, 2) Ponytail Caller-Aware deep review, security, and N+1 query scans. | Read-Only |
@@ -347,26 +348,37 @@ Safely remove the framework while keeping your team's learned instincts intact:
 
 ```
 synapse-agents/
-├── install.sh              # Idempotent installer (macOS/Linux/Git Bash)
-├── uninstall.sh            # Safe uninstallation script with backup guarantees
-├── install.ps1             # Native Windows PowerShell Installer (Admin-free)
-├── uninstall.ps1           # Native Windows PowerShell Uninstaller with backup guarantees
-├── README.md               # English master architecture & system documentation
-├── README.tr.md            # Turkish complete architecture & system documentation
-├── LICENSE                 # MIT License
-├── .gitignore              # Ignores runtime states, Python bytecode, instincts.md
+├── .github/workflows/ci.yml # Cross-platform CI (Ubuntu, macOS, Windows)
+├── install.sh               # Idempotent installer (macOS/Linux/Git Bash)
+├── uninstall.sh             # Safe uninstallation script with backup guarantees
+├── install.ps1              # Native Windows PowerShell Installer (Admin-free)
+├── uninstall.ps1            # Native Windows PowerShell Uninstaller with backup guarantees
+├── scripts/                 # Claude/Cursor hook, MCP, and agent sync utilities
+├── tests/                   # Zero-dependency unittest suite for hooks, MCP, and scripts
+├── CONTRIBUTING.md          # Contribution guide and local verification commands
+├── CHANGELOG.md             # Release history
+├── README.md                # English master architecture & system documentation
+├── README.tr.md             # Turkish complete architecture & system documentation
+├── LICENSE                  # MIT License
+├── .gitignore               # Ignores runtime states, Python bytecode, instincts.md
 └── plugins/
-    ├── ecc-lite/           # Core tools, 0-token hooks, KB brain & MCP server
-    │   ├── hooks/          # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
-    │   ├── kb/             # instincts.example.md, knowledge topics
-    │   ├── mcp/            # brain_server.py (Stateless Python MCP implementation)
-    │   ├── rules/          # Karpathy surgical & Ponytail minimalism guidelines
-    │   └── skills/         # 10 curated engineering skills
-    └── orchestration/      # Chief Architect & 4 subagent definitions
-        ├── agents/         # explorer.md, planner.md, coder.md, reviewer.md
-        ├── rules/          # AGENTS.md (Chief gate, triage & parallelism matrix)
-        └── skills/         # orchestrator skill
+    ├── ecc-lite/            # Core tools, 0-token hooks, KB brain & MCP server
+    │   ├── hooks/           # secret-guard.sh, verify-quiet.sh, secret_guard.py, verify_quiet.py
+    │   ├── kb/              # instincts.example.md, knowledge topics
+    │   ├── mcp/             # brain_server.py (Stateless Python MCP implementation)
+    │   ├── rules/           # Karpathy surgical & Ponytail minimalism guidelines
+    │   └── skills/          # 10 curated engineering skills
+    └── orchestration/       # Chief Architect & 4 subagent definitions
+        ├── agents/          # explorer.md, planner.md, coder.md, reviewer.md
+        ├── rules/           # AGENTS.md, CLAUDE-ROUTING.md
+        └── skills/          # orchestrator skill
 ```
+
+---
+
+## 🤝 Contributing & Tests
+
+Run the zero-dependency test suite locally with `python3 -m unittest discover -s tests -v`. See [CONTRIBUTING.md](CONTRIBUTING.md) and [CHANGELOG.md](CHANGELOG.md) for details.
 
 ---
 

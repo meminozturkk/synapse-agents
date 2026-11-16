@@ -24,6 +24,11 @@ MODEL_MAP = {
     "reviewer": "sonnet",
 }
 
+# Agents not installed per platform (Claude plans in the main session; see CLAUDE-ROUTING.md)
+PLATFORM_SKIP = {
+    "claude": {"planner"},
+}
+
 # Claude Code native tools mapping
 CLAUDE_TOOL_MAP = {
     "view_file": "Read",
@@ -103,11 +108,11 @@ def transform_agent_content(content: str, agent_stem: str, platform: str) -> str
     text = text.replace("[Gemini 3.8 Flash - High]", "[Claude Sonnet 5.5]")
 
     # Persona titles with hyphen
-    text = text.replace("Gemini 3.8 Flash - Medium Effort", "Claude 3.5 Haiku")
+    text = text.replace("Gemini 3.8 Flash - Medium Effort", "Claude Haiku 5.5")
     text = text.replace("Gemini 3.8 Flash - High Effort", "Claude Sonnet 5.5")
 
     # Badges, descriptions, and rule specifications
-    text = text.replace("Gemini 3.8 Flash (Medium Effort)", "Claude 3.5 Haiku")
+    text = text.replace("Gemini 3.8 Flash (Medium Effort)", "Claude Haiku 5.5")
     text = text.replace("Gemini 3.8 Flash (High Effort)", "Claude Sonnet 5.5")
 
     # Claude Code body tool mention updates (e.g. reviewer.md `grep_search` -> `Grep`)
@@ -139,6 +144,12 @@ def sync_agents(source_dir: str, dest_dir: str, platform: str, dry_run: bool = F
 
         agent_stem = os.path.splitext(filename)[0].lower()
         dest_path = os.path.join(dest_dir, filename)
+
+        if agent_stem in PLATFORM_SKIP.get(platform, set()):
+            if not dry_run and os.path.lexists(dest_path):
+                safe_remove_target(dest_path)
+                print(f"  ✓ Removed {filename} ({platform}: not used on this platform)")
+            continue
 
         try:
             with open(source_path, "r", encoding="utf-8") as f:

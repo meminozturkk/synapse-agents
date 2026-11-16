@@ -342,14 +342,8 @@ if [[ "$INSTALL_CLAUDE" == true ]]; then
             fi
         done
     fi
-    if [[ -d "${GEMINI_PLUGINS_DIR}/orchestration/skills" ]]; then
-        for s_path in "${GEMINI_PLUGINS_DIR}/orchestration/skills"/*; do
-            if [[ -d "$s_path" ]]; then
-                s_name="$(basename "$s_path")"
-                ln -sfn "$s_path" "${CLAUDE_SKILLS_DIR}/${s_name}"
-            fi
-        done
-    fi
+    # Claude uses the short CLAUDE-ROUTING.md instead of the orchestrator skill; drop a link left by older installs.
+    [[ -L "${CLAUDE_SKILLS_DIR}/orchestrator" ]] && rm -f "${CLAUDE_SKILLS_DIR}/orchestrator"
     echo -e "  ${GREEN}✓ Linked all skills to ~/.claude/skills/${NC}"
 
     # 3D. ~/.claude/rules symlink
@@ -369,6 +363,7 @@ if [[ "$INSTALL_CLAUDE" == true ]]; then
         --hooks-dir "${GEMINI_PLUGINS_DIR}/ecc-lite/hooks" \
         --server "${GEMINI_PLUGINS_DIR}/ecc-lite/mcp/brain_server.py" \
         --runtime "$CLAUDE_HOOK_RUNTIME" \
+        --agents-md "${GEMINI_PLUGINS_DIR}/orchestration/rules/CLAUDE-ROUTING.md" \
         --backup-dir "$BACKUP_DIR"
 fi
 
